@@ -1,11 +1,26 @@
 <html>
   <style>
     html {
-    background: #eee;
     color: #222;
+    background-color: #eee;
     }
   </style>
-  
+  <script language="javascript">
+	var nightmode = false;
+
+	// Some customization stuff
+	function switchTheme() {
+		if (!nightmode) {
+			document.body.style.backgroundColor = "#112";
+			document.body.style.color = "#6d2";
+		} else {
+			document.body.style.backgroundColor = "#eee"
+			document.body.style.color = "#222";
+		}
+		nightmode = !nightmode;
+	}
+</script>
+
   <head>
     <u><h1 style="text-align: center">Cell Squisher</h1></u>
 
@@ -25,7 +40,7 @@
     </div>
 
     <br>
- 
+
     <div style="text-align: center;">
       <h3><u>Cell Squisher &szlig&yuml Lymkwi</h3></u>
       <p>The game is about vengance, on the vicious cells rebelling in the Petri dish. Your score is important, keep an eye on it.</p>
@@ -38,7 +53,7 @@
     </div>
 
 	<br>
-	
+
 	<p>Coming up :</p>
 	<ul>
 		<li>Achievements (yay \o/)</li>
@@ -46,16 +61,24 @@
 		<li>Better detection of cursor clicking</li>
 		<li>ACHIEVEMENTS!!</li>
 	</ul>
-	
+
 	<br>
-	
+
 	<p>Changelog: </p>
 	<ul>
 		<li>Initial version published</li>
+		<li>Strict Mode Enabled (Javascript)</li>
+		<li>Theme swap is now a thing!</li>
+	</ul>
+
+	<br>
+	<p>Options: </p>
+	<ul>
+		<button onclick="switchTheme()">Switch Theme</button>
 	</ul>
     <br>
     <hr>
-    
+
     <p>For those who would like to know what titles I used for this game's background music, here are the refs. Go check them out, honestly, the people behind them are awesome :</p>
     <ul>
       <li><a href="audio/Skipping Through the Orchestra Pit.mp3">Skipping Through the Orchestra Pit</a> by Peter Gresser (CC0)</li>

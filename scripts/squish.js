@@ -1,3 +1,5 @@
+"use strict";
+
 var canvas = document.getElementById('canvas0');
 var ctx = canvas.getContext('2d');
 var mousePressed = false;
@@ -51,7 +53,7 @@ function color(r, g, b) {
   this.blue = b;
   
   this.hex = function() {
-    str = '#';
+    var str = '#';
     str += dechex(this.red);
     str += dechex(this.green);
     str += dechex(this.blue);
@@ -109,7 +111,7 @@ function dechex(int) {
 }
 
 function hexdec(he) {
-  dec = 0;
+  var dec = 0;
   for (var i = 0; i < he.length; i++) {
     dec = dec << 4;
     dec += hex.indexOf(he[i]);
@@ -143,8 +145,8 @@ function spawn_floaty(int, posx, posy) {
 function draw_mouse() {
 // Mouse stuff
   // From http://ncase.me/sight-and-light/
-  surround = 6;
-  fradius = 15;
+  var surround = 6;
+  var fradius = 15;
 
   if (mousePressed) {
     fradius -= 7;
@@ -191,7 +193,7 @@ function draw_enemy(enemy) {
 
 function draw_enemies() {
   // Bring out yer dead!
-  nosquish = true;
+  var nosquish = true;
   for (var i=0; i<enemies.length; i++) {
     if (enemies[i].health <= 0) {
       if (!enemies[i].squished) {
@@ -419,6 +421,6 @@ function waitMenu() {
 }
 
 
-window.onload = function () {
+window.onload = function() {
   waitMenu();
 }
