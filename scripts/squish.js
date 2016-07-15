@@ -10,6 +10,13 @@ var score = -1;
 var combo = 0;
 var menu = true;
 
+// Mouse stuff
+var surround = 6;
+var fradius = 15;
+var sradius = 6;
+var rotary = 0;
+
+// Audio
 var sounds = ["audio/No Rocking in the Jazzhands Zone.mp3",
               "audio/Skipping Through the Orchestra Pit.mp3",
               "audio/Babylon.mp3",
@@ -143,36 +150,35 @@ function spawn_floaty(int, posx, posy) {
 
 // Now some drawing
 function draw_mouse() {
-// Mouse stuff
+  // Mouse stuff
   // From http://ncase.me/sight-and-light/
-  var surround = 6;
-  var fradius = 15;
 
+  var rad = fradius;
   if (mousePressed) {
-    fradius -= 7;
-    ctx.fillStyle = "#4ef";
+    rad = sradius;
+    rotary = (rotary + 0.1) % 2;
+   /* ctx.fillStyle = "#ee2";
     ctx.beginPath();
     ctx.arc(Mouse.x, Mouse.y, 10, 0, 2 * Math.PI, false);
-    ctx.fill()
+    ctx.fill()*/
   }
-  
+
   ctx.fillStyle = "#f22";
   ctx.strokeStyle = "#000";
   ctx.beginPath();
   ctx.arc(Mouse.x, Mouse.y, 3, 0, 2 * Math.PI, false);
   ctx.fill(); 
   ctx.beginPath();
-  ctx.arc(Mouse.x, Mouse.y, fradius, 0, 2 * Math.PI);
+  ctx.arc(Mouse.x, Mouse.y, rad, 0, 2 * Math.PI);
   ctx.stroke();
-  
-  
+
   ctx.strokeStyle = "#f22"
   for (var angle=0; angle<Math.PI*2; angle+=(2*Math.PI)/surround) {
-    var dx = Math.cos(angle) * fradius;
-    var dy = Math.sin(angle) * fradius;
+    var dx = Math.cos(angle + rotary * Math.PI) * rad;
+    var dy = Math.sin(angle + rotary * Math.PI) * rad;
     ctx.beginPath();
     ctx.arc(Mouse.x+dx, Mouse.y+dy, 2, 0, 2 * Math.PI, false);
-    ctx.stroke();  
+    ctx.stroke();
   }
 }
 
@@ -206,8 +212,10 @@ function draw_enemies() {
     }
   }
   // Combo reset if no pellet squished
-  if (nosquish) {
-    combo = 0;    
+  if (combo > 0 && nosquish) {
+    combo = 0;
+    var fl = new floaty("Combo reset..", Mouse.x, Mouse.y, 5, 30, '#F0F', "20px Arial");
+    floaties.push(fl);
   }
 
   for (var i=0; i<enemies.length; i++) {
@@ -261,7 +269,7 @@ function draw() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Enemies
-  if (Math.random() < 0.1) {
+  if (Math.random() < 0.3) {
     // New enemy at random coords
     var en = new enemy();
     en.spawn();
@@ -315,10 +323,10 @@ canvas.onmousedown = function(event) {
     if (enemies[i].squished) {continue;}
     var radius = enemies[i].health / 10;
     // We want to return as soon as possible to avoid useless computing
-    if (Mouse.x < enemies[i].posx - radius) {continue;}
-    if (Mouse.x > enemies[i].posx + radius) {continue;}
-    if (Mouse.y < enemies[i].posy - radius) {continue;}
-    if (Mouse.y > enemies[i].posy + radius) {continue;}
+    if (Mouse.x < enemies[i].posx - radius - sradius) {continue;} // Minus radius of hand
+    if (Mouse.x > enemies[i].posx + radius + sradius) {continue;}
+    if (Mouse.y < enemies[i].posy - radius - sradius) {continue;}
+    if (Mouse.y > enemies[i].posy + radius + sradius) {continue;}
     
     // We squished a pellet!
     enemies[i].squished = true;
@@ -327,10 +335,24 @@ canvas.onmousedown = function(event) {
     var col = new color();
     col.decs(enemies[i].color);
     
-    bg.red = (bg.red + col.red) / 2;
-    bg.green = (bg.green + col.green) / 2;
-    bg.blue = (bg.blue + col.blue) / 2;
+    if (bg.red < col.red) {
+      bg.red += 4;
+    } else if (bg.red > col.red) {
+      bg.red -= 4;
+    }
     
+    if (bg.green < col.green) {
+      bg.green += 4;
+    } else if (bg.green > col.green) {
+      bg.green -= 4;
+    }
+
+    if (bg.blue < col.blue) {
+      bg.blue += 4;
+    } else if (bg.blue > col.blue) {
+      bg.blue -= 4;
+    }
+
     enemies[i].color = "#000000";
     increase_score(overlap * 50, enemies[i].posx, enemies[i].posy);
     if (overlap > 0) {
@@ -338,6 +360,14 @@ canvas.onmousedown = function(event) {
     }
     combo += 1;
     overlap += 1;
+  }
+  if (overlap > 1) {
+    var fl = new floaty("Overlap! * " + overlap.toString(), Mouse.x, Mouse.y, 5, 30, '#00F', "20px Arial Bold");
+    floaties.push(fl);
+  }
+  if (combo > 1) {
+    var fl = new floaty("Combo " + combo.toString() + "!", Mouse.x, Mouse.y, 5, 30, '#0FF', "20px Arial");
+    floaties.push(fl);
   }
 }
 
