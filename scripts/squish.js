@@ -8,7 +8,8 @@ var floaties = [];
 var MaxColoursAllowed = 255 * 255 * 255;
 var score = -1;
 var combo = 0;
-var menu = true;
+var menu = "start";
+var menuButtonHovered = false;
 
 // Mouse stuff
 var surround = 6;
@@ -30,6 +31,10 @@ var audio_titles = [
 ];
 var nowPlaying = -1;
 
+// Achievements = [
+
+//]
+
 // Classes
 function enemy() {
   this.posx = Math.random() * canvas.width;
@@ -42,13 +47,13 @@ function enemy() {
     this.color.red = Math.ceil(Math.random() * 255);
     this.color.green = Math.ceil(Math.random() * 255);
     this.color.blue = Math.ceil(Math.random() * 255);
-    
+
     // A darker colour for the outline
     var low = Math.min(this.color.red, Math.min(this.color.green, this.color.blue));
     this.border_color.red = this.color.red - low;
     this.border_color.green = this.color.green - low;
     this.border_color.blue = this.color.blue - low;
-    
+
     this.color = this.color.hex(); // Overwrite
     this.border_color = this.border_color.hex();
   }
@@ -58,7 +63,7 @@ function color(r, g, b) {
   this.red = r;
   this.green = g;
   this.blue = b;
-  
+
   this.hex = function() {
     var str = '#';
     str += dechex(this.red);
@@ -66,7 +71,7 @@ function color(r, g, b) {
     str += dechex(this.blue);
     return str;
   }
-  
+
   this.decs = function(col) {
     this.red = hexdec(col.slice(1, 3));
     this.green = hexdec(col.slice(3, 5));
@@ -86,7 +91,7 @@ function floaty(text, posx, posy, speed, lifespan, color, font) {
 
   this.draw = function() {
     if (this.dead) {return;}
-    
+
     var oldfont = ctx.font;
     var oldfill = ctx.fillStyle;
     ctx.font = this.font;
@@ -94,7 +99,7 @@ function floaty(text, posx, posy, speed, lifespan, color, font) {
     ctx.fillText(this.text, this.posx, this.posy);
     ctx.font = oldfont;
     ctx.fillStyle = oldfill;
-    
+
     this.posy -= this.speed;
     this.lifespan -= 1;
     if (this.lifespan == 0) {
@@ -132,7 +137,7 @@ function increase_score(int, raw) {
     int *= combo;
   }
   score += int;
- 
+
   if (score < 0) {
     score = 0;
   }
@@ -167,7 +172,7 @@ function draw_mouse() {
   ctx.strokeStyle = "#000";
   ctx.beginPath();
   ctx.arc(Mouse.x, Mouse.y, 3, 0, 2 * Math.PI, false);
-  ctx.fill(); 
+  ctx.fill();
   ctx.beginPath();
   ctx.arc(Mouse.x, Mouse.y, rad, 0, 2 * Math.PI);
   ctx.stroke();
@@ -236,17 +241,17 @@ function draw_score() {
   ctx.strokeRect(5, 5, canvas.width - 10, 30);
   if (score >= 0) {
     ctx.fillStyle = "#27f";
-    ctx.fillText(score.toString(), canvas.width / 2, 27);    
+    ctx.fillText(score.toString(), canvas.width / 2, 27);
   }
 }
 
 function draw_sound() {
   ctx.fillStyle = "#ddd";
-  ctx.fillRect(5, canvas.height - 35, canvas.width - 10, 30);
-  ctx.strokeRect(5, canvas.height - 35, canvas.width - 10, 30);
+  ctx.fillRect(5, canvas.height - 35, canvas.width - 45, 30);
+  ctx.strokeRect(5, canvas.height - 35, canvas.width - 45, 30);
   if (nowPlaying >= 0) {
     ctx.fillStyle = "#27f";
-    ctx.fillText("Now Playing : " + audio_titles[nowPlaying], canvas.width / 2, canvas.height - 13);
+    ctx.fillText("Now Playing : " + audio_titles[nowPlaying], canvas.width / 2 - 45, canvas.height - 13);
   }
 }
 
@@ -260,33 +265,69 @@ function draw_floaties() {
   }
 }
 
+var menuButton = [
+  ["rect", canvas.width - 35, canvas.height - 35, 30, 30],
+  ["line", canvas.width - 30, canvas.height - 13, 20, 0],
+  ["line", canvas.width - 30, canvas.height - 20, 20, 0],
+  ["line", canvas.width - 30, canvas.height - 27, 20, 0]
+]
+
+function draw_menu_button() {
+  if (!menuButtonHovered) {
+    ctx.fillStyle = '#ddd';
+  } else if (mousePressed) {
+    ctx.fillStyle = '#d22';
+  } else {
+    ctx.fillStyle = '#dd2';
+  }
+
+  for (var i=0; i < menuButton.length; i++) {
+    if (menuButton[i][0] == "rect") {
+      ctx.fillRect(menuButton[i][1], menuButton[i][2], menuButton[i][3], menuButton[i][4]);
+      ctx.strokeRect(menuButton[i][1], menuButton[i][2], menuButton[i][3], menuButton[i][4]);
+    } else if (menuButton[i][0] == "line") {
+      ctx.beginPath();
+      ctx.moveTo(menuButton[i][1], menuButton[i][2]);
+      ctx.lineTo(menuButton[i][1] + menuButton[i][3], menuButton[i][2] + menuButton[i][4]);
+      ctx.stroke();
+    }
+  }
+}
+
 function draw() {
   // Clear
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
+
   // Background
   ctx.fillStyle = bg.hex();
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Enemies
-  if (Math.random() < 0.3) {
-    // New enemy at random coords
-    var en = new enemy();
-    en.spawn();
-    enemies.push(en);
+  if (!menu) {
+    // Enemies
+    if (Math.random() < 0.3) {
+      // New enemy at random coords
+      var en = new enemy();
+      en.spawn();
+      enemies.push(en);
+    }
+
+    // Draw enemies
+    draw_enemies();
   }
-  
-  // Draw enemies
-  draw_enemies();
-  
+
   // Score
   draw_score();
-  
+
   // Now Playing
   draw_sound();
-      
-  // Draw floaties
-  draw_floaties();
+
+  // Menu button
+  draw_menu_button();
+
+  if (!menu) {
+    // Draw floaties
+    draw_floaties();
+  }
 
   // Mouse
   draw_mouse();
@@ -305,13 +346,20 @@ var Mouse = {
 canvas.onmousemove = function (event) {
   Mouse.x = event.clientX;
   Mouse.y = event.clientY;
+
+  if (Mouse.x > menuButton[0][1] && Mouse.x < menuButton[0][1] + menuButton[0][3] &&
+      Mouse.y > menuButton[0][2] && Mouse.y < menuButton[0][2] + menuButton[0][4]) {
+    menuButtonHovered = true;
+  } else if (menuButtonHovered) {
+    menuButtonHovered = false;
+  }
 }
 
 canvas.onmousedown = function(event) {
   if (menu) {
     if (Mouse.x > canvas.width / 16 * 7.5 && Mouse.x < canvas.width / 16 * 8.5 && Mouse.y > canvas.height / 2 - 15 && Mouse.y < canvas.height / 2 + 30) {
       // PLAY!
-      menu = false;
+      menu = "";
       score = 0;
       return;
     }
@@ -327,20 +375,20 @@ canvas.onmousedown = function(event) {
     if (Mouse.x > enemies[i].posx + radius + sradius) {continue;}
     if (Mouse.y < enemies[i].posy - radius - sradius) {continue;}
     if (Mouse.y > enemies[i].posy + radius + sradius) {continue;}
-    
+
     // We squished a pellet!
     enemies[i].squished = true;
     spawn_floaty(Math.floor(enemies[i].health), enemies[i].posx, enemies[i].posy)
-    
+
     var col = new color();
     col.decs(enemies[i].color);
-    
+
     if (bg.red < col.red) {
       bg.red += 4;
     } else if (bg.red > col.red) {
       bg.red -= 4;
     }
-    
+
     if (bg.green < col.green) {
       bg.green += 4;
     } else if (bg.green > col.green) {
@@ -408,40 +456,43 @@ function draw_banner() {
   ctx.fillStyle = "#d0d0d0";
   ctx.fillRect(0, canvas.height / 2 - 45, canvas.width, 90);
   ctx.strokeType = "#f00000";
-  ctx.strokeRect(0, canvas.height / 2 - 46, canvas.width, 92); 
+  ctx.strokeRect(0, canvas.height / 2 - 46, canvas.width, 92);
 }
 
 function waitMenu() {
   if (menu) {
     requestAnimationFrame(waitMenu);
-  
+
     // Menu
     // Clear
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
+
     // Background
     ctx.fillStyle = bg.hex();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Score
     draw_score();
-  
+
     // Now Playing
     draw_sound();
-    
+
+    // Menu button
+    draw_menu_button();
+
     // Banner
     draw_banner();
-    
+
     // Play Button
     ctx.fillStyle = "#f60";
     ctx.fillRect(canvas.width / 16 * 7.5, canvas.height / 2 - 15, canvas.width / 16, 30);
     ctx.fillStyle = "#228";
     ctx.fillText("Play", canvas.width / 2, canvas.height / 2 + 5);
-  
+
     // Mouse
     draw_mouse();
 
-  
+
   } else {
     // Let's start the game!
     var bgm = new bgm_music();
