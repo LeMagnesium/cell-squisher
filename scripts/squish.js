@@ -10,6 +10,7 @@ var score = -1;
 var combo = 0;
 var menu = "start";
 var menuButtonHovered = false;
+var triggerLock = false;
 
 // Mouse stuff
 var surround = 6;
@@ -30,10 +31,23 @@ var audio_titles = [
   "Kevin MacLeod - Club Diver"
 ];
 var nowPlaying = -1;
+var bgm;
 
-// Achievements = [
+// Buttons
+var menuButton = [
+  ["rect", canvas.width - 35, canvas.height - 35, 30, 30, '#'],
+  ["line", canvas.width - 30, canvas.height - 13, 20, 0],
+  ["line", canvas.width - 30, canvas.height - 20, 20, 0],
+  ["line", canvas.width - 30, canvas.height - 27, 20, 0]
+]
 
-//]
+// Main Menu
+var mainMenu = [
+  ["rect", 5, 40, canvas.width - 10, canvas.height - 80]
+]
+
+// Achievements
+var achievements = []
 
 // Classes
 function enemy() {
@@ -108,12 +122,34 @@ function floaty(text, posx, posy, speed, lifespan, color, font) {
   }
 }
 
+function achievement(name, icon, desc, condition, runthrough) {
+  this.name = name;
+  this.icon = icon;
+  this.description = desc;
+  this.condition = function() {
+    var ret = condition();
+    if (ret) {
+      trigger_achivement(this);
+    }
+  };
+  this.runthrough = runthrough;
+  
+  this.triggered = false;
+}
+
+// Other misc definitions
+
 var bg = new color(255, 255, 255);
 
 ctx.font = "20px Arial";
 ctx.textAlign = "center";
 
 window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
+
+// Achievement garbage
+function trigger_achievement(ach) {
+  ;
+}
 
 // Hexadecimal garbage
 var hex = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
@@ -162,10 +198,6 @@ function draw_mouse() {
   if (mousePressed) {
     rad = sradius;
     rotary = (rotary + 0.1) % 2;
-   /* ctx.fillStyle = "#ee2";
-    ctx.beginPath();
-    ctx.arc(Mouse.x, Mouse.y, 10, 0, 2 * Math.PI, false);
-    ctx.fill()*/
   }
 
   ctx.fillStyle = "#f22";
@@ -265,33 +297,45 @@ function draw_floaties() {
   }
 }
 
-var menuButton = [
-  ["rect", canvas.width - 35, canvas.height - 35, 30, 30],
-  ["line", canvas.width - 30, canvas.height - 13, 20, 0],
-  ["line", canvas.width - 30, canvas.height - 20, 20, 0],
-  ["line", canvas.width - 30, canvas.height - 27, 20, 0]
-]
-
 function draw_menu_button() {
   if (!menuButtonHovered) {
     ctx.fillStyle = '#ddd';
-  } else if (mousePressed) {
-    ctx.fillStyle = '#d22';
-  } else {
+  } else if (!mousePressed) {
     ctx.fillStyle = '#dd2';
-  }
-
-  for (var i=0; i < menuButton.length; i++) {
-    if (menuButton[i][0] == "rect") {
-      ctx.fillRect(menuButton[i][1], menuButton[i][2], menuButton[i][3], menuButton[i][4]);
-      ctx.strokeRect(menuButton[i][1], menuButton[i][2], menuButton[i][3], menuButton[i][4]);
-    } else if (menuButton[i][0] == "line") {
-      ctx.beginPath();
-      ctx.moveTo(menuButton[i][1], menuButton[i][2]);
-      ctx.lineTo(menuButton[i][1] + menuButton[i][3], menuButton[i][2] + menuButton[i][4]);
-      ctx.stroke();
+  } else {
+    ctx.fillStyle = '#d22';
+    if (!triggerLock) {
+       if (menu == "main") {
+         menu = "";
+         bgm.play();
+      } else if (menu == "") {
+         menu = "main";
+         bgm.pause();
+      }
+      triggerLock = true;
     }
   }
+
+  draw_element(menuButton);
+}
+
+function draw_element(tab) {
+  for (var i = 0; i < tab.length; i++) {
+    if (tab[i][0] == "rect") {
+      ctx.fillRect(tab[i][1], tab[i][2], tab[i][3], tab[i][4]);
+      ctx.strokeRect(tab[i][1], tab[i][2], tab[i][3], tab[i][4]);
+    } else if (tab[i][0] == "line") {
+      ctx.beginPath();
+      ctx.moveTo(tab[i][1], tab[i][2]);
+      ctx.lineTo(tab[i][1] + tab[i][3], tab[i][2] + tab[i][4]);
+      ctx.stroke();
+    }    
+  }
+}
+
+function draw_main_menu() {
+  ctx.fillStyle = '#ddd';
+  draw_element(mainMenu);
 }
 
 function draw() {
@@ -313,6 +357,8 @@ function draw() {
 
     // Draw enemies
     draw_enemies();
+  } else if (menu == "main") {
+    draw_main_menu();
   }
 
   // Score
@@ -412,15 +458,16 @@ canvas.onmousedown = function(event) {
   if (overlap > 1) {
     var fl = new floaty("Overlap! * " + overlap.toString(), Mouse.x, Mouse.y, 5, 30, '#00F', "20px Arial Bold");
     floaties.push(fl);
-  }
-  if (combo > 1) {
+  } else if (overlap > 0 && combo > 1) {
     var fl = new floaty("Combo " + combo.toString() + "!", Mouse.x, Mouse.y, 5, 30, '#0FF', "20px Arial");
     floaties.push(fl);
   }
+
 }
 
 canvas.onmouseup = function(event) {
   mousePressed = false;
+  triggerLock = false;
 }
 
 function sound() {
@@ -439,16 +486,23 @@ function bgm_music() {
   this.sound = document.createElement("audio");
   this.sound.setAttribute("preload", "auto");
   this.sound.setAttribute("controls", "none");
+  //this.sound.setAttribute("type", "audio/mpeg");
   this.sound.style.display = "none";
   document.body.appendChild(this.sound);
-  this.play = function() {
+  this.start = function() {
     nowPlaying = Math.floor(Math.random() * sounds.length);
     this.sound.src = sounds[nowPlaying];
     this.sound.play();
+  };
+  this.play = function() {
+    this.sound.play();
+  }
+  this.pause = function() {
+    this.sound.pause();
   }
   this.sound.onended = function() {
-    var bgm = new bgm_music();
-    bgm.play();
+    bgm = new bgm_music();
+    bgm.start();
   }
 }
 
@@ -495,8 +549,8 @@ function waitMenu() {
 
   } else {
     // Let's start the game!
-    var bgm = new bgm_music();
-    bgm.play();
+    bgm = new bgm_music(-1);
+    bgm.start();
     drawLoop();
   }
 }
