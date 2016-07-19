@@ -12,11 +12,21 @@ var menu = "start";
 var menuButtonHovered = false;
 var triggerLock = false;
 
+// Config trash
+var Config = {
+  extrafloaties: true,
+}
+
 // Mouse stuff
 var surround = 6;
 var fradius = 15;
 var sradius = 6;
-var rotary = 0;
+
+var Mouse = {
+  y: canvas.width / 2,
+  x: canvas.height / 2,
+  rotary: 0,
+};
 
 // Audio
 var sounds = ["audio/No Rocking in the Jazzhands Zone.mp3",
@@ -33,7 +43,7 @@ var audio_titles = [
 var nowPlaying = -1;
 var bgm;
 
-// Buttons
+// Graphical elements
 var menuButton = [
   ["rect", canvas.width - 35, canvas.height - 35, 30, 30, '#'],
   ["line", canvas.width - 30, canvas.height - 13, 20, 0],
@@ -41,13 +51,16 @@ var menuButton = [
   ["line", canvas.width - 30, canvas.height - 27, 20, 0]
 ]
 
-// Main Menu
 var mainMenu = [
   ["rect", 5, 40, canvas.width - 10, canvas.height - 80]
 ]
 
+// Triggers
+var triggers = [];
+
 // Achievements
 var achievements = []
+var showQueue = [];
 
 // Classes
 function enemy() {
@@ -122,18 +135,24 @@ function floaty(text, posx, posy, speed, lifespan, color, font) {
   }
 }
 
-function achievement(name, icon, desc, condition, runthrough) {
+function achievement(name, trigger, icon, howto, desc, condition, runthrough) {
   this.name = name;
   this.icon = icon;
+  this.howto = howto;
   this.description = desc;
-  this.condition = function() {
+  this.check = function() {
+    if (this.triggered) {return;}
     var ret = condition();
     if (ret) {
-      trigger_achivement(this);
+      trigger_achievement(this);
     }
   };
-  this.runthrough = runthrough;
+  this.runthrough = function() {
+    if (this.triggered) {return;}
+    return runthrough();
+  }
   
+  this.trigger = trigger;
   this.triggered = false;
 }
 
@@ -146,10 +165,108 @@ ctx.textAlign = "center";
 
 window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
 
-// Achievement garbage
-function trigger_achievement(ach) {
-  ;
+// Triggers
+function register_trigger(name) {
+  triggers[name] = [];
+  achievements[name] = [];
 }
+
+function register_hook(name, func) {
+  triggers[name].push(func);
+}
+
+function call_trigger(name) {
+  for (var i = 0; i < triggers[name].length; i++) {
+    triggers[name][i]();
+  }
+
+  for (var u = 0; u < achievements[name].length; u++) {
+    achievements[name][u].check();  
+  }
+}
+
+register_trigger("mousemove");
+register_trigger("step");
+register_trigger("mousedown");
+register_trigger("score");
+
+// Achievement garbage
+function register_achievement(name, trigger, icon, howto, desc, condition, runthrough) {
+  var ach = new achievement(name, trigger, icon, howto, desc, condition, runthrough);
+  achievements[trigger].push(ach);
+}
+
+function trigger_achievement(ach) {
+  console.log(ach.name);
+  console.log(ach.description);
+  ach.triggered = true;
+  
+  // Do pre-graphical stuff here
+  var slide = [
+    // type, direction, object, spawn_x,  ,spawn_y         , width, height, slide_speed, lifetime, children
+    ["slider", "rtl", "rect",  // type direction shape
+     canvas.width, canvas.height - 85, // spawn_x, spawn_y
+     250, 40, // width, height
+     50, 7, [ // slide_speed lifetime children
+       // all coordinates become relative to the top-left-hand corner of the slider now
+       // type src spawn_x, spawn_y
+       ["image", ach.icon, 2, 2],
+       ["text", ach.name, 18, 10],
+     ]
+    ],
+  ];
+}
+
+function cycle_through() {
+  for (var i = 0; i < achievements.length; i++) {
+    achievements[i].runthrough();
+    achievements[i].check();
+  }
+}
+
+// Score achievements
+register_achievement("The Cell Slayer", "score", "images/game/slayer.gif",
+                "You'll never see that text.. POOOP!",
+                "Yes you have an achievement for squishing a cell. I am that desperate about filling my game with content",
+                function () {
+                  return score > 0;
+}, null);
+
+register_achievement("Over 9000", "score", "images/game/gt9000.gif",
+                "Get 9000 of score. Yeah, lame.",
+                "Pretty easy, duh",
+                function () {
+                 return score > 9000;
+}, null);
+  
+register_achievement("A pet named Steve", "score", "images/game/steve.gif",
+                "Kudos if you get the reference. Reach a certain score (circa 3.6*10^6)",
+                "3,610,827 views in one week, good work",
+                function() {
+                  return score > 3610827;
+}, null);
+    
+register_achievement("Over 9000*10^6", "score", "images/game/gtmore9000.gif",
+                "You wanted something hard, didn't you?",
+                "You have reached 4Chan senior levels. Poor you.",
+                function() {
+                  return score > 9000000000;
+}, null);
+
+// Mouse stuff
+register_achievement("Nonsense of game design", "step", "images/game/mainmenu.gif",
+                "LOLOLOLOLOL",
+                "You just found the main menu, probably",
+                function() {
+                   return menu == "main";
+}, null);
+
+register_achievement("Trigonometric madness", "step", "images/game/trigomad.gif",
+                "Spin the hand-weel around.. a 100 times",
+                "Congrats, your finger is now permanently damaged",
+                function () {
+                   return Mouse.rotary >= 200;
+}, null);
 
 // Hexadecimal garbage
 var hex = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
@@ -177,6 +294,7 @@ function increase_score(int, raw) {
   if (score < 0) {
     score = 0;
   }
+  call_trigger("score");
 }
 
 function spawn_floaty(int, posx, posy) {
@@ -197,7 +315,7 @@ function draw_mouse() {
   var rad = fradius;
   if (mousePressed) {
     rad = sradius;
-    rotary = (rotary + 0.1) % 2;
+    Mouse.rotary = (Mouse.rotary + 0.1) % 210;
   }
 
   ctx.fillStyle = "#f22";
@@ -211,8 +329,8 @@ function draw_mouse() {
 
   ctx.strokeStyle = "#f22"
   for (var angle=0; angle<Math.PI*2; angle+=(2*Math.PI)/surround) {
-    var dx = Math.cos(angle + rotary * Math.PI) * rad;
-    var dy = Math.sin(angle + rotary * Math.PI) * rad;
+    var dx = Math.cos(angle + Mouse.rotary * Math.PI) * rad;
+    var dy = Math.sin(angle + Mouse.rotary * Math.PI) * rad;
     ctx.beginPath();
     ctx.arc(Mouse.x+dx, Mouse.y+dy, 2, 0, 2 * Math.PI, false);
     ctx.stroke();
@@ -250,9 +368,11 @@ function draw_enemies() {
   }
   // Combo reset if no pellet squished
   if (combo > 0 && nosquish) {
+    if (combo > 1) {
+      var fl = new floaty("Combo reset..", Mouse.x, Mouse.y, 5, 30, '#F0F', "20px Arial");
+      floaties.push(fl);
+    }
     combo = 0;
-    var fl = new floaty("Combo reset..", Mouse.x, Mouse.y, 5, 30, '#F0F', "20px Arial");
-    floaties.push(fl);
   }
 
   for (var i=0; i<enemies.length; i++) {
@@ -377,6 +497,8 @@ function draw() {
 
   // Mouse
   draw_mouse();
+  
+  call_trigger("step");
 }
 
 function drawLoop() {
@@ -384,14 +506,13 @@ function drawLoop() {
   draw();
 }
 
-var Mouse = {
-  y: canvas.width / 2,
-  x: canvas.height / 2,
-}
-
 canvas.onmousemove = function (event) {
   Mouse.x = event.clientX;
   Mouse.y = event.clientY;
+  Mouse.rotary = (Mouse.rotary - 0.05);
+  if (Mouse.rotary < -2) {
+    Mouse.rotary = Mouse.rotary % 2; // this way we don't reset wheeling
+  }
 
   if (Mouse.x > menuButton[0][1] && Mouse.x < menuButton[0][1] + menuButton[0][3] &&
       Mouse.y > menuButton[0][2] && Mouse.y < menuButton[0][2] + menuButton[0][4]) {
@@ -462,7 +583,8 @@ canvas.onmousedown = function(event) {
     var fl = new floaty("Combo " + combo.toString() + "!", Mouse.x, Mouse.y, 5, 30, '#0FF', "20px Arial");
     floaties.push(fl);
   }
-
+  
+  call_trigger("mousedown");
 }
 
 canvas.onmouseup = function(event) {
