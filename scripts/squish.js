@@ -75,14 +75,8 @@ function enemy() {
     this.color.green = Math.ceil(Math.random() * 255);
     this.color.blue = Math.ceil(Math.random() * 255);
 
-    // A darker colour for the outline
-    var low = Math.min(this.color.red, Math.min(this.color.green, this.color.blue));
-    this.border_color.red = this.color.red - low;
-    this.border_color.green = this.color.green - low;
-    this.border_color.blue = this.color.blue - low;
-
+    this.border_color = this.color.get_dark().hex();
     this.color = this.color.hex(); // Overwrite
-    this.border_color = this.border_color.hex();
   }
 }
 
@@ -90,6 +84,12 @@ function color(r, g, b) {
   this.red = r;
   this.green = g;
   this.blue = b;
+
+  this.get_dark = function() {
+    var low = Math.min(this.red, Math.min(this.green, this.blue));
+    var nc = new color(this.red - low, this.green - low, this.blue - low);
+    return nc;
+  }
 
   this.hex = function() {
     var str = '#';
@@ -113,7 +113,7 @@ function floaty(text, posx, posy, speed, lifespan, color, font) {
   this.speed = speed || 15;
   this.lifespan = lifespan || 200;
   this.font = font || ctx.font;
-  this.color = color || "#fff";
+  this.color = color || "#ffffff";
   this.dead = false;
 
   this.draw = function() {
@@ -154,6 +154,69 @@ function achievement(name, trigger, icon, howto, desc, condition, runthrough) {
   
   this.trigger = trigger;
   this.triggered = false;
+}
+
+function slider_component(direction, start_x, start_y, width, length, slide_time, lifetime, children) {
+  this.direction = direction;
+  this.start_x = start_x;
+  this.start_y = start_y;
+  this.width = width;
+  this.length = length;
+  this.slide_time = slide_time;
+  this.lifetime = lifetime;
+  this.children = [];
+  
+  this.duration = slide_time * 2 + lifetime; // Total
+  this.elapsed = 0;
+  this.state = "idling";
+  this.component = function() {
+    if (this.state == "idling") {
+      this.state = "unfolding";
+      this.elapsed = 0;
+      children.unshift(["rect", 0, 0, width, length]);
+      this.children = children;
+    }
+    var dx = start_x;
+    var curve = -2.5; // Good value for 20 frames  
+  
+    if (this.state == "unfolding") {
+      if (this.direction == "rtl") {
+        dx -= width * (1 - Math.pow(this.elapsed , curve));
+      } else {
+        dx += width * (1 - Math.pow(this.elapsed , curve));
+      }
+
+      if (this.elapsed == this.slide_time) {
+        this.elapsed = 0;
+        this.state = "static";
+      }
+
+    } else if (this.state == "static") {
+      if (this.direction == "rtl") {
+        dx -= width;
+      } else {
+        dx += width;
+      }
+
+      if (this.elapsed == this.lifetime) {
+        this.elapsed = 0;
+        this.state = "folding";
+      }
+    } else if (this.state == "folding") {
+      if (this.direction == "rtl") {
+        dx -= width * Math.pow(this.elapsed , curve);
+      } else {
+        dx += width * Math.pow(this.elapsed , curve);
+      }
+
+      if (this.elapsed == this.slide_time) {
+        this.elapsed = 0;
+        this.state = "dead";
+      }    
+    }
+
+    return ["canvas", dx, start_y, width, length, this.children];
+  }
 }
 
 // Other misc definitions
@@ -197,24 +260,13 @@ function register_achievement(name, trigger, icon, howto, desc, condition, runth
 }
 
 function trigger_achievement(ach) {
-  console.log(ach.name);
-  console.log(ach.description);
   ach.triggered = true;
   
   // Do pre-graphical stuff here
-  var slide = [
-    // type, direction, object, spawn_x,  ,spawn_y         , width, height, slide_speed, lifetime, children
-    ["slider", "rtl", "rect",  // type direction shape
-     canvas.width, canvas.height - 85, // spawn_x, spawn_y
-     250, 40, // width, height
-     50, 7, [ // slide_speed lifetime children
-       // all coordinates become relative to the top-left-hand corner of the slider now
-       // type src spawn_x, spawn_y
-       ["image", ach.icon, 2, 2],
-       ["text", ach.name, 18, 10],
-     ]
-    ],
-  ];
+  showQueue.push(new slider_component("rtl", canvas.width, canvas.height - 150, 250, 110, 20, 150, [
+    ["image", ach.icon, 125, 20],
+    ["text", ach.name, 125, 100, "20px Arial"]
+  ]));
 }
 
 function cycle_through() {
@@ -298,11 +350,11 @@ function increase_score(int, raw) {
 }
 
 function spawn_floaty(int, posx, posy) {
-  var fl = new floaty(int.toString(), posx, posy, 5, 30, '#fff', "20px Arial");
+  var fl = new floaty(int.toString(), posx, posy, 5, 30, '#ffffff', "20px Arial");
   if (int > 0) {
-    fl.color = '#0F0';
+    fl.color = '#00FF00';
   } else {
-    fl.color = '#F00';
+    fl.color = '#FF0000';
   }
   floaties.push(fl);
 }
@@ -318,8 +370,8 @@ function draw_mouse() {
     Mouse.rotary = (Mouse.rotary + 0.1) % 210;
   }
 
-  ctx.fillStyle = "#f22";
-  ctx.strokeStyle = "#000";
+  ctx.fillStyle = "#ff2222";
+  ctx.strokeStyle = "#000000";
   ctx.beginPath();
   ctx.arc(Mouse.x, Mouse.y, 3, 0, 2 * Math.PI, false);
   ctx.fill();
@@ -327,7 +379,7 @@ function draw_mouse() {
   ctx.arc(Mouse.x, Mouse.y, rad, 0, 2 * Math.PI);
   ctx.stroke();
 
-  ctx.strokeStyle = "#f22"
+  ctx.strokeStyle = "#ff2222"
   for (var angle=0; angle<Math.PI*2; angle+=(2*Math.PI)/surround) {
     var dx = Math.cos(angle + Mouse.rotary * Math.PI) * rad;
     var dy = Math.sin(angle + Mouse.rotary * Math.PI) * rad;
@@ -369,7 +421,7 @@ function draw_enemies() {
   // Combo reset if no pellet squished
   if (combo > 0 && nosquish) {
     if (combo > 1) {
-      var fl = new floaty("Combo reset..", Mouse.x, Mouse.y, 5, 30, '#F0F', "20px Arial");
+      var fl = new floaty("Combo reset..", Mouse.x, Mouse.y, 5, 30, '#FF00FF', "20px Arial");
       floaties.push(fl);
     }
     combo = 0;
@@ -387,22 +439,22 @@ function draw_enemies() {
 }
 
 function draw_score() {
-  ctx.fillStyle = "#ddd";
+  ctx.fillStyle = "#dddddd";
   ctx.fillRect(5, 5, canvas.width - 10, 30);
-  //ctx.strokeType = "#222";
+  //ctx.strokeType = "#222222";
   ctx.strokeRect(5, 5, canvas.width - 10, 30);
   if (score >= 0) {
-    ctx.fillStyle = "#27f";
+    ctx.fillStyle = "#2277ff";
     ctx.fillText(score.toString(), canvas.width / 2, 27);
   }
 }
 
 function draw_sound() {
-  ctx.fillStyle = "#ddd";
+  ctx.fillStyle = "#dddddd";
   ctx.fillRect(5, canvas.height - 35, canvas.width - 45, 30);
   ctx.strokeRect(5, canvas.height - 35, canvas.width - 45, 30);
   if (nowPlaying >= 0) {
-    ctx.fillStyle = "#27f";
+    ctx.fillStyle = "#2277ff";
     ctx.fillText("Now Playing : " + audio_titles[nowPlaying], canvas.width / 2 - 45, canvas.height - 13);
   }
 }
@@ -419,11 +471,11 @@ function draw_floaties() {
 
 function draw_menu_button() {
   if (!menuButtonHovered) {
-    ctx.fillStyle = '#ddd';
+    ctx.fillStyle = '#dddddd';
   } else if (!mousePressed) {
-    ctx.fillStyle = '#dd2';
+    ctx.fillStyle = '#dddd22';
   } else {
-    ctx.fillStyle = '#d22';
+    ctx.fillStyle = '#dd2222';
     if (!triggerLock) {
        if (menu == "main") {
          menu = "";
@@ -436,26 +488,50 @@ function draw_menu_button() {
     }
   }
 
-  draw_element(menuButton);
+  draw_element(menuButton, 0, 0);
+  ctx.fillStyle = '#dddddd';
 }
 
-function draw_element(tab) {
+function draw_element(tab, x_off, y_off) {
   for (var i = 0; i < tab.length; i++) {
     if (tab[i][0] == "rect") {
-      ctx.fillRect(tab[i][1], tab[i][2], tab[i][3], tab[i][4]);
-      ctx.strokeRect(tab[i][1], tab[i][2], tab[i][3], tab[i][4]);
+      ctx.fillRect(tab[i][1]+x_off, tab[i][2]+y_off, tab[i][3], tab[i][4]);
+      ctx.strokeRect(tab[i][1]+x_off, tab[i][2]+y_off, tab[i][3], tab[i][4]);
     } else if (tab[i][0] == "line") {
       ctx.beginPath();
-      ctx.moveTo(tab[i][1], tab[i][2]);
-      ctx.lineTo(tab[i][1] + tab[i][3], tab[i][2] + tab[i][4]);
+      ctx.moveTo(tab[i][1]+x_off, tab[i][2]+y_off);
+      ctx.lineTo(tab[i][1]+x_off + tab[i][3], tab[i][2]+y_off + tab[i][4]);
       ctx.stroke();
-    }    
+    } else if (tab[i][0] == "text") {
+      var oldfont = ctx.font;
+      ctx.font = tab[i][4];
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.fillText(tab[i][1], tab[i][2]+x_off, tab[i][3]+y_off);
+      ctx.strokeText(tab[i][1], tab[i][2]+x_off, tab[i][3]+y_off);
+      ctx.fillStyle = "#ddddd";
+      ctx.font = oldfont;
+    } else if (tab[i][0] == "canvas") {
+      draw_element(tab[i][5], tab[i][1], tab[i][2]);
+    } 
   }
 }
 
 function draw_main_menu() {
-  ctx.fillStyle = '#ddd';
-  draw_element(mainMenu);
+  ctx.fillStyle = '#dddddd';
+  draw_element(mainMenu, 0, 0);
+}
+
+function draw_ach() {
+  if (showQueue.length == 0) {return;}
+  
+  var slider = showQueue[0];
+  if (slider.state == "dead") {showQueue.shift(); return;}
+  slider.elapsed += 1;
+  var comp = slider.component();
+  var moo = new color(0, 0, 0);
+  moo.decs(ctx.strokeStyle);
+  draw_element([comp], 0, 0);
+  ctx.fillStyle = "#dddddd";
 }
 
 function draw() {
@@ -489,6 +565,9 @@ function draw() {
 
   // Menu button
   draw_menu_button();
+  
+  // Achievements
+  draw_ach();
 
   if (!menu) {
     // Draw floaties
@@ -577,10 +656,10 @@ canvas.onmousedown = function(event) {
     overlap += 1;
   }
   if (overlap > 1) {
-    var fl = new floaty("Overlap! * " + overlap.toString(), Mouse.x, Mouse.y, 5, 30, '#00F', "20px Arial Bold");
+    var fl = new floaty("Overlap! * " + overlap.toString(), Mouse.x, Mouse.y, 5, 30, '#0000FF', "20px Arial Bold");
     floaties.push(fl);
   } else if (overlap > 0 && combo > 1) {
-    var fl = new floaty("Combo " + combo.toString() + "!", Mouse.x, Mouse.y, 5, 30, '#0FF', "20px Arial");
+    var fl = new floaty("Combo " + combo.toString() + "!", Mouse.x, Mouse.y, 5, 30, '#00FFFF', "20px Arial");
     floaties.push(fl);
   }
   
@@ -660,9 +739,9 @@ function waitMenu() {
     draw_banner();
 
     // Play Button
-    ctx.fillStyle = "#f60";
+    ctx.fillStyle = "#ff6600";
     ctx.fillRect(canvas.width / 16 * 7.5, canvas.height / 2 - 15, canvas.width / 16, 30);
-    ctx.fillStyle = "#228";
+    ctx.fillStyle = "#222288";
     ctx.fillText("Play", canvas.width / 2, canvas.height / 2 + 5);
 
     // Mouse
