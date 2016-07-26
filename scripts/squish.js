@@ -2,7 +2,6 @@
 
 var canvas = document.getElementById('canvas0');
 var ctx = canvas.getContext('2d');
-var mousePressed = false;
 var enemies = [];
 var floaties = [];
 var MaxColoursAllowed = 255 * 255 * 255;
@@ -26,6 +25,7 @@ var Mouse = {
   y: canvas.width / 2,
   x: canvas.height / 2,
   rotary: 0,
+  pressed: false,
 };
 
 // Audio
@@ -365,7 +365,7 @@ function draw_mouse() {
   // From http://ncase.me/sight-and-light/
 
   var rad = fradius;
-  if (mousePressed) {
+  if (Mouse.pressed) {
     rad = sradius;
     Mouse.rotary = (Mouse.rotary + 0.1) % 210;
   }
@@ -472,7 +472,7 @@ function draw_floaties() {
 function draw_menu_button() {
   if (!menuButtonHovered) {
     ctx.fillStyle = '#dddddd';
-  } else if (!mousePressed) {
+  } else if (!Mouse.pressed) {
     ctx.fillStyle = '#dddd22';
   } else {
     ctx.fillStyle = '#dd2222';
@@ -611,7 +611,7 @@ canvas.onmousedown = function(event) {
     }
   }
 
-  mousePressed = true;
+  Mouse.pressed = true;
   var overlap = 0;
   for (var i=0; i<enemies.length; i++) {
     if (enemies[i].squished) {continue;}
@@ -667,7 +667,7 @@ canvas.onmousedown = function(event) {
 }
 
 canvas.onmouseup = function(event) {
-  mousePressed = false;
+  Mouse.pressed = false;
   triggerLock = false;
 }
 
