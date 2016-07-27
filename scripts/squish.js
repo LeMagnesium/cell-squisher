@@ -5,11 +5,16 @@ var ctx = canvas.getContext('2d');
 var enemies = [];
 var floaties = [];
 var MaxColoursAllowed = 255 * 255 * 255;
-var score = -1;
-var combo = 0;
-var menu = "start";
 var menuButtonHovered = false;
 var triggerLock = false;
+
+// Game Data
+var GameData = {
+    score: -1,
+    combo: 0,
+    menu: "start",
+    overlap: 0,
+}
 
 // Config trash
 var Config = {
@@ -43,16 +48,20 @@ var audio_titles = [
 var nowPlaying = -1;
 var bgm;
 
+// Images
+var images;
+
 // Graphical elements
 var menuButton = [
-  ["rect", canvas.width - 35, canvas.height - 35, 30, 30, '#'],
-  ["line", canvas.width - 30, canvas.height - 13, 20, 0],
-  ["line", canvas.width - 30, canvas.height - 20, 20, 0],
-  ["line", canvas.width - 30, canvas.height - 27, 20, 0]
+    ["rect", canvas.width - 35, canvas.height - 35, 30, 30, '#'],
+    ["line", canvas.width - 30, canvas.height - 13, 20, 0],
+    ["line", canvas.width - 30, canvas.height - 20, 20, 0],
+    ["line", canvas.width - 30, canvas.height - 27, 20, 0]
 ]
 
 var mainMenu = [
-  ["rect", 5, 40, canvas.width - 10, canvas.height - 80]
+    ["rect", 5, 40, canvas.width - 10, canvas.height - 80],
+    ["line", canvas.width/2, 40, 0, canvas.height - 80]
 ]
 
 // Triggers
@@ -66,7 +75,7 @@ var showQueue = [];
 function enemy() {
   this.posx = Math.random() * canvas.width;
   this.posy = Math.random() * (canvas.height-70) + 35;
-  this.health = Math.random() * 100 + 200;
+  this.health = Math.ceil(Math.random()) * 100 + 200;
   this.color = new color();
   this.border_color = new color();
   this.squished = false;
@@ -212,7 +221,7 @@ function slider_component(direction, start_x, start_y, width, length, slide_time
       if (this.elapsed == this.slide_time) {
         this.elapsed = 0;
         this.state = "dead";
-      }    
+      }
     }
 
     return ["canvas", dx, start_y, width, length, this.children];
@@ -261,7 +270,7 @@ function register_achievement(name, trigger, icon, howto, desc, condition, runth
 
 function trigger_achievement(ach) {
   ach.triggered = true;
-  
+
   // Do pre-graphical stuff here
   showQueue.push(new slider_component("rtl", canvas.width, canvas.height - 150, 250, 110, 20, 150, [
     ["image", ach.icon, 125, 20],
@@ -278,47 +287,57 @@ function cycle_through() {
 
 // Score achievements
 register_achievement("The Cell Slayer", "score", "images/game/slayer.gif",
-                "You'll never see that text.. POOOP!",
-                "Yes you have an achievement for squishing a cell. I am that desperate about filling my game with content",
-                function () {
-                  return score > 0;
-}, null);
+                     "You'll never see that text.. POOOP!",
+                     "Yes you have an achievement for squishing a cell. I am that desperate about filling my game with content",
+                     function () { return GameData.score > 0; },
+		     null);
 
 register_achievement("Over 9000", "score", "images/game/gt9000.gif",
-                "Get 9000 of score. Yeah, lame.",
-                "Pretty easy, duh",
-                function () {
-                 return score > 9000;
-}, null);
-  
+                     "Get 9000 of score. Yeah, lame.",
+                     "Pretty easy, duh",
+                     function () { return GameData.score > 9000; },
+		     null);
+
 register_achievement("A pet named Steve", "score", "images/game/steve.gif",
-                "Kudos if you get the reference. Reach a certain score (circa 3.6*10^6)",
-                "3,610,827 views in one week, good work",
-                function() {
-                  return score > 3610827;
-}, null);
-    
-register_achievement("Over 9000*10^6", "score", "images/game/gtmore9000.gif",
-                "You wanted something hard, didn't you?",
-                "You have reached 4Chan senior levels. Poor you.",
-                function() {
-                  return score > 9000000000;
-}, null);
+                     "Kudos if you get the reference. Reach a certain score (circa 3.6*10^6)",
+                     "3,610,827 views in one week, good work",
+                     function() { return GameData.score > 3610827; },
+		     null);
+
+register_achievement("Genocidal Rampage", "score", "images/game/genocide.gif",
+		     "You wanted something hard, didn't you?",
+                     "You have earned the lethal injection of salty water for destroying scientifical progress",
+                     function() { return GameData.score > 9000000000; },
+		     null);
 
 // Mouse stuff
 register_achievement("Nonsense of game design", "step", "images/game/mainmenu.gif",
-                "LOLOLOLOLOL",
-                "You just found the main menu, probably",
-                function() {
-                   return menu == "main";
-}, null);
+                     "LOLOLOLOLOL",
+                     "You just found the main menu, probably",
+                     function() { return GameData.menu == "main"; },
+		     null);
+
 
 register_achievement("Trigonometric madness", "step", "images/game/trigomad.gif",
-                "Spin the hand-weel around.. a 100 times",
-                "Congrats, your finger is now permanently damaged",
-                function () {
-                   return Mouse.rotary >= 200;
-}, null);
+                     "Spin the hand-weel around.. a 100 times",
+                     "Congrats, your finger is now permanently damaged",
+                     function () { return Mouse.rotary >= 200; },
+		     null);
+
+// Plain weird
+register_achievement("KING COMBO!", "step", "images/game/king_combo.gif",
+		     "Get a 100 combo",
+		     "Hypactivity, amirite?",
+		     function () { return GameData.combo >= 100; },
+		     null);
+
+register_achievement("Collateral Damages", "mousedown", "images/game/collateral.gif",
+		     "Get a 4 overlap or more",
+		     "Squish: check",
+		     function () { return GameData.overlap >= 4; },
+		     null);
+
+
 
 // Hexadecimal garbage
 var hex = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
@@ -338,13 +357,13 @@ function hexdec(he) {
 
 // Score
 function increase_score(int, raw) {
-  if (combo > 1 && !raw) {
-    int *= combo;
+  if (GameData.combo > 1 && !raw) {
+    int *= GameData.combo;
   }
-  score += int;
+  GameData.score += int;
 
-  if (score < 0) {
-    score = 0;
+  if (GameData.score < 0) {
+    GameData.score = 0;
   }
   call_trigger("score");
 }
@@ -389,53 +408,49 @@ function draw_mouse() {
   }
 }
 
-function draw_enemy(enemy) {
-  // FFFFFF is 255^3, so, a lot. We don't wanna compute that every time;
-  ctx.fillStyle = enemy.color;
-  ctx.strokeStyle = enemy.border_color;
-  ctx.beginPath();
-  // FIXME
-  try {
+function draw_enemy(enemy, id, sum, sum2) {
+    // FFFFFF is 255^3, so, a lot. We don't wanna compute that every time;
+    ctx.fillStyle = enemy.color;
+    ctx.strokeStyle = enemy.border_color;
+    ctx.beginPath();
     ctx.arc(enemy.posx, enemy.posy, enemy.health / 10, 0, 2 * Math.PI);
-  } catch (IndexSizeError) {
-    ;
-  }
-  ctx.fill();
-  ctx.stroke();
+    ctx.fill();
+    ctx.stroke();
 }
 
 function draw_enemies() {
-  // Bring out yer dead!
-  var nosquish = true;
-  for (var i=0; i<enemies.length; i++) {
-    if (enemies[i].health <= 0) {
-      if (!enemies[i].squished) {
-        increase_score(-10, true);
-        spawn_floaty(-10, enemies[i].posx, enemies[i].posy);
-      }
-      enemies.splice(i, 1);
-    } else if (enemies[i].squished) {
-      nosquish = false;
+    // Bring out yer dead!
+    var nosquish = true;
+    for (var i=0; i<enemies.length; i++) {
+	if (enemies[i].health <= 0) {
+	    if (!enemies[i].squished) {
+		increase_score(-10, true);
+		spawn_floaty(-10, enemies[i].posx, enemies[i].posy);
+	    }
+	    enemies.splice(i, 1);
+	} else if (enemies[i].squished) {
+	    nosquish = false;
+	}
     }
-  }
-  // Combo reset if no pellet squished
-  if (combo > 0 && nosquish) {
-    if (combo > 1) {
-      var fl = new floaty("Combo reset..", Mouse.x, Mouse.y, 5, 30, '#FF00FF', "20px Arial");
-      floaties.push(fl);
-    }
-    combo = 0;
-  }
 
-  for (var i=0; i<enemies.length; i++) {
-    draw_enemy(enemies[i]);
-    if (enemies[i].squished) {
-      var h = Math.random() * 6;
-      increase_score(Math.floor(h));
-      enemies[i].health -= h;
+    // Combo reset if no pellet squished
+    if (GameData.combo > 0 && nosquish) {
+	if (GameData.combo > 1) {
+	    var fl = new floaty("Combo reset..", Mouse.x, Mouse.y, 5, 30, '#FF00FF', "20px Arial");
+	    floaties.push(fl);
+	}
+	GameData.combo = 0;
     }
-    enemies[i].health -= Math.random() * 2;
-  }
+
+    for (var i=0; i<enemies.length; i++) {
+	if (enemies[i].health > 0) {draw_enemy(enemies[i]);}
+	if (enemies[i].squished) {
+	    var h = Math.floor(Math.random() * 6);
+	    increase_score(h);
+	    enemies[i].health -= h;
+	}
+	enemies[i].health -= Math.ceil(Math.random() * 2);
+    }
 }
 
 function draw_score() {
@@ -443,9 +458,9 @@ function draw_score() {
   ctx.fillRect(5, 5, canvas.width - 10, 30);
   //ctx.strokeType = "#222222";
   ctx.strokeRect(5, 5, canvas.width - 10, 30);
-  if (score >= 0) {
+  if (GameData.score >= 0) {
     ctx.fillStyle = "#2277ff";
-    ctx.fillText(score.toString(), canvas.width / 2, 27);
+    ctx.fillText(GameData.score.toString(), canvas.width / 2, 27);
   }
 }
 
@@ -477,11 +492,11 @@ function draw_menu_button() {
   } else {
     ctx.fillStyle = '#dd2222';
     if (!triggerLock) {
-       if (menu == "main") {
-         menu = "";
+       if (GameData.menu == "main") {
+         GameData.menu = "";
          bgm.play();
-      } else if (menu == "") {
-         menu = "main";
+      } else if (GameData.menu == "") {
+         GameData.menu = "main";
          bgm.pause();
       }
       triggerLock = true;
@@ -542,7 +557,7 @@ function draw() {
   ctx.fillStyle = bg.hex();
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  if (!menu) {
+  if (!GameData.menu) {
     // Enemies
     if (Math.random() < 0.3) {
       // New enemy at random coords
@@ -553,7 +568,7 @@ function draw() {
 
     // Draw enemies
     draw_enemies();
-  } else if (menu == "main") {
+  } else if (GameData.menu == "main") {
     draw_main_menu();
   }
 
@@ -569,7 +584,7 @@ function draw() {
   // Achievements
   draw_ach();
 
-  if (!menu) {
+  if (!GameData.menu) {
     // Draw floaties
     draw_floaties();
   }
@@ -602,17 +617,17 @@ canvas.onmousemove = function (event) {
 }
 
 canvas.onmousedown = function(event) {
-  if (menu) {
+  if (GameData.menu) {
     if (Mouse.x > canvas.width / 16 * 7.5 && Mouse.x < canvas.width / 16 * 8.5 && Mouse.y > canvas.height / 2 - 15 && Mouse.y < canvas.height / 2 + 30) {
       // PLAY!
-      menu = "";
-      score = 0;
+      GameData.menu = "";
+      GameData.score = 0;
       return;
     }
   }
 
   Mouse.pressed = true;
-  var overlap = 0;
+  GameData.overlap = 0;
   for (var i=0; i<enemies.length; i++) {
     if (enemies[i].squished) {continue;}
     var radius = enemies[i].health / 10;
@@ -648,18 +663,18 @@ canvas.onmousedown = function(event) {
     }
 
     enemies[i].color = "#000000";
-    increase_score(overlap * 50, enemies[i].posx, enemies[i].posy);
-    if (overlap > 0) {
-      spawn_floaty(overlap * 50, enemies[i].posx, enemies[i].posy);
+    increase_score(GameData.overlap * 50, enemies[i].posx, enemies[i].posy);
+    if (GameData.overlap > 0) {
+      spawn_floaty(GameData.overlap * 50, enemies[i].posx, enemies[i].posy);
     }
-    combo += 1;
-    overlap += 1;
+    GameData.combo += 1;
+    GameData.overlap += 1;
   }
-  if (overlap > 1) {
-    var fl = new floaty("Overlap! * " + overlap.toString(), Mouse.x, Mouse.y, 5, 30, '#0000FF', "20px Arial Bold");
+  if (GameData.overlap > 1) {
+    var fl = new floaty("Overlap! * " + GameData.overlap.toString(), Mouse.x, Mouse.y, 5, 30, '#0000FF', "20px Arial Bold");
     floaties.push(fl);
-  } else if (overlap > 0 && combo > 1) {
-    var fl = new floaty("Combo " + combo.toString() + "!", Mouse.x, Mouse.y, 5, 30, '#00FFFF', "20px Arial");
+  } else if (GameData.overlap > 0 && GameData.combo > 1) {
+    var fl = new floaty("Combo " + GameData.combo.toString() + "!", Mouse.x, Mouse.y, 5, 30, '#00FFFF', "20px Arial");
     floaties.push(fl);
   }
   
@@ -715,7 +730,7 @@ function draw_banner() {
 }
 
 function waitMenu() {
-  if (menu) {
+  if (GameData.menu) {
     requestAnimationFrame(waitMenu);
 
     // Menu
