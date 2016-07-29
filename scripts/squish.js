@@ -1,5 +1,9 @@
 "use strict";
 
+// Cell Squisher ßÿ Lymkwi
+// License WTFPL, CopyLEFT <(°-°<) Lymkwi 2016
+// Version : 0.9
+
 var canvas = document.getElementById('canvas0');
 var ctx = canvas.getContext('2d');
 var enemies = [];
@@ -7,6 +11,8 @@ var floaties = [];
 var MaxColoursAllowed = 255 * 255 * 255;
 var menuButtonHovered = false;
 var triggerLock = false;
+
+var version = 0.9;
 
 // Game Data
 var GameData = {
@@ -20,6 +26,122 @@ var GameData = {
 var Config = {
   extrafloaties: true,
 }
+
+// Colors and Visuals
+// Colors
+var colors = {
+    mainMenuFill: '#dddddd',
+    mainMenuStroke: '#f00000',
+
+    menuButtonHovered: '#dddd22',
+    menuButtonPressed: '#dd2222',
+
+    deadEnemy: '#000000',
+
+    overlapTag: '#0000ff',
+    comboTag: '#00ffff',
+    textFill: '#2277ff',
+
+    startButtonFill: '#ff6600',
+    startButtonLabel: '#222288',
+
+    positiveScoreFloaty: '#00ff00',
+    negativeScoreFloaty: '#ff0000',
+
+    mouseCenter: '#ff0000',
+    mouseRotor: '#ff2222',
+    mouseCircle: '#000000',
+
+    // Some defaults
+    red: '#ff0000',
+    green: '#00ff00',
+    blue: '#0000ff',
+    yellow: '#ffff00',
+    magenta: '#ff00ff',
+    cyan: '#00ffff',
+    black: '#000000',
+    white: '#ffffff',
+};
+
+// Color and font swapper
+var VisualSwap = {
+    fill: "#000000",
+    stroke: "#000000",
+    secfill: "#ffffff",
+    secstroke: "#ffffff",
+    font: "Arial 20px",
+    secfont: "Arial 14px",
+
+    usedFill: true, // true for Main, false for Second
+    usedStroke: true, // same
+    usedFont: true, // same
+
+    setMainFill: function(col) {
+	this.fill = col;
+	if (this.usedFill) {
+	    ctx.fillStyle = col;
+	}
+    },
+    useMainFill: function() {
+	this.usedFill = true;
+	ctx.fillStyle = this.fill;
+    },
+
+    setSecondFill: function(col) {
+	this.secfill = col;
+	if (!this.usedFill) {
+	    ctx.fillStyle = col;
+	}
+    },
+    useSecondFill: function(col) {
+	this.usedFill = false
+	ctx.fillStyle = this.secfill;
+    },
+
+    setMainStroke: function(col) {
+	this.stroke = col;
+	if (this.usedStroke) {
+	    ctx.strokeStyle = col;
+	}
+    },
+    useMainStroke: function() {
+	this.usedStroke = true;
+	ctx.strokeStyle = this.stroke;
+    },
+
+    setSecondStroke: function(col) {
+	this.secstroke = col;
+	if (!this.usedStroke) {
+	    ctx.strokeStyle = col;
+	}
+    },
+    useSecondStroke: function(col) {
+	this.usedStroke = false;
+	ctx.strokeStyle = this.secstroke;
+    },
+
+    setMainFont: function(font) {
+	this.font = font;
+	if (this.usedFont) {
+	    ctx.font = font;
+	}
+    },
+    useMainFont: function() {
+	this.usedFont = true;
+	ctx.font = this.font;
+    },
+
+    setSecondFont: function(font) {
+	this.secfont = font;
+	if (!this.usedFont) {
+	    ctx.font = font
+	}
+    },
+    useSecondFont: function() {
+	this.usedFont = false;
+	ctx.font = this.font;
+    },
+};
 
 // Mouse stuff
 var surround = 6;
@@ -49,20 +171,167 @@ var nowPlaying = -1;
 var bgm;
 
 // Images
-var images;
+var record_images = [
+    "images/game/slayer.gif",
+    "images/game/gt9000.gif",
+    "images/game/steve.gif",
+    "images/game/genocide.gif",
+    "images/game/mainmenu.gif",
+    "images/game/trigonomad.gif",
+    "images/game/king_combo.gif",
+    "images/game/collateral.gif",
+];
+
+// Registered bitmaps go in there
+var images = [];
 
 // Graphical elements
-var menuButton = [
-    ["rect", canvas.width - 35, canvas.height - 35, 30, 30, '#'],
-    ["line", canvas.width - 30, canvas.height - 13, 20, 0],
-    ["line", canvas.width - 30, canvas.height - 20, 20, 0],
-    ["line", canvas.width - 30, canvas.height - 27, 20, 0]
+var MenuButton = [
+    {
+	class: "rect",
+	xorg: canvas.width - 35,
+	yorg: canvas.height - 35,
+	width: 30,
+	height: 30,
+    },
+    {
+	class: "line",
+	xorg: canvas.width - 30,
+	yorg: canvas.height - 13,
+	width: 20,
+	height: 0,
+    },
+    {
+	class: "line",
+	xorg: canvas.width - 30,
+	yorg: canvas.height - 20,
+	width: 20,
+	height: 0,
+    },
+    {
+	class: "line",
+	xorg: canvas.width - 30,
+	yorg: canvas.height - 27,
+	width: 20,
+	height: 0,
+    }
 ]
 
-var mainMenu = [
-    ["rect", 5, 40, canvas.width - 10, canvas.height - 80],
-    ["line", canvas.width/2, 40, 0, canvas.height - 80]
+var MainMenu = [
+    {
+	class: "rect",
+	xorg: 5,
+	yorg: 40,
+	width: canvas.width - 10,
+	height: canvas.height - 80,
+	visuals: {
+	    stroke: colors.mainMenuStroke,
+	    fill: colors.mainMenuFill,
+	}
+    },
+    {
+	class: "line",
+	xorg: canvas.width/2,
+	yorg: 40,
+	width: 0,
+	height: canvas.height - 80,
+	visuals: {
+	    stroke: colors.mainMenuStroke,
+	}
+    }
 ]
+
+var ScoreBar = [
+    {
+	class: "rect",
+	xorg: 5,
+	yorg: 5,
+	width: canvas.width - 10,
+	height: 30,
+	visuals: {
+	    fill: colors.mainMenuFill,
+	}
+    },
+    {
+	class: "text",
+	live: true,
+	xorg: canvas.width / 2,
+	yorg: 27,
+	stroke: false,
+	text: function() {
+	    if (GameData.score == -1) { return ""; }
+	    return GameData.score.toString();
+	},
+	visuals: {
+	    fill: colors.textFill,
+	}
+    }
+];
+
+var AudioBar = [
+    {
+	class: "rect",
+	xorg: 5,
+	yorg: canvas.height - 35,
+	width: canvas.width - 45,
+	height: 30,
+	visuals: {
+	    fill: colors.mainMenuFill,
+	}
+    },
+    {
+	class: "text",
+	live: true,
+	xorg: canvas.width / 2 - 45,
+	yorg: canvas.height - 13,
+	stroke: false,
+	text: function() {
+	    if (nowPlaying == -1) {return ""}
+	    return "Now Playing : " + audio_titles[nowPlaying];
+	},
+	visuals: {
+	    fill: colors.textFill,
+	    font: "Arial 24px",
+	}
+    },
+];
+
+var Banner = [
+    {
+	class: "rect",
+	xorg: 0,
+	yorg: canvas.height / 2 - 45,
+	width: canvas.width,
+	height: 90,
+	visuals: {
+	    fill: colors.mainMenuFill,
+	    stroke: colors.mainMenuStroke,
+	}
+    },
+];
+
+var StartButton = [
+    {
+	class: "rect",
+	xorg: canvas.width / 16 * 7.5,
+	yorg: canvas.height / 2 - 15,
+	width: canvas.width / 16,
+	height: 30,
+	visuals: {
+	    fill: colors.startButtonFill,
+	}
+    },
+    {
+	class: "text",
+	text: "Play",
+	xorg: canvas.width / 2,
+	yorg: canvas.height / 2 + 5,
+	stroke: false,
+	visuals: {
+	    fill: colors.startButtonLabel,
+	}
+    }
+];
 
 // Triggers
 var triggers = [];
@@ -116,32 +385,34 @@ function color(r, g, b) {
 }
 
 function floaty(text, posx, posy, speed, lifespan, color, font) {
-  this.text = text || "";
-  this.posx = posx;
-  this.posy = posy;
-  this.speed = speed || 15;
-  this.lifespan = lifespan || 200;
-  this.font = font || ctx.font;
-  this.color = color || "#ffffff";
-  this.dead = false;
+    this.text = text || "";
+    this.posx = posx;
+    this.posy = posy;
+    this.speed = speed || 15;
+    this.lifespan = lifespan || 200;
+    this.font = font || ctx.font;
+    this.color = color || colors.white;
+    this.dead = false;
 
-  this.draw = function() {
-    if (this.dead) {return;}
+    this.draw = function() {
+	if (this.dead) {return;}
 
-    var oldfont = ctx.font;
-    var oldfill = ctx.fillStyle;
-    ctx.font = this.font;
-    ctx.fillStyle = this.color;
-    ctx.fillText(this.text, this.posx, this.posy);
-    ctx.font = oldfont;
-    ctx.fillStyle = oldfill;
+	VisualSwap.setSecondFont(this.font);
+	VisualSwap.useSecondFont();
+	VisualSwap.setSecondFill(this.color);
+	VisualSwap.useSecondFill();
 
-    this.posy -= this.speed;
-    this.lifespan -= 1;
-    if (this.lifespan == 0) {
-      this.dead = true;
+	ctx.fillText(this.text, this.posx, this.posy);
+
+	VisualSwap.useMainFont();
+	VisualSwap.useMainFill();
+
+	this.posy -= this.speed;
+	this.lifespan -= 1;
+	if (this.lifespan == 0) {
+	    this.dead = true;
+	}
     }
-  }
 }
 
 function achievement(name, trigger, icon, howto, desc, condition, runthrough) {
@@ -160,79 +431,101 @@ function achievement(name, trigger, icon, howto, desc, condition, runthrough) {
     if (this.triggered) {return;}
     return runthrough();
   }
-  
+
   this.trigger = trigger;
   this.triggered = false;
 }
 
 function slider_component(direction, start_x, start_y, width, length, slide_time, lifetime, children) {
-  this.direction = direction;
-  this.start_x = start_x;
-  this.start_y = start_y;
-  this.width = width;
-  this.length = length;
-  this.slide_time = slide_time;
-  this.lifetime = lifetime;
-  this.children = [];
-  
-  this.duration = slide_time * 2 + lifetime; // Total
-  this.elapsed = 0;
-  this.state = "idling";
-  this.component = function() {
-    if (this.state == "idling") {
-      this.state = "unfolding";
-      this.elapsed = 0;
-      children.unshift(["rect", 0, 0, width, length]);
-      this.children = children;
+    this.direction = direction;
+    this.start_x = start_x;
+    this.start_y = start_y;
+    this.width = width;
+    this.length = length;
+    this.slide_time = slide_time;
+    this.lifetime = lifetime;
+    this.children = [];
+
+    this.duration = slide_time * 2 + lifetime; // Total
+    this.elapsed = 0;
+    this.state = "idling";
+    this.component = function() {
+	if (this.state == "idling") {
+	    this.state = "unfolding";
+	    this.elapsed = 0;
+	    children.unshift({
+		class: "rect",
+		xorg: 0,
+		yorg: 0,
+		width: width,
+		height: length,
+		visuals: {
+		    fill: colors.mainMenuFill,
+		    stroke: colors.mainMenuStroke,
+		}
+	    });
+	    this.children = children;
+	}
+	var dx = start_x;
+	var curve = -2.5; // Good value for 20 frames
+
+	if (this.state == "unfolding") {
+	    if (this.direction == "rtl") {
+		dx -= width * (1 - Math.pow(this.elapsed , curve));
+	    } else {
+		dx += width * (1 - Math.pow(this.elapsed , curve));
+	    }
+
+	    if (this.elapsed == this.slide_time) {
+		this.elapsed = 0;
+		this.state = "static";
+	    }
+
+	} else if (this.state == "static") {
+	    if (this.direction == "rtl") {
+		dx -= width;
+	    } else {
+		dx += width;
+	    }
+
+	    if (this.elapsed == this.lifetime) {
+		this.elapsed = 0;
+		this.state = "folding";
+	    }
+
+	} else if (this.state == "folding") {
+	    if (this.direction == "rtl") {
+		dx -= width * Math.pow(this.elapsed , curve);
+	    } else {
+		dx += width * Math.pow(this.elapsed , curve);
+	    }
+
+	    if (this.elapsed == this.slide_time) {
+		this.elapsed = 0;
+		this.state = "dead";
+	    }
+	}
+
+	return {
+	    class: "canvas",
+	    xorg: dx,
+	    yorg: start_y,
+	    width: width,
+	    height: length,
+	    children: this.children
+	};
     }
-    var dx = start_x;
-    var curve = -2.5; // Good value for 20 frames  
-  
-    if (this.state == "unfolding") {
-      if (this.direction == "rtl") {
-        dx -= width * (1 - Math.pow(this.elapsed , curve));
-      } else {
-        dx += width * (1 - Math.pow(this.elapsed , curve));
-      }
-
-      if (this.elapsed == this.slide_time) {
-        this.elapsed = 0;
-        this.state = "static";
-      }
-
-    } else if (this.state == "static") {
-      if (this.direction == "rtl") {
-        dx -= width;
-      } else {
-        dx += width;
-      }
-
-      if (this.elapsed == this.lifetime) {
-        this.elapsed = 0;
-        this.state = "folding";
-      }
-    } else if (this.state == "folding") {
-      if (this.direction == "rtl") {
-        dx -= width * Math.pow(this.elapsed , curve);
-      } else {
-        dx += width * Math.pow(this.elapsed , curve);
-      }
-
-      if (this.elapsed == this.slide_time) {
-        this.elapsed = 0;
-        this.state = "dead";
-      }
-    }
-
-    return ["canvas", dx, start_y, width, length, this.children];
-  }
 }
 
 // Other misc definitions
-
 var bg = new color(255, 255, 255);
 
-ctx.font = "20px Arial";
+VisualSwap.setMainFont("20px Arial");
+VisualSwap.useMainFont();
+VisualSwap.setMainFill(colors.mainMenuFill);
+VisualSwap.useMainFill();
+VisualSwap.setMainStroke(colors.mainMenuStroke);
+VisualSwap.useMainStroke();
 ctx.textAlign = "center";
 
 window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
@@ -253,7 +546,7 @@ function call_trigger(name) {
   }
 
   for (var u = 0; u < achievements[name].length; u++) {
-    achievements[name][u].check();  
+    achievements[name][u].check();
   }
 }
 
@@ -272,9 +565,24 @@ function trigger_achievement(ach) {
   ach.triggered = true;
 
   // Do pre-graphical stuff here
-  showQueue.push(new slider_component("rtl", canvas.width, canvas.height - 150, 250, 110, 20, 150, [
-    ["image", ach.icon, 125, 20],
-    ["text", ach.name, 125, 100, "20px Arial"]
+    showQueue.push(new slider_component("rtl", canvas.width, canvas.height - 150, 250, 110, 20, 150, [
+	{
+	    class: "image",
+	    src: ach.icon,
+	    xorg: 125,
+	    yorg: 20
+	},
+	{
+	    class: "text",
+	    text: ach.name,
+	    xorg: 125,
+	    yorg: 100,
+	    stroke: true,
+	    visuals: {
+		fill: "currentStroke",
+		font: "20px Arial",
+	    }
+	}
   ]));
 }
 
@@ -369,49 +677,58 @@ function increase_score(int, raw) {
 }
 
 function spawn_floaty(int, posx, posy) {
-  var fl = new floaty(int.toString(), posx, posy, 5, 30, '#ffffff', "20px Arial");
+  var fl = new floaty(int.toString(), posx, posy, 5, 30, colors.white, "20px Arial");
   if (int > 0) {
-    fl.color = '#00FF00';
+    fl.color = colors.positiveScoreFloaty;
   } else {
-    fl.color = '#FF0000';
+    fl.color = colors.negativeScoreFloaty;
   }
   floaties.push(fl);
 }
 
 // Now some drawing
 function draw_mouse() {
-  // Mouse stuff
-  // From http://ncase.me/sight-and-light/
+    // Mouse stuff
+    // From http://ncase.me/sight-and-light/
 
-  var rad = fradius;
-  if (Mouse.pressed) {
-    rad = sradius;
-    Mouse.rotary = (Mouse.rotary + 0.1) % 210;
-  }
+    var rad = fradius;
+    if (Mouse.pressed) {
+	rad = sradius;
+	Mouse.rotary = (Mouse.rotary + 0.1) % 210;
+    }
 
-  ctx.fillStyle = "#ff2222";
-  ctx.strokeStyle = "#000000";
-  ctx.beginPath();
-  ctx.arc(Mouse.x, Mouse.y, 3, 0, 2 * Math.PI, false);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(Mouse.x, Mouse.y, rad, 0, 2 * Math.PI);
-  ctx.stroke();
+    VisualSwap.setSecondFill(colors.mouseCenter);
+    VisualSwap.setSecondStroke(colors.mouseCircle);
+    VisualSwap.useSecondFill();
+    VisualSwap.useSecondStroke();
 
-  ctx.strokeStyle = "#ff2222"
-  for (var angle=0; angle<Math.PI*2; angle+=(2*Math.PI)/surround) {
-    var dx = Math.cos(angle + Mouse.rotary * Math.PI) * rad;
-    var dy = Math.sin(angle + Mouse.rotary * Math.PI) * rad;
     ctx.beginPath();
-    ctx.arc(Mouse.x+dx, Mouse.y+dy, 2, 0, 2 * Math.PI, false);
+    ctx.arc(Mouse.x, Mouse.y, 3, 0, 2 * Math.PI, false);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(Mouse.x, Mouse.y, rad, 0, 2 * Math.PI);
     ctx.stroke();
-  }
+
+    VisualSwap.setSecondFill(colors.mouseRotor);
+    VisualSwap.useSecondFill();
+    VisualSwap.setSecondStroke(colors.mouseRotor);
+    VisualSwap.useSecondStroke();
+    for (var angle=0; angle<Math.PI*2; angle+=(2*Math.PI)/surround) {
+	var dx = Math.cos(angle + Mouse.rotary * Math.PI) * rad;
+	var dy = Math.sin(angle + Mouse.rotary * Math.PI) * rad;
+	ctx.beginPath();
+	ctx.arc(Mouse.x+dx, Mouse.y+dy, 2, 0, 2 * Math.PI, false);
+	ctx.stroke();
+	ctx.fill();
+    }
 }
 
 function draw_enemy(enemy, id, sum, sum2) {
     // FFFFFF is 255^3, so, a lot. We don't wanna compute that every time;
-    ctx.fillStyle = enemy.color;
-    ctx.strokeStyle = enemy.border_color;
+    VisualSwap.setMainFill(enemy.color);
+    VisualSwap.useMainFill();
+    VisualSwap.setMainStroke(enemy.border_color);
+    VisualSwap.useMainStroke();
     ctx.beginPath();
     ctx.arc(enemy.posx, enemy.posy, enemy.health / 10, 0, 2 * Math.PI);
     ctx.fill();
@@ -453,27 +770,6 @@ function draw_enemies() {
     }
 }
 
-function draw_score() {
-  ctx.fillStyle = "#dddddd";
-  ctx.fillRect(5, 5, canvas.width - 10, 30);
-  //ctx.strokeType = "#222222";
-  ctx.strokeRect(5, 5, canvas.width - 10, 30);
-  if (GameData.score >= 0) {
-    ctx.fillStyle = "#2277ff";
-    ctx.fillText(GameData.score.toString(), canvas.width / 2, 27);
-  }
-}
-
-function draw_sound() {
-  ctx.fillStyle = "#dddddd";
-  ctx.fillRect(5, canvas.height - 35, canvas.width - 45, 30);
-  ctx.strokeRect(5, canvas.height - 35, canvas.width - 45, 30);
-  if (nowPlaying >= 0) {
-    ctx.fillStyle = "#2277ff";
-    ctx.fillText("Now Playing : " + audio_titles[nowPlaying], canvas.width / 2 - 45, canvas.height - 13);
-  }
-}
-
 function draw_floaties() {
   for (var i = 0; i < floaties.length; i++) {
      if (floaties[i].dead) {
@@ -485,205 +781,249 @@ function draw_floaties() {
 }
 
 function draw_menu_button() {
-  if (!menuButtonHovered) {
-    ctx.fillStyle = '#dddddd';
-  } else if (!Mouse.pressed) {
-    ctx.fillStyle = '#dddd22';
-  } else {
-    ctx.fillStyle = '#dd2222';
-    if (!triggerLock) {
-       if (GameData.menu == "main") {
-         GameData.menu = "";
-         bgm.play();
-      } else if (GameData.menu == "") {
-         GameData.menu = "main";
-         bgm.pause();
-      }
-      triggerLock = true;
+    if (!menuButtonHovered) {
+	VisualSwap.setSecondFill(colors.mainMenuFill);
+    } else if (!Mouse.pressed) {
+	VisualSwap.setSecondFill(colors.menuButtonHovered);
+    } else {
+	VisualSwap.setSecondFill(colors.menuButtonPressed);
+	if (!triggerLock) {
+	    if (GameData.menu == "main") {
+		GameData.menu = "";
+		bgm.play();
+	    } else if (GameData.menu == "") {
+		GameData.menu = "main";
+		bgm.pause();
+	    }
+	    triggerLock = true;
+	}
+	VisualSwap.setMainFill(colors.mainMenuFill);
+	VisualSwap.setMainStroke(colors.mainMenuStroke);
     }
-  }
 
-  draw_element(menuButton, 0, 0);
-  ctx.fillStyle = '#dddddd';
+    VisualSwap.useSecondFill();
+    draw_element(MenuButton);
+    VisualSwap.useMainFill();
+    VisualSwap.useMainStroke();
 }
 
-function draw_element(tab, x_off, y_off) {
-  for (var i = 0; i < tab.length; i++) {
-    if (tab[i][0] == "rect") {
-      ctx.fillRect(tab[i][1]+x_off, tab[i][2]+y_off, tab[i][3], tab[i][4]);
-      ctx.strokeRect(tab[i][1]+x_off, tab[i][2]+y_off, tab[i][3], tab[i][4]);
-    } else if (tab[i][0] == "line") {
-      ctx.beginPath();
-      ctx.moveTo(tab[i][1]+x_off, tab[i][2]+y_off);
-      ctx.lineTo(tab[i][1]+x_off + tab[i][3], tab[i][2]+y_off + tab[i][4]);
-      ctx.stroke();
-    } else if (tab[i][0] == "text") {
-      var oldfont = ctx.font;
-      ctx.font = tab[i][4];
-      ctx.fillStyle = ctx.strokeStyle;
-      ctx.fillText(tab[i][1], tab[i][2]+x_off, tab[i][3]+y_off);
-      ctx.strokeText(tab[i][1], tab[i][2]+x_off, tab[i][3]+y_off);
-      ctx.fillStyle = "#ddddd";
-      ctx.font = oldfont;
-    } else if (tab[i][0] == "canvas") {
-      draw_element(tab[i][5], tab[i][1], tab[i][2]);
-    } 
-  }
-}
+function draw_element(tab) {
+    for (var i = 0; i < tab.length; i++) {
+	var obj = tab[i];
 
-function draw_main_menu() {
-  ctx.fillStyle = '#dddddd';
-  draw_element(mainMenu, 0, 0);
+	if (obj.visuals) {
+	    if (obj.visuals.stroke) {
+		if (obj.visuals.stroke == "currentFill") {
+		    VisualSwap.setSecondStroke(ctx.fillStyle);
+		} else {
+		    VisualSwap.setSecondStroke(obj.visuals.stroke);
+		}
+		VisualSwap.useSecondStroke();
+	    }
+	    if (obj.visuals.fill) {
+		if (obj.visuals.fill == "currentStroke") {
+		    VisualSwap.setSecondFill(ctx.strokeStyle);
+		} else {
+		    VisualSwap.setSecondFill(obj.visuals.fill);
+		}
+		VisualSwap.useSecondFill();
+	    }
+	    if (obj.visuals.font) {
+		VisualSwap.setSecondFont(obj.visuals.font);
+		VisualSwap.useSecondFont();
+	    }
+	}
+
+	if (obj.class == "rect") {
+	    if (obj.stroke == null || obj.stroke == true) {
+		ctx.strokeRect(obj.xorg, obj.yorg, obj.width, obj.height);
+	    }
+
+	    if (obj.fill == null || obj.fill == true) {
+		ctx.fillRect(obj.xorg, obj.yorg, obj.width, obj.height);
+	    }
+
+	} else if (obj.class == "line") {
+	    ctx.beginPath();
+	    ctx.moveTo(obj.xorg, obj.yorg);
+	    ctx.lineTo(obj.xorg + obj.width, obj.yorg + obj.height);
+	    ctx.stroke();
+
+	} else if (obj.class == "text") {
+	    var txt;
+	    if (obj.live == true) {
+		txt = "" + obj.text();
+	    } else {
+		txt = obj.text;
+	    }
+
+	    if (obj.fill == null || obj.fill == true) {
+		ctx.fillText(txt, obj.xorg, obj.yorg);
+	    }
+	    if (obj.stroke == null || obj.stroke == true) {
+		ctx.strokeText(txt, obj.xorg, obj.yorg);
+	    }
+
+	} else if (obj.class == "canvas") {
+	    // We translate 0, 0 to the canvas's origin point, then fix it
+	    ctx.translate(obj.xorg, obj.yorg);
+	    draw_element(obj.children);
+	    ctx.translate(-obj.xorg, -obj.yorg);
+	}
+
+	VisualSwap.useMainFont();
+	VisualSwap.useMainFill();
+	VisualSwap.useMainStroke();
+    }
 }
 
 function draw_ach() {
-  if (showQueue.length == 0) {return;}
-  
-  var slider = showQueue[0];
-  if (slider.state == "dead") {showQueue.shift(); return;}
-  slider.elapsed += 1;
-  var comp = slider.component();
-  var moo = new color(0, 0, 0);
-  moo.decs(ctx.strokeStyle);
-  draw_element([comp], 0, 0);
-  ctx.fillStyle = "#dddddd";
+    if (showQueue.length == 0) {return;}
+
+    var slider = showQueue[0];
+    if (slider.state == "dead") {showQueue.shift(); return;}
+    slider.elapsed += 1;
+    var comp = slider.component();
+    draw_element([comp]);
+    VisualSwap.setMainFill(colors.mainMenuFill);
+    VisualSwap.useMainFill();
 }
 
 function draw() {
-  // Clear
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Clear
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Background
-  ctx.fillStyle = bg.hex();
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Background
+    ctx.fillStyle = bg.hex();
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  if (!GameData.menu) {
-    // Enemies
-    if (Math.random() < 0.3) {
-      // New enemy at random coords
-      var en = new enemy();
-      en.spawn();
-      enemies.push(en);
+    if (!GameData.menu) {
+	// Enemies
+	if (Math.random() < 0.3) {
+	    // New enemy at random coords
+	    var en = new enemy();
+	    en.spawn();
+	    enemies.push(en);
+	}
+
+	// Draw enemies
+	draw_enemies();
+    } else if (GameData.menu == "main") {
+	draw_element(MainMenu);
     }
 
-    // Draw enemies
-    draw_enemies();
-  } else if (GameData.menu == "main") {
-    draw_main_menu();
-  }
+    // Score
+    draw_element(ScoreBar);
 
-  // Score
-  draw_score();
+    // Now Playing
+    draw_element(AudioBar);
 
-  // Now Playing
-  draw_sound();
+    // Menu button
+    draw_menu_button();
 
-  // Menu button
-  draw_menu_button();
-  
-  // Achievements
-  draw_ach();
+    // Achievements
+    draw_ach();
 
-  if (!GameData.menu) {
-    // Draw floaties
-    draw_floaties();
-  }
+    if (!GameData.menu) {
+	// Draw floaties
+	draw_floaties();
+    }
 
-  // Mouse
-  draw_mouse();
-  
-  call_trigger("step");
+    // Mouse
+    draw_mouse();
+
+    call_trigger("step");
 }
 
 function drawLoop() {
-  requestAnimationFrame(drawLoop);
-  draw();
+    requestAnimationFrame(drawLoop);
+    draw();
 }
 
 canvas.onmousemove = function (event) {
-  Mouse.x = event.clientX;
-  Mouse.y = event.clientY;
-  Mouse.rotary = (Mouse.rotary - 0.05);
-  if (Mouse.rotary < -2) {
-    Mouse.rotary = Mouse.rotary % 2; // this way we don't reset wheeling
-  }
+    Mouse.x = event.clientX;
+    Mouse.y = event.clientY;
+    Mouse.rotary = (Mouse.rotary - 0.05);
+    if (Mouse.rotary < -2) {
+	Mouse.rotary = Mouse.rotary % 2; // this way we don't reset wheeling
+    }
 
-  if (Mouse.x > menuButton[0][1] && Mouse.x < menuButton[0][1] + menuButton[0][3] &&
-      Mouse.y > menuButton[0][2] && Mouse.y < menuButton[0][2] + menuButton[0][4]) {
-    menuButtonHovered = true;
-  } else if (menuButtonHovered) {
-    menuButtonHovered = false;
-  }
+    if (Mouse.x > MenuButton[0].xorg && Mouse.x < MenuButton[0].xorg + MenuButton[0].width &&
+	Mouse.y > MenuButton[0].yorg && Mouse.y < MenuButton[0].yorg + MenuButton[0].height) {
+	menuButtonHovered = true;
+    } else if (menuButtonHovered) {
+	menuButtonHovered = false;
+    }
 }
 
 canvas.onmousedown = function(event) {
-  if (GameData.menu) {
-    if (Mouse.x > canvas.width / 16 * 7.5 && Mouse.x < canvas.width / 16 * 8.5 && Mouse.y > canvas.height / 2 - 15 && Mouse.y < canvas.height / 2 + 30) {
-      // PLAY!
-      GameData.menu = "";
-      GameData.score = 0;
-      return;
-    }
-  }
-
-  Mouse.pressed = true;
-  GameData.overlap = 0;
-  for (var i=0; i<enemies.length; i++) {
-    if (enemies[i].squished) {continue;}
-    var radius = enemies[i].health / 10;
-    // We want to return as soon as possible to avoid useless computing
-    if (Mouse.x < enemies[i].posx - radius - sradius) {continue;} // Minus radius of hand
-    if (Mouse.x > enemies[i].posx + radius + sradius) {continue;}
-    if (Mouse.y < enemies[i].posy - radius - sradius) {continue;}
-    if (Mouse.y > enemies[i].posy + radius + sradius) {continue;}
-
-    // We squished a pellet!
-    enemies[i].squished = true;
-    spawn_floaty(Math.floor(enemies[i].health), enemies[i].posx, enemies[i].posy)
-
-    var col = new color();
-    col.decs(enemies[i].color);
-
-    if (bg.red < col.red) {
-      bg.red += 4;
-    } else if (bg.red > col.red) {
-      bg.red -= 4;
+    if (GameData.menu) {
+	if (Mouse.x > canvas.width / 16 * 7.5 && Mouse.x < canvas.width / 16 * 8.5 && Mouse.y > canvas.height / 2 - 15 && Mouse.y < canvas.height / 2 + 30) {
+	    // PLAY!
+	    GameData.menu = "";
+	    GameData.score = 0;
+	    return;
+	}
     }
 
-    if (bg.green < col.green) {
-      bg.green += 4;
-    } else if (bg.green > col.green) {
-      bg.green -= 4;
+    Mouse.pressed = true;
+    GameData.overlap = 0;
+    for (var i=0; i<enemies.length; i++) {
+	if (enemies[i].squished) {continue;}
+	var radius = enemies[i].health / 10;
+	// We want to return as soon as possible to avoid useless computing
+	if (Mouse.x < enemies[i].posx - radius - sradius) {continue;} // Minus radius of hand
+	if (Mouse.x > enemies[i].posx + radius + sradius) {continue;}
+	if (Mouse.y < enemies[i].posy - radius - sradius) {continue;}
+	if (Mouse.y > enemies[i].posy + radius + sradius) {continue;}
+
+	// We squished a pellet!
+	enemies[i].squished = true;
+	spawn_floaty(Math.floor(enemies[i].health), enemies[i].posx, enemies[i].posy)
+
+	var col = new color();
+	col.decs(enemies[i].color);
+
+	if (bg.red < col.red) {
+	    bg.red += 4;
+	} else if (bg.red > col.red) {
+	    bg.red -= 4;
+	}
+
+	if (bg.green < col.green) {
+	    bg.green += 4;
+	} else if (bg.green > col.green) {
+	    bg.green -= 4;
+	}
+
+	if (bg.blue < col.blue) {
+	    bg.blue += 4;
+	} else if (bg.blue > col.blue) {
+	    bg.blue -= 4;
+	}
+
+	enemies[i].color = colors.deadEnemy;
+	increase_score(GameData.overlap * 50, enemies[i].posx, enemies[i].posy);
+	if (GameData.overlap > 0) {
+	    spawn_floaty(GameData.overlap * 50, enemies[i].posx, enemies[i].posy);
+	}
+	GameData.combo += 1;
+	GameData.overlap += 1;
+    }
+    if (GameData.overlap > 1) {
+	var fl = new floaty("Overlap! * " + GameData.overlap.toString(), Mouse.x, Mouse.y, 5, 30, colors.overlapTag, "20px Arial Bold");
+	floaties.push(fl);
+    } else if (GameData.overlap > 0 && GameData.combo > 1) {
+	var fl = new floaty("Combo " + GameData.combo.toString() + "!", Mouse.x, Mouse.y, 5, 30, colors.comboTag, "20px Arial");
+	floaties.push(fl);
     }
 
-    if (bg.blue < col.blue) {
-      bg.blue += 4;
-    } else if (bg.blue > col.blue) {
-      bg.blue -= 4;
-    }
-
-    enemies[i].color = "#000000";
-    increase_score(GameData.overlap * 50, enemies[i].posx, enemies[i].posy);
-    if (GameData.overlap > 0) {
-      spawn_floaty(GameData.overlap * 50, enemies[i].posx, enemies[i].posy);
-    }
-    GameData.combo += 1;
-    GameData.overlap += 1;
-  }
-  if (GameData.overlap > 1) {
-    var fl = new floaty("Overlap! * " + GameData.overlap.toString(), Mouse.x, Mouse.y, 5, 30, '#0000FF', "20px Arial Bold");
-    floaties.push(fl);
-  } else if (GameData.overlap > 0 && GameData.combo > 1) {
-    var fl = new floaty("Combo " + GameData.combo.toString() + "!", Mouse.x, Mouse.y, 5, 30, '#00FFFF', "20px Arial");
-    floaties.push(fl);
-  }
-  
-  call_trigger("mousedown");
+    call_trigger("mousedown");
 }
 
 canvas.onmouseup = function(event) {
-  Mouse.pressed = false;
-  triggerLock = false;
+    Mouse.pressed = false;
+    triggerLock = false;
 }
 
 function sound() {
@@ -722,45 +1062,36 @@ function bgm_music() {
   }
 }
 
-function draw_banner() {
-  ctx.fillStyle = "#d0d0d0";
-  ctx.fillRect(0, canvas.height / 2 - 45, canvas.width, 90);
-  ctx.strokeType = "#f00000";
-  ctx.strokeRect(0, canvas.height / 2 - 46, canvas.width, 92);
-}
-
-function waitMenu() {
+// Waiting menu
+function drawWaitMenu() {
   if (GameData.menu) {
-    requestAnimationFrame(waitMenu);
+    requestAnimationFrame(drawWaitMenu);
 
-    // Menu
-    // Clear
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Menu
+      // Clear
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Background
-    ctx.fillStyle = bg.hex();
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Background
+      ctx.fillStyle = bg.hex();
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Score
-    draw_score();
+      // Score
+      draw_element(ScoreBar);
 
-    // Now Playing
-    draw_sound();
+      // Now Playing
+      draw_element(AudioBar);
 
-    // Menu button
-    draw_menu_button();
+      // Menu button
+      draw_element(MenuButton);
 
-    // Banner
-    draw_banner();
+      // Banner
+      draw_element(Banner);
 
-    // Play Button
-    ctx.fillStyle = "#ff6600";
-    ctx.fillRect(canvas.width / 16 * 7.5, canvas.height / 2 - 15, canvas.width / 16, 30);
-    ctx.fillStyle = "#222288";
-    ctx.fillText("Play", canvas.width / 2, canvas.height / 2 + 5);
+      // Play Button
+      draw_element(StartButton);
 
-    // Mouse
-    draw_mouse();
+      // Mouse
+      draw_mouse();
 
 
   } else {
@@ -771,7 +1102,16 @@ function waitMenu() {
   }
 }
 
+function register_images() {
+    for (var i = 0; i < record_images.length; i++) {
+	var im = new Image();
+	im.src = record_images[i];
+	images[record_images[i]] = im;
+    }
+}
 
 window.onload = function() {
-  waitMenu();
+    register_images();
+
+    drawWaitMenu();
 }
