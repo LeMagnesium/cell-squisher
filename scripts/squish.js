@@ -172,14 +172,15 @@ var bgm;
 
 // Images
 var record_images = [
-    "images/game/slayer.gif",
-    "images/game/gt9000.gif",
-    "images/game/steve.gif",
-    "images/game/genocide.gif",
-    "images/game/mainmenu.gif",
-    "images/game/trigonomad.gif",
-    "images/game/king_combo.gif",
-    "images/game/collateral.gif",
+	"images/game/slayer.gif",
+	"images/game/gt9000.gif",
+	"images/game/steve.gif",
+	"images/game/genocide.gif",
+	"images/game/mainmenu.gif",
+	"images/game/trigonomad.gif",
+	"images/game/king_combo.gif",
+	"images/game/collateral.gif",
+	"images/game/notthereyet.gif",
 ];
 
 // Registered bitmaps go in there
@@ -562,15 +563,28 @@ function register_achievement(name, trigger, icon, howto, desc, condition, runth
 }
 
 function trigger_achievement(ach) {
-  ach.triggered = true;
+    ach.triggered = true;
 
-  // Do pre-graphical stuff here
+    // Dopre-graphical stuff here
     showQueue.push(new slider_component("rtl", canvas.width, canvas.height - 150, 250, 110, 20, 150, [
 	{
 	    class: "image",
 	    src: ach.icon,
-	    xorg: 125,
-	    yorg: 20
+	    xorg: 93,
+	    yorg: 13,
+	    width: 64,
+	    height: 64
+	},
+	{
+		class: "rect",
+		xorg: 93,
+		yorg: 13,
+		width: 64,
+		height: 64,
+		fill: false,
+		visuals: {
+			stroke: colors.red,
+		}
 	},
 	{
 	    class: "text",
@@ -610,7 +624,7 @@ register_achievement("A pet named Steve", "score", "images/game/steve.gif",
                      "Kudos if you get the reference. Reach a certain score (circa 3.6*10^6)",
                      "3,610,827 views in one week, good work",
                      function() { return GameData.score > 3610827; },
-		     null);
+ 	     null);
 
 register_achievement("Genocidal Rampage", "score", "images/game/genocide.gif",
 		     "You wanted something hard, didn't you?",
@@ -626,10 +640,10 @@ register_achievement("Nonsense of game design", "step", "images/game/mainmenu.gi
 		     null);
 
 
-register_achievement("Trigonometric madness", "step", "images/game/trigomad.gif",
-                     "Spin the hand-weel around.. a 100 times",
+register_achievement("Trigonometric madness", "step", "images/game/trigonomad.gif",
+                     "Spin the hand-weel around.. 62 times",
                      "Congrats, your finger is now permanently damaged",
-                     function () { return Mouse.rotary >= 200; },
+                     function () { return Mouse.rotary >= 124; },
 		     null);
 
 // Plain weird
@@ -641,7 +655,7 @@ register_achievement("KING COMBO!", "step", "images/game/king_combo.gif",
 
 register_achievement("Collateral Damages", "mousedown", "images/game/collateral.gif",
 		     "Get a 4 overlap or more",
-		     "Squish: check",
+		     "Squish cells: check",
 		     function () { return GameData.overlap >= 4; },
 		     null);
 
@@ -869,6 +883,13 @@ function draw_element(tab) {
 	    ctx.translate(obj.xorg, obj.yorg);
 	    draw_element(obj.children);
 	    ctx.translate(-obj.xorg, -obj.yorg);
+
+	} else if (obj.class == "image") {
+		ctx.drawImage(images[obj.src], // img
+				obj.xorg, obj.yorg, // x, y
+				obj.width, obj.height // width height
+				);
+		//console.log(images[obj.src]);
 	}
 
 	VisualSwap.useMainFont();
