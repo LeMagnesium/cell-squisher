@@ -40,6 +40,7 @@ var colors = {
 
     overlapTag: '#0000ff',
     comboTag: '#00ffff',
+    comboReset: '#ff00ff',
     textFill: '#2277ff',
 
     startButtonFill: '#ff6600',
@@ -349,6 +350,7 @@ function enemy() {
   this.color = new color();
   this.border_color = new color();
   this.squished = false;
+  this.balance = -10;
   this.spawn = function() {
     this.color.red = Math.ceil(Math.random() * 255);
     this.color.green = Math.ceil(Math.random() * 255);
@@ -688,6 +690,7 @@ function increase_score(int, raw) {
     GameData.score = 0;
   }
   call_trigger("score");
+  return int;
 }
 
 function spawn_floaty(int, posx, posy) {
@@ -750,38 +753,41 @@ function draw_enemy(enemy, id, sum, sum2) {
 }
 
 function draw_enemies() {
-    // Bring out yer dead!
-    var nosquish = true;
-    for (var i=0; i<enemies.length; i++) {
-	if (enemies[i].health <= 0) {
-	    if (!enemies[i].squished) {
-		increase_score(-10, true);
-		spawn_floaty(-10, enemies[i].posx, enemies[i].posy);
-	    }
-	    enemies.splice(i, 1);
-	} else if (enemies[i].squished) {
-	    nosquish = false;
+	// Bring out yer dead!
+	var nosquish = true;
+	for (var i=0; i<enemies.length; i++) {
+		if (enemies[i].health <= 0) {
+			spawn_floaty(enemies[i].balance, enemies[i].posx, enemies[i].posy);
+			// The balance is only added now if the cell dies of natural causes; otherwise score has been added progressively
+			if (!enemies[i].squished) {
+				increase_score(enemies[i].balance, true);
+			}
+			enemies.splice(i, 1);
+		} else if (enemies[i].squished) {
+			nosquish = false;
+		}
 	}
-    }
 
-    // Combo reset if no pellet squished
-    if (GameData.combo > 0 && nosquish) {
-	if (GameData.combo > 1) {
-	    var fl = new floaty("Combo reset..", Mouse.x, Mouse.y, 5, 30, '#FF00FF', "20px Arial");
-	    floaties.push(fl);
+	// Combo reset if no pellet squished
+	if (GameData.combo > 0 && nosquish) {
+		if (GameData.combo > 1) {
+			var fl = new floaty("Combo reset..", Mouse.x, Mouse.y, 5, 30, colors.comboReset, "20px Arial");
+			floaties.push(fl);
+		}
+		GameData.combo = 0;
 	}
-	GameData.combo = 0;
-    }
 
-    for (var i=0; i<enemies.length; i++) {
-	if (enemies[i].health > 0) {draw_enemy(enemies[i]);}
-	if (enemies[i].squished) {
-	    var h = Math.floor(Math.random() * 6);
-	    increase_score(h);
-	    enemies[i].health -= h;
+	for (var i=0; i<enemies.length; i++) {
+		if (enemies[i].health > 0) {draw_enemy(enemies[i]);}
+		if (enemies[i].squished) {
+			// The cell slowly shrinks and dies. "Slowly"
+			var h = Math.floor(Math.random() * 6);
+			var n = increase_score(h);
+			enemies[i].health -= h;
+			enemies[i].balance += n;
+		}
+		enemies[i].health -= Math.ceil(Math.random() * 2);
 	}
-	enemies[i].health -= Math.ceil(Math.random() * 2);
-    }
 }
 
 function draw_floaties() {
@@ -1000,7 +1006,7 @@ canvas.onmousedown = function(event) {
 
 	// We squished a pellet!
 	enemies[i].squished = true;
-	spawn_floaty(Math.floor(enemies[i].health), enemies[i].posx, enemies[i].posy)
+	enemies[i].balance = 0; // this will be filled as the cell shrinks and dies
 
 	var col = new color();
 	col.decs(enemies[i].color);
