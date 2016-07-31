@@ -11,6 +11,7 @@ var floaties = [];
 var MaxColoursAllowed = 255 * 255 * 255;
 var menuButtonHovered = false;
 var triggerLock = false;
+var nightTheme = false;
 
 var version = 0.9;
 
@@ -144,6 +145,23 @@ var VisualSwap = {
     },
 };
 
+// Current color scheme/theme
+var theme = "day";
+
+window.toggle_theme = function() {
+	if (theme == "day") {
+		// Switch to night
+		colors.mainMenuFill = '#111111';
+		colors.mainMenuStroke = '#00f000';
+		theme = "night";
+	} else if (theme == "night") {
+		// Switch to day
+		colors.mainMenuFill = '#dddddd';
+		colors.mainMenuStroke = '#f00000';
+		theme = "day";
+	}
+}
+
 // Mouse stuff
 var surround = 6;
 var fradius = 15;
@@ -227,8 +245,9 @@ var MainMenu = [
 	width: canvas.width - 10,
 	height: canvas.height - 80,
 	visuals: {
-	    stroke: colors.mainMenuStroke,
-	    fill: colors.mainMenuFill,
+		live: true,
+		stroke: function() {return colors.mainMenuStroke;},
+		fill: function() {return colors.mainMenuFill;},
 	}
     },
     {
@@ -238,7 +257,8 @@ var MainMenu = [
 	width: 0,
 	height: canvas.height - 80,
 	visuals: {
-	    stroke: colors.mainMenuStroke,
+		live: true,
+		stroke: function() {return colors.mainMenuStroke;},
 	}
     }
 ]
@@ -251,7 +271,8 @@ var ScoreBar = [
 	width: canvas.width - 10,
 	height: 30,
 	visuals: {
-	    fill: colors.mainMenuFill,
+		live: true,
+		fill: function() {return colors.mainMenuFill;},
 	}
     },
     {
@@ -278,7 +299,8 @@ var AudioBar = [
 	width: canvas.width - 45,
 	height: 30,
 	visuals: {
-	    fill: colors.mainMenuFill,
+		live: true,
+		fill: function() {return colors.mainMenuFill;},
 	}
     },
     {
@@ -306,8 +328,9 @@ var Banner = [
 	width: canvas.width,
 	height: 90,
 	visuals: {
-	    fill: colors.mainMenuFill,
-	    stroke: colors.mainMenuStroke,
+		live: true,
+		fill: function() {return colors.mainMenuFill;},
+		stroke: function() {return colors.mainMenuStroke;},
 	}
     },
 ];
@@ -834,17 +857,21 @@ function draw_element(tab) {
 	if (obj.visuals) {
 	    if (obj.visuals.stroke) {
 		if (obj.visuals.stroke == "currentFill") {
-		    VisualSwap.setSecondStroke(ctx.fillStyle);
+			VisualSwap.setSecondStroke(ctx.fillStyle);
+		} else if (obj.visuals.live) {
+			VisualSwap.setSecondStroke(obj.visuals.stroke());
 		} else {
-		    VisualSwap.setSecondStroke(obj.visuals.stroke);
+			VisualSwap.setSecondStroke(obj.visuals.stroke);
 		}
 		VisualSwap.useSecondStroke();
 	    }
 	    if (obj.visuals.fill) {
 		if (obj.visuals.fill == "currentStroke") {
 		    VisualSwap.setSecondFill(ctx.strokeStyle);
+		} else if (obj.visuals.live) {
+			VisualSwap.setSecondFill(obj.visuals.fill());
 		} else {
-		    VisualSwap.setSecondFill(obj.visuals.fill);
+			VisualSwap.setSecondFill(obj.visuals.fill);
 		}
 		VisualSwap.useSecondFill();
 	    }
@@ -895,7 +922,6 @@ function draw_element(tab) {
 				obj.xorg, obj.yorg, // x, y
 				obj.width, obj.height // width height
 				);
-		//console.log(images[obj.src]);
 	}
 
 	VisualSwap.useMainFont();
@@ -1139,6 +1165,5 @@ function register_images() {
 
 window.onload = function() {
     register_images();
-
     drawWaitMenu();
 }

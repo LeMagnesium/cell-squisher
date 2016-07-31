@@ -67,8 +67,9 @@ We'll now explain all the fields an element can have so far :
    - A table of configuration fields on how to render the element
    - If a field is not specified, then the currently default value will be used instead
    - Fields :
-     - fill : Style to use in order to fill the element (default: ctx.fillStyle // current fillStyle set by VisualSwap). If its value is "currentStroke" then the current strokeStyle value is applied.
-     - stroke : Style to be used for the element's outline (default: ctx.strokeStyle // current strokeStyle set by VisualSwap) If its value is "currentFill" then the current fillStyle value is applied.
+     - live : If true, then fill and stroke, if provided, must be functions returning the string. This is used for variables holding values changing over time
+     - fill : Style to use in order to fill the element (default: ctx.fillStyle // current fillStyle set by VisualSwap). If its value is "currentStroke" then the current strokeStyle value is applied. If live is true, must be a function returning the hexadecimal colour string.
+     - stroke : Style to be used for the element's outline (default: ctx.strokeStyle // current strokeStyle set by VisualSwap) If its value is "currentFill" then the current fillStyle value is applied. If live is true, must be a function returning the hexadecimal colour string.
      - font : Text font for text elements to use (default: ctx.font // current font set by VisualSwap)
 
 And that's it for now.
