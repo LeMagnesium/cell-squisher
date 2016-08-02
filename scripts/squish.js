@@ -205,6 +205,9 @@ var record_images = [
 // Registered bitmaps go in there
 var images = [];
 
+// Registered clickable areas to go there
+var clickable = [];
+
 // Graphical elements
 var MenuButton = [
     {
@@ -369,7 +372,7 @@ var showQueue = [];
 function enemy() {
   this.posx = Math.random() * canvas.width;
   this.posy = Math.random() * (canvas.height-70) + 35;
-  this.health = Math.ceil(Math.random()) * 100 + 200;
+  this.health = Math.ceil(Math.random()) * 120 + 200;
   this.color = new color();
   this.border_color = new color();
   this.squished = false;
@@ -543,6 +546,14 @@ function slider_component(direction, start_x, start_y, width, length, slide_time
     }
 }
 
+function clickable_area(name, posx, posy, endx, endy, action) {
+        this.name = name;
+        this.start = {x: posx, y: posy};
+        this.end = {x: endx, y: endy};
+        this.action = action;
+        this.active = false;
+}
+
 // Other misc definitions
 var bg = new color(255, 255, 255);
 
@@ -685,6 +696,68 @@ register_achievement("Collateral Damages", "mousedown", "images/game/collateral.
 		     null);
 
 
+// Clickable areas stuff
+function register_clickable_area(definition) {
+        clickable.push(definition);
+}
+
+function enable_clickable_area(name) {
+        for (var i = 0; i < clickable.length; i++) {
+                if (clickable[i].name == name) {
+                        clickable[i].active = true;
+                }
+        }
+}
+
+function disable_clickable_area(name) {
+        for (var i = 0; i < clickable.length; i++) {
+                if (clickable[i].name == name) {
+                        clickable[i].active = false;
+                }
+        }
+}
+
+function delete_clickable_area(name) {
+        for (var i = 0; i < clickable.length; i++) {
+                if (clickable[i].name == name) {
+                        clickable.splice(i, 1);
+                        return;
+                }
+        }
+}
+
+register_clickable_area(new clickable_area("ToMenuButton",
+        MenuButton[0].xorg, MenuButton[0].yorg,
+        MenuButton[0].xorg + MenuButton[0].width,
+        MenuButton[0].yorg + MenuButton[0].length,
+        function() {
+                GameData.menu = "main";
+                disable_clickable_area("ToMenuButton");
+                enable_clickable_area("FromMenuButton");
+        }
+))
+
+register_clickable_area(new clickable_area("FromMenuButton",
+        MenuButton[0].xorg, MenuButton[0].yorg,
+        MenuButton[0].xorg + MenuButton[0].width,
+        MenuButton[0].yorg + MenuButton[0].length,
+        function() {
+                GameData.menu = "";
+                disable_clickable_area("FromMenuButton");
+                enable_clickable_area("ToMenuButton");
+        }
+))
+
+register_clickable_area(new clickable_area("PlayButton",
+        canvas.width / 16 * 7.5, canvas.height / 2 - 15,
+        canvas.width / 16 * 8.5, canvas.height / 2 + 30,
+        function() {
+                // PLAY!
+                GameData.menu = "";
+                GameData.score = 0;
+        }
+))
+
 
 // Hexadecimal garbage
 var hex = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
@@ -804,12 +877,12 @@ function draw_enemies() {
 		if (enemies[i].health > 0) {draw_enemy(enemies[i]);}
 		if (enemies[i].squished) {
 			// The cell slowly shrinks and dies. "Slowly"
-			var h = Math.floor(Math.random() * 6);
+			var h = Math.floor(Math.random() * 10);
 			var n = increase_score(h);
 			enemies[i].health -= h;
 			enemies[i].balance += n;
 		}
-		enemies[i].health -= Math.ceil(Math.random() * 2);
+		enemies[i].health -= Math.ceil(Math.random() * 4);
 	}
 }
 
@@ -832,10 +905,8 @@ function draw_menu_button() {
 	VisualSwap.setSecondFill(colors.menuButtonPressed);
 	if (!triggerLock) {
 	    if (GameData.menu == "main") {
-		GameData.menu = "";
 		bgm.play();
 	    } else if (GameData.menu == "") {
-		GameData.menu = "main";
 		bgm.pause();
 	    }
 	    triggerLock = true;
@@ -952,7 +1023,7 @@ function draw() {
 
     if (!GameData.menu) {
 	// Enemies
-	if (Math.random() < 0.3) {
+	if (Math.random() < 0.5) {
 	    // New enemy at random coords
 	    var en = new enemy();
 	    en.spawn();
@@ -1010,16 +1081,19 @@ canvas.onmousemove = function (event) {
 }
 
 canvas.onmousedown = function(event) {
-    if (GameData.menu) {
-	if (Mouse.x > canvas.width / 16 * 7.5 && Mouse.x < canvas.width / 16 * 8.5 && Mouse.y > canvas.height / 2 - 15 && Mouse.y < canvas.height / 2 + 30) {
-	    // PLAY!
-	    GameData.menu = "";
-	    GameData.score = 0;
-	    return;
-	}
+    Mouse.pressed = true;
+    // Check clickables first
+   for (var i = 0; i < clickable.length; i++) {
+            if (!clickable[i].active) {continue;}
+            if (Mouse.x < clickable[i].start.x - sradius) {continue;}
+            if (Mouse.x > clickable[i].end.x + sradius) {continue;}
+            if (Mouse.y < clickable[i].start.y - sradius) {continue;}
+            if (Mouse.y > clickable[i].end.y + sradius) {continue;}
+
+            clickable[i].action();
+            break;
     }
 
-    Mouse.pressed = true;
     GameData.overlap = 0;
     for (var i=0; i<enemies.length; i++) {
 	if (enemies[i].squished) {continue;}
@@ -1151,6 +1225,8 @@ function drawWaitMenu() {
     // Let's start the game!
     bgm = new bgm_music(-1);
     bgm.start();
+    enable_clickable_area("ToMenuButton");
+    delete_clickable_area("PlayButton");
     drawLoop();
   }
 }
@@ -1165,5 +1241,6 @@ function register_images() {
 
 window.onload = function() {
     register_images();
+    enable_clickable_area("PlayButton");
     drawWaitMenu();
 }
