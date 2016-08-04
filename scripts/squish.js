@@ -11,9 +11,9 @@ var floaties = [];
 var MaxColoursAllowed = 255 * 255 * 255;
 var menuButtonHovered = false;
 var triggerLock = false;
-var nightTheme = false;
 
 var version = 0.9;
+
 
 // Game Data
 var GameData = {
@@ -21,14 +21,16 @@ var GameData = {
     combo: 0,
     menu: "start",
     overlap: 0,
+    last_cookie_save: 0,
+    now: 0,
 }
 
 // Config trash
 var Config = {
   extrafloaties: true,
+  theme: "day",
 }
 
-// Colors and Visuals
 // Colors
 var colors = {
     mainMenuFill: '#dddddd',
@@ -36,6 +38,8 @@ var colors = {
 
     menuButtonHovered: '#dddd22',
     menuButtonPressed: '#dd2222',
+
+    cookieSaverFill: '#db4540',
 
     deadEnemy: '#000000',
 
@@ -46,6 +50,8 @@ var colors = {
 
     startButtonFill: '#ff6600',
     startButtonLabel: '#222288',
+    startButtonPressedFill: '#66ff00',
+    startButtonPressedLabel: '#888822',
 
     positiveScoreFloaty: '#00ff00',
     negativeScoreFloaty: '#ff0000',
@@ -65,6 +71,64 @@ var colors = {
     white: '#ffffff',
 };
 
+// Audio
+var sounds = [
+        "audio/No Rocking in the Jazzhands Zone.mp3",
+        "audio/Skipping Through the Orchestra Pit.mp3",
+        "audio/Babylon.mp3",
+        "audio/Club Diver.mp3"
+];
+
+var audio_titles = [
+        "Peter Gresser - No Rocking the Jazzhands Zone",
+        "Peter Gresser - Skipping Through the Orchestra Pit",
+        "Kevin MacLeod - Babylon",
+        "Kevin MacLeod - Club Diver"
+];
+var nowPlaying = -1;
+var bgm;
+
+// Images
+var record_images = [
+	"images/game/slayer.gif",
+	"images/game/gt9000.gif",
+	"images/game/steve.gif",
+	"images/game/genocide.gif",
+	"images/game/mainmenu.gif",
+	"images/game/trigonomad.gif",
+	"images/game/king_combo.gif",
+	"images/game/collateral.gif",
+	"images/game/notthereyet.gif",
+];
+
+// Registered bitmaps go in there
+var images = [];
+
+// Registered clickable areas to go there
+var clickable = [];
+
+// Triggers
+var triggers = [];
+
+// Achievements
+var achievements = []
+var showQueue = [];
+
+// Mouse
+var surround = 6;
+var fradius = 15;
+var sradius = 6;
+
+var Mouse = {
+  y: canvas.width / 2,
+  x: canvas.height / 2,
+  rotary: 0,
+  pressed: false,
+  hovering: "",
+  clicking: "",
+};
+
+// VisualSwap
 // Color and font swapper
 var VisualSwap = {
     fill: "#000000",
@@ -145,248 +209,92 @@ var VisualSwap = {
     },
 };
 
-// Current color scheme/theme
-var theme = "day";
 
-window.toggle_theme = function() {
-	if (theme == "day") {
-		// Switch to night
-		colors.mainMenuFill = '#111111';
-		colors.mainMenuStroke = '#00f000';
-		theme = "night";
-	} else if (theme == "night") {
-		// Switch to day
-		colors.mainMenuFill = '#dddddd';
-		colors.mainMenuStroke = '#f00000';
-		theme = "day";
-	}
+// Other misc definitions
+var bg = new color(255, 255, 255);
+
+VisualSwap.setMainFont("20px Arial");
+VisualSwap.useMainFont();
+VisualSwap.setMainFill(colors.mainMenuFill);
+VisualSwap.useMainFill();
+VisualSwap.setMainStroke(colors.mainMenuStroke);
+VisualSwap.useMainStroke();
+ctx.textAlign = "center";
+
+window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
+
+/*
+ *      Definitions of global data
+ */
+
+/* Hexadecimal utils */
+// Hexadecimal garbage
+var hex = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+
+function dechex(int) {
+  return hex[int >> 4] + hex[int & 15];
 }
 
-// Mouse stuff
-var surround = 6;
-var fradius = 15;
-var sradius = 6;
+function hexdec(he) {
+  var dec = 0;
+  for (var i = 0; i < he.length; i++) {
+    dec = dec << 4;
+    dec += hex.indexOf(he[i]);
+  }
+  return dec;
+}
 
-var Mouse = {
-  y: canvas.width / 2,
-  x: canvas.height / 2,
-  rotary: 0,
-  pressed: false,
-};
+
+/* GAME ASSETS */
+// Assets
+// Images
+function register_images() {
+    for (var i = 0; i < record_images.length; i++) {
+	var im = new Image();
+	im.src = record_images[i];
+	images[record_images[i]] = im;
+    }
+}
 
 // Audio
-var sounds = ["audio/No Rocking in the Jazzhands Zone.mp3",
-              "audio/Skipping Through the Orchestra Pit.mp3",
-              "audio/Babylon.mp3",
-              "audio/Club Diver.mp3"
-             ];
-var audio_titles = [
-  "Peter Gresser - No Rocking the Jazzhands Zone",
-  "Peter Gresser - Skipping Through the Orchestra Pit",
-  "Kevin MacLeod - Babylon",
-  "Kevin MacLeod - Club Diver"
-];
-var nowPlaying = -1;
-var bgm;
-
-// Images
-var record_images = [
-	"images/game/slayer.gif",
-	"images/game/gt9000.gif",
-	"images/game/steve.gif",
-	"images/game/genocide.gif",
-	"images/game/mainmenu.gif",
-	"images/game/trigonomad.gif",
-	"images/game/king_combo.gif",
-	"images/game/collateral.gif",
-	"images/game/notthereyet.gif",
-];
-
-// Registered bitmaps go in there
-var images = [];
-
-// Registered clickable areas to go there
-var clickable = [];
-
-// Graphical elements
-var MenuButton = [
-    {
-	class: "rect",
-	xorg: canvas.width - 35,
-	yorg: canvas.height - 35,
-	width: 30,
-	height: 30,
-    },
-    {
-	class: "line",
-	xorg: canvas.width - 30,
-	yorg: canvas.height - 13,
-	width: 20,
-	height: 0,
-    },
-    {
-	class: "line",
-	xorg: canvas.width - 30,
-	yorg: canvas.height - 20,
-	width: 20,
-	height: 0,
-    },
-    {
-	class: "line",
-	xorg: canvas.width - 30,
-	yorg: canvas.height - 27,
-	width: 20,
-	height: 0,
-    }
-]
-
-var MainMenu = [
-    {
-	class: "rect",
-	xorg: 5,
-	yorg: 40,
-	width: canvas.width - 10,
-	height: canvas.height - 80,
-	visuals: {
-		live: true,
-		stroke: function() {return colors.mainMenuStroke;},
-		fill: function() {return colors.mainMenuFill;},
-	}
-    },
-    {
-	class: "line",
-	xorg: canvas.width/2,
-	yorg: 40,
-	width: 0,
-	height: canvas.height - 80,
-	visuals: {
-		live: true,
-		stroke: function() {return colors.mainMenuStroke;},
-	}
-    }
-]
-
-var ScoreBar = [
-    {
-	class: "rect",
-	xorg: 5,
-	yorg: 5,
-	width: canvas.width - 10,
-	height: 30,
-	visuals: {
-		live: true,
-		fill: function() {return colors.mainMenuFill;},
-	}
-    },
-    {
-	class: "text",
-	live: true,
-	xorg: canvas.width / 2,
-	yorg: 27,
-	stroke: false,
-	text: function() {
-	    if (GameData.score == -1) { return ""; }
-	    return GameData.score.toString();
-	},
-	visuals: {
-	    fill: colors.textFill,
-	}
-    }
-];
-
-var AudioBar = [
-    {
-	class: "rect",
-	xorg: 5,
-	yorg: canvas.height - 35,
-	width: canvas.width - 45,
-	height: 30,
-	visuals: {
-		live: true,
-		fill: function() {return colors.mainMenuFill;},
-	}
-    },
-    {
-	class: "text",
-	live: true,
-	xorg: canvas.width / 2 - 45,
-	yorg: canvas.height - 13,
-	stroke: false,
-	text: function() {
-	    if (nowPlaying == -1) {return ""}
-	    return "Now Playing : " + audio_titles[nowPlaying];
-	},
-	visuals: {
-	    fill: colors.textFill,
-	    font: "Arial 24px",
-	}
-    },
-];
-
-var Banner = [
-    {
-	class: "rect",
-	xorg: 0,
-	yorg: canvas.height / 2 - 45,
-	width: canvas.width,
-	height: 90,
-	visuals: {
-		live: true,
-		fill: function() {return colors.mainMenuFill;},
-		stroke: function() {return colors.mainMenuStroke;},
-	}
-    },
-];
-
-var StartButton = [
-    {
-	class: "rect",
-	xorg: canvas.width / 16 * 7.5,
-	yorg: canvas.height / 2 - 15,
-	width: canvas.width / 16,
-	height: 30,
-	visuals: {
-	    fill: colors.startButtonFill,
-	}
-    },
-    {
-	class: "text",
-	text: "Play",
-	xorg: canvas.width / 2,
-	yorg: canvas.height / 2 + 5,
-	stroke: false,
-	visuals: {
-	    fill: colors.startButtonLabel,
-	}
-    }
-];
-
-// Triggers
-var triggers = [];
-
-// Achievements
-var achievements = []
-var showQueue = [];
-
-// Classes
-function enemy() {
-  this.posx = Math.random() * canvas.width;
-  this.posy = Math.random() * (canvas.height-70) + 35;
-  this.health = Math.ceil(Math.random()) * 120 + 200;
-  this.color = new color();
-  this.border_color = new color();
-  this.squished = false;
-  this.balance = -10;
-  this.spawn = function() {
-    this.color.red = Math.ceil(Math.random() * 255);
-    this.color.green = Math.ceil(Math.random() * 255);
-    this.color.blue = Math.ceil(Math.random() * 255);
-
-    this.border_color = this.color.get_dark().hex();
-    this.color = this.color.hex(); // Overwrite
+function sound() {
+  this.sound = document.createElement("audio");
+  this.sound.setAttribute("preload", "auto");
+  this.sound.setAttribute("controls", "none");
+  this.sound.style.display = "none";
+  document.body.appendChild(this.sound);
+  this.play = function(src) {
+    this.sound.src = src;
+    this.sound.play();
   }
 }
 
+function bgm_music() {
+  this.sound = document.createElement("audio");
+  this.sound.setAttribute("preload", "auto");
+  this.sound.setAttribute("controls", "none");
+  //this.sound.setAttribute("type", "audio/mpeg");
+  this.sound.style.display = "none";
+  document.body.appendChild(this.sound);
+  this.start = function() {
+    nowPlaying = Math.floor(Math.random() * sounds.length);
+    this.sound.src = sounds[nowPlaying];
+    this.sound.play();
+  };
+  this.play = function() {
+    this.sound.play();
+  }
+  this.pause = function() {
+    this.sound.pause();
+  }
+  this.sound.onended = function() {
+    bgm = new bgm_music();
+    bgm.start();
+  }
+}
+
+/* Visuals */
+// Color class
 function color(r, g, b) {
   this.red = r;
   this.green = g;
@@ -413,37 +321,23 @@ function color(r, g, b) {
   }
 }
 
-function floaty(text, posx, posy, speed, lifespan, color, font) {
-    this.text = text || "";
-    this.posx = posx;
-    this.posy = posy;
-    this.speed = speed || 15;
-    this.lifespan = lifespan || 200;
-    this.font = font || ctx.font;
-    this.color = color || colors.white;
-    this.dead = false;
 
-    this.draw = function() {
-	if (this.dead) {return;}
-
-	VisualSwap.setSecondFont(this.font);
-	VisualSwap.useSecondFont();
-	VisualSwap.setSecondFill(this.color);
-	VisualSwap.useSecondFill();
-
-	ctx.fillText(this.text, this.posx, this.posy);
-
-	VisualSwap.useMainFont();
-	VisualSwap.useMainFill();
-
-	this.posy -= this.speed;
-	this.lifespan -= 1;
-	if (this.lifespan == 0) {
-	    this.dead = true;
+// Current color scheme/theme
+window.toggle_theme = function() {
+	if (Config.theme == "day") {
+		// Switch to night
+		colors.mainMenuFill = '#111111';
+		colors.mainMenuStroke = '#00f000';
+		Config.theme = "night";
+	} else if (theme == "night") {
+		// Switch to day
+		colors.mainMenuFill = '#dddddd';
+		colors.mainMenuStroke = '#f00000';
+		Config.theme = "day";
 	}
-    }
 }
 
+/* ACHIEVEMENTS */
 function achievement(name, trigger, icon, howto, desc, condition, runthrough) {
   this.name = name;
   this.icon = icon;
@@ -546,6 +440,7 @@ function slider_component(direction, start_x, start_y, width, length, slide_time
     }
 }
 
+/* CLICKABLE AREAS */
 function clickable_area(name, posx, posy, endx, endy, action) {
         this.name = name;
         this.start = {x: posx, y: posy};
@@ -554,373 +449,217 @@ function clickable_area(name, posx, posy, endx, endy, action) {
         this.active = false;
 }
 
-// Other misc definitions
-var bg = new color(255, 255, 255);
-
-VisualSwap.setMainFont("20px Arial");
-VisualSwap.useMainFont();
-VisualSwap.setMainFill(colors.mainMenuFill);
-VisualSwap.useMainFill();
-VisualSwap.setMainStroke(colors.mainMenuStroke);
-VisualSwap.useMainStroke();
-ctx.textAlign = "center";
-
-window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
-
-// Triggers
-function register_trigger(name) {
-  triggers[name] = [];
-  achievements[name] = [];
-}
-
-function register_hook(name, func) {
-  triggers[name].push(func);
-}
-
-function call_trigger(name) {
-  for (var i = 0; i < triggers[name].length; i++) {
-    triggers[name][i]();
-  }
-
-  for (var u = 0; u < achievements[name].length; u++) {
-    achievements[name][u].check();
-  }
-}
-
-register_trigger("mousemove");
-register_trigger("step");
-register_trigger("mousedown");
-register_trigger("score");
-
-// Achievement garbage
-function register_achievement(name, trigger, icon, howto, desc, condition, runthrough) {
-  var ach = new achievement(name, trigger, icon, howto, desc, condition, runthrough);
-  achievements[trigger].push(ach);
-}
-
-function trigger_achievement(ach) {
-    ach.triggered = true;
-
-    // Dopre-graphical stuff here
-    showQueue.push(new slider_component("rtl", canvas.width, canvas.height - 150, 250, 110, 20, 150, [
-	{
-	    class: "image",
-	    src: ach.icon,
-	    xorg: 93,
-	    yorg: 13,
-	    width: 64,
-	    height: 64
-	},
-	{
-		class: "rect",
-		xorg: 93,
-		yorg: 13,
-		width: 64,
-		height: 64,
-		fill: false,
-		visuals: {
-			stroke: colors.red,
-		}
-	},
-	{
-	    class: "text",
-	    text: ach.name,
-	    xorg: 125,
-	    yorg: 100,
-	    stroke: true,
-	    visuals: {
-		fill: "currentStroke",
-		font: "20px Arial",
-	    }
-	}
-  ]));
-}
-
-function cycle_through() {
-  for (var i = 0; i < achievements.length; i++) {
-    achievements[i].runthrough();
-    achievements[i].check();
-  }
-}
-
-// Score achievements
-register_achievement("The Cell Slayer", "score", "images/game/slayer.gif",
-                     "You'll never see that text.. POOOP!",
-                     "Yes you have an achievement for squishing a cell. I am that desperate about filling my game with content",
-                     function () { return GameData.score > 0; },
-		     null);
-
-register_achievement("Over 9000", "score", "images/game/gt9000.gif",
-                     "Get 9000 of score. Yeah, lame.",
-                     "Pretty easy, duh",
-                     function () { return GameData.score > 9000; },
-		     null);
-
-register_achievement("A pet named Steve", "score", "images/game/steve.gif",
-                     "Kudos if you get the reference. Reach a certain score (circa 3.6*10^6)",
-                     "3,610,827 views in one week, good work",
-                     function() { return GameData.score > 3610827; },
- 	     null);
-
-register_achievement("Genocidal Rampage", "score", "images/game/genocide.gif",
-		     "You wanted something hard, didn't you?",
-                     "You have earned the lethal injection of salty water for destroying scientifical progress",
-                     function() { return GameData.score > 9000000000; },
-		     null);
-
-// Mouse stuff
-register_achievement("Nonsense of game design", "step", "images/game/mainmenu.gif",
-                     "LOLOLOLOLOL",
-                     "You just found the main menu, probably",
-                     function() { return GameData.menu == "main"; },
-		     null);
-
-
-register_achievement("Trigonometric madness", "step", "images/game/trigonomad.gif",
-                     "Spin the hand-weel around.. 62 times",
-                     "Congrats, your finger is now permanently damaged",
-                     function () { return Mouse.rotary >= 124; },
-		     null);
-
-// Plain weird
-register_achievement("KING COMBO!", "step", "images/game/king_combo.gif",
-		     "Get a 100 combo",
-		     "Hypactivity, amirite?",
-		     function () { return GameData.combo >= 100; },
-		     null);
-
-register_achievement("Collateral Damages", "mousedown", "images/game/collateral.gif",
-		     "Get a 4 overlap or more",
-		     "Squish cells: check",
-		     function () { return GameData.overlap >= 4; },
-		     null);
-
-
 // Clickable areas stuff
-function register_clickable_area(definition) {
-        clickable.push(definition);
+function register_clickable_area(def) {
+        clickable[def.name] = def;
 }
 
 function enable_clickable_area(name) {
-        for (var i = 0; i < clickable.length; i++) {
-                if (clickable[i].name == name) {
-                        clickable[i].active = true;
+        if (clickable[name]) {
+                clickable[name].active = true;
+                if (clickable[name].on_enable) {
+                        clickable[name].on_enable();
                 }
         }
 }
 
 function disable_clickable_area(name) {
-        for (var i = 0; i < clickable.length; i++) {
-                if (clickable[i].name == name) {
-                        clickable[i].active = false;
+        if (clickable[name]) {
+                clickable[name].active = false;
+                if (clickable[name].on_disable) {
+                        clickable[name].on_disable();
                 }
         }
 }
 
 function delete_clickable_area(name) {
-        for (var i = 0; i < clickable.length; i++) {
-                if (clickable[i].name == name) {
-                        clickable.splice(i, 1);
-                        return;
+        delete clickable[name];
+}
+
+/* ELEMENTS */
+// Graphical elements
+var MenuButton = [
+    {
+	class: "rect",
+	xorg: canvas.width - 35,
+	yorg: canvas.height - 35,
+	width: 30,
+	height: 30,
+    },
+    {
+	class: "line",
+	xorg: canvas.width - 30,
+	yorg: canvas.height - 13,
+	width: 20,
+	height: 0,
+    },
+    {
+	class: "line",
+	xorg: canvas.width - 30,
+	yorg: canvas.height - 20,
+	width: 20,
+	height: 0,
+    },
+    {
+	class: "line",
+	xorg: canvas.width - 30,
+	yorg: canvas.height - 27,
+	width: 20,
+	height: 0,
+    }
+]
+
+var MainMenu = [
+        {
+                class: "rect",
+                xorg: 5,
+                yorg: 40,
+                width: canvas.width - 10,
+                height: canvas.height - 80,
+                visuals: {
+                        live: true,
+                        stroke: function() {return colors.mainMenuStroke;},
+                        fill: function() {return colors.mainMenuFill;},
+                }
+        },
+        {
+                class: "line",
+                xorg: canvas.width/2,
+                yorg: 40,
+                width: 0,
+                height: canvas.height - 80,
+                visuals: {
+                        live: true,
+                        stroke: function() {return colors.mainMenuStroke;},
+                }
+       },
+       {
+                class: "rect",
+                xorg: 10,
+                yorg: canvas.height - 80,
+                width: canvas.width / 2 - 15,
+                height: 35,
+                visuals: {
+                        live: true,
+                        stroke: function() {return "#33cfdf";},
+                        fill: function() {return colors.cookieSaverFill},
+               }
+       },
+       {
+               class: "text",
+               xorg: canvas.width / 4 - 2.5,
+               yorg: canvas.height - 55,
+               text: "Save game data",
+               visuals: {
+                       fill: "#000000",
+                       stroke: "#003322"
+               }
+       }
+]
+
+var ScoreBar = [
+    {
+	class: "rect",
+	xorg: 5,
+	yorg: 5,
+	width: canvas.width - 10,
+	height: 30,
+	visuals: {
+		live: true,
+		fill: function() {return colors.mainMenuFill;},
+	}
+    },
+    {
+	class: "text",
+	live: true,
+	xorg: canvas.width / 2,
+	yorg: 27,
+	stroke: false,
+	text: function() {
+	    if (GameData.score == -1) { return ""; }
+	    return GameData.score.toString();
+	},
+	visuals: {
+	    fill: colors.textFill,
+	}
+    }
+];
+
+var AudioBar = [
+    {
+	class: "rect",
+	xorg: 5,
+	yorg: canvas.height - 35,
+	width: canvas.width - 45,
+	height: 30,
+	visuals: {
+		live: true,
+		fill: function() {return colors.mainMenuFill;},
+	}
+    },
+    {
+	class: "text",
+	live: true,
+	xorg: canvas.width / 2 - 45,
+	yorg: canvas.height - 13,
+	stroke: false,
+	text: function() {
+	    if (nowPlaying == -1) {return ""}
+	    return "Now Playing : " + audio_titles[nowPlaying];
+	},
+	visuals: {
+	    fill: colors.textFill,
+	    font: "Arial 24px",
+	}
+    },
+];
+
+var Banner = [
+    {
+	class: "rect",
+	xorg: 0,
+	yorg: canvas.height / 2 - 45,
+	width: canvas.width,
+	height: 90,
+	visuals: {
+		live: true,
+		fill: function() {return colors.mainMenuFill;},
+		stroke: function() {return colors.mainMenuStroke;},
+	}
+    },
+];
+
+var StartButton = [
+        {
+                class: "rect",
+                xorg: canvas.width / 16 * 7.5,
+                yorg: canvas.height / 2 - 15,
+                width: canvas.width / 16,
+                height: 30,
+                visuals: {
+                        live: true,
+                        fill: function() {
+                                if (Mouse.clicked == "StartButton") {
+                                        return colors.startButtonPressedFill;
+                                } else {
+                                        return colors.startButtonFill;
+                                }
+                        }
+                }
+        },
+        {
+                class: "text",
+                text: "Play",
+                xorg: canvas.width / 2,
+                yorg: canvas.height / 2 + 5,
+                stroke: false,
+                visuals: {
+                        fill: colors.startButtonLabel,
                 }
         }
-}
+];
 
-register_clickable_area(new clickable_area("ToMenuButton",
-        MenuButton[0].xorg, MenuButton[0].yorg,
-        MenuButton[0].xorg + MenuButton[0].width,
-        MenuButton[0].yorg + MenuButton[0].length,
-        function() {
-                GameData.menu = "main";
-                disable_clickable_area("ToMenuButton");
-                enable_clickable_area("FromMenuButton");
-        }
-))
-
-register_clickable_area(new clickable_area("FromMenuButton",
-        MenuButton[0].xorg, MenuButton[0].yorg,
-        MenuButton[0].xorg + MenuButton[0].width,
-        MenuButton[0].yorg + MenuButton[0].length,
-        function() {
-                GameData.menu = "";
-                disable_clickable_area("FromMenuButton");
-                enable_clickable_area("ToMenuButton");
-        }
-))
-
-register_clickable_area(new clickable_area("PlayButton",
-        canvas.width / 16 * 7.5, canvas.height / 2 - 15,
-        canvas.width / 16 * 8.5, canvas.height / 2 + 30,
-        function() {
-                // PLAY!
-                GameData.menu = "";
-                GameData.score = 0;
-        }
-))
-
-
-// Hexadecimal garbage
-var hex = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
-
-function dechex(int) {
-  return hex[int >> 4] + hex[int & 15];
-}
-
-function hexdec(he) {
-  var dec = 0;
-  for (var i = 0; i < he.length; i++) {
-    dec = dec << 4;
-    dec += hex.indexOf(he[i]);
-  }
-  return dec;
-}
-
-// Score
-function increase_score(int, raw) {
-  if (GameData.combo > 1 && !raw) {
-    int *= GameData.combo;
-  }
-  GameData.score += int;
-
-  if (GameData.score < 0) {
-    GameData.score = 0;
-  }
-  call_trigger("score");
-  return int;
-}
-
-function spawn_floaty(int, posx, posy) {
-  var fl = new floaty(int.toString(), posx, posy, 5, 30, colors.white, "20px Arial");
-  if (int > 0) {
-    fl.color = colors.positiveScoreFloaty;
-  } else {
-    fl.color = colors.negativeScoreFloaty;
-  }
-  floaties.push(fl);
-}
-
-// Now some drawing
-function draw_mouse() {
-    // Mouse stuff
-    // From http://ncase.me/sight-and-light/
-
-    var rad = fradius;
-    if (Mouse.pressed) {
-	rad = sradius;
-	Mouse.rotary = (Mouse.rotary + 0.1) % 210;
-    }
-
-    VisualSwap.setSecondFill(colors.mouseCenter);
-    VisualSwap.setSecondStroke(colors.mouseCircle);
-    VisualSwap.useSecondFill();
-    VisualSwap.useSecondStroke();
-
-    ctx.beginPath();
-    ctx.arc(Mouse.x, Mouse.y, 3, 0, 2 * Math.PI, false);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(Mouse.x, Mouse.y, rad, 0, 2 * Math.PI);
-    ctx.stroke();
-
-    VisualSwap.setSecondFill(colors.mouseRotor);
-    VisualSwap.useSecondFill();
-    VisualSwap.setSecondStroke(colors.mouseRotor);
-    VisualSwap.useSecondStroke();
-    for (var angle=0; angle<Math.PI*2; angle+=(2*Math.PI)/surround) {
-	var dx = Math.cos(angle + Mouse.rotary * Math.PI) * rad;
-	var dy = Math.sin(angle + Mouse.rotary * Math.PI) * rad;
-	ctx.beginPath();
-	ctx.arc(Mouse.x+dx, Mouse.y+dy, 2, 0, 2 * Math.PI, false);
-	ctx.stroke();
-	ctx.fill();
-    }
-}
-
-function draw_enemy(enemy, id, sum, sum2) {
-    // FFFFFF is 255^3, so, a lot. We don't wanna compute that every time;
-    VisualSwap.setMainFill(enemy.color);
-    VisualSwap.useMainFill();
-    VisualSwap.setMainStroke(enemy.border_color);
-    VisualSwap.useMainStroke();
-    ctx.beginPath();
-    ctx.arc(enemy.posx, enemy.posy, enemy.health / 10, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.stroke();
-}
-
-function draw_enemies() {
-	// Bring out yer dead!
-	var nosquish = true;
-	for (var i=0; i<enemies.length; i++) {
-		if (enemies[i].health <= 0) {
-			spawn_floaty(enemies[i].balance, enemies[i].posx, enemies[i].posy);
-			// The balance is only added now if the cell dies of natural causes; otherwise score has been added progressively
-			if (!enemies[i].squished) {
-				increase_score(enemies[i].balance, true);
-			}
-			enemies.splice(i, 1);
-		} else if (enemies[i].squished) {
-			nosquish = false;
-		}
-	}
-
-	// Combo reset if no pellet squished
-	if (GameData.combo > 0 && nosquish) {
-		if (GameData.combo > 1) {
-			var fl = new floaty("Combo reset..", Mouse.x, Mouse.y, 5, 30, colors.comboReset, "20px Arial");
-			floaties.push(fl);
-		}
-		GameData.combo = 0;
-	}
-
-	for (var i=0; i<enemies.length; i++) {
-		if (enemies[i].health > 0) {draw_enemy(enemies[i]);}
-		if (enemies[i].squished) {
-			// The cell slowly shrinks and dies. "Slowly"
-			var h = Math.floor(Math.random() * 10);
-			var n = increase_score(h);
-			enemies[i].health -= h;
-			enemies[i].balance += n;
-		}
-		enemies[i].health -= Math.ceil(Math.random() * 4);
-	}
-}
-
-function draw_floaties() {
-  for (var i = 0; i < floaties.length; i++) {
-     if (floaties[i].dead) {
-       floaties.splice(i, 1);
-     } else {
-       floaties[i].draw();
-     }
-  }
-}
-
-function draw_menu_button() {
-    if (!menuButtonHovered) {
-	VisualSwap.setSecondFill(colors.mainMenuFill);
-    } else if (!Mouse.pressed) {
-	VisualSwap.setSecondFill(colors.menuButtonHovered);
-    } else {
-	VisualSwap.setSecondFill(colors.menuButtonPressed);
-	if (!triggerLock) {
-	    if (GameData.menu == "main") {
-		bgm.play();
-	    } else if (GameData.menu == "") {
-		bgm.pause();
-	    }
-	    triggerLock = true;
-	}
-	VisualSwap.setMainFill(colors.mainMenuFill);
-	VisualSwap.setMainStroke(colors.mainMenuStroke);
-    }
-
-    VisualSwap.useSecondFill();
-    draw_element(MenuButton);
-    VisualSwap.useMainFill();
-    VisualSwap.useMainStroke();
-}
-
+// Draw elements
 function draw_element(tab) {
     for (var i = 0; i < tab.length; i++) {
 	var obj = tab[i];
@@ -1001,69 +740,252 @@ function draw_element(tab) {
     }
 }
 
-function draw_ach() {
-    if (showQueue.length == 0) {return;}
+/* Enemies */
+/// Enemy
+// Enemy class
+function enemy() {
+  this.posx = Math.random() * canvas.width;
+  this.posy = Math.random() * (canvas.height-70) + 35;
+  this.health = Math.ceil(Math.random()) * 120 + 200;
+  this.color = new color();
+  this.border_color = new color();
+  this.squished = false;
+  this.balance = -10;
+  this.spawn = function() {
+    this.color.red = Math.ceil(Math.random() * 255);
+    this.color.green = Math.ceil(Math.random() * 255);
+    this.color.blue = Math.ceil(Math.random() * 255);
 
-    var slider = showQueue[0];
-    if (slider.state == "dead") {showQueue.shift(); return;}
-    slider.elapsed += 1;
-    var comp = slider.component();
-    draw_element([comp]);
-    VisualSwap.setMainFill(colors.mainMenuFill);
-    VisualSwap.useMainFill();
+    this.border_color = this.color.get_dark().hex();
+    this.color = this.color.hex(); // Overwrite
+  }
 }
 
-function draw() {
-    // Clear
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+function draw_enemy(enemy, id, sum, sum2) {
+    // FFFFFF is 255^3, so, a lot. We don't wanna compute that every time;
+    VisualSwap.setMainFill(enemy.color);
+    VisualSwap.useMainFill();
+    VisualSwap.setMainStroke(enemy.border_color);
+    VisualSwap.useMainStroke();
+    ctx.beginPath();
+    ctx.arc(enemy.posx, enemy.posy, enemy.health / 10, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+}
 
-    // Background
-    ctx.fillStyle = bg.hex();
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    if (!GameData.menu) {
-	// Enemies
-	if (Math.random() < 0.5) {
-	    // New enemy at random coords
-	    var en = new enemy();
-	    en.spawn();
-	    enemies.push(en);
+function draw_enemies() {
+	// Bring out yer dead!
+	var nosquish = true;
+	for (var i=0; i<enemies.length; i++) {
+		if (enemies[i].health <= 0) {
+			spawn_floaty(enemies[i].balance, enemies[i].posx, enemies[i].posy);
+			// The balance is only added now if the cell dies of natural causes; otherwise score has been added progressively
+			if (!enemies[i].squished) {
+				increase_score(enemies[i].balance, true);
+			}
+			enemies.splice(i, 1);
+		} else if (enemies[i].squished) {
+			nosquish = false;
+		}
 	}
 
-	// Draw enemies
-	draw_enemies();
-    } else if (GameData.menu == "main") {
-	draw_element(MainMenu);
-    }
+	// Combo reset if no pellet squished
+	if (GameData.combo > 0 && nosquish) {
+		if (GameData.combo > 1) {
+			var fl = new floaty("Combo reset..", Mouse.x, Mouse.y, 5, 30, colors.comboReset, "20px Arial");
+			floaties.push(fl);
+		}
+		GameData.combo = 0;
+	}
 
-    // Score
-    draw_element(ScoreBar);
-
-    // Now Playing
-    draw_element(AudioBar);
-
-    // Menu button
-    draw_menu_button();
-
-    // Achievements
-    draw_ach();
-
-    if (!GameData.menu) {
-	// Draw floaties
-	draw_floaties();
-    }
-
-    // Mouse
-    draw_mouse();
-
-    call_trigger("step");
+	for (var i=0; i<enemies.length; i++) {
+		if (enemies[i].health > 0) {draw_enemy(enemies[i]);}
+		if (enemies[i].squished) {
+			// The cell slowly shrinks and dies. "Slowly"
+			var h = Math.floor(Math.random() * 10);
+			var n = increase_score(h);
+			enemies[i].health -= h;
+			enemies[i].balance += n;
+		}
+		enemies[i].health -= Math.ceil(Math.random() * 4);
+	}
 }
 
-function drawLoop() {
-    requestAnimationFrame(drawLoop);
-    draw();
+/* Floaties! */
+// Floaties
+function floaty(text, posx, posy, speed, lifespan, color, font) {
+    this.text = text || "";
+    this.posx = posx;
+    this.posy = posy;
+    this.speed = speed || 15;
+    this.lifespan = lifespan || 200;
+    this.font = font || ctx.font;
+    this.color = color || colors.white;
+    this.dead = false;
+
+    this.draw = function() {
+	if (this.dead) {return;}
+
+	VisualSwap.setSecondFont(this.font);
+	VisualSwap.useSecondFont();
+	VisualSwap.setSecondFill(this.color);
+	VisualSwap.useSecondFill();
+
+	ctx.fillText(this.text, this.posx, this.posy);
+
+	VisualSwap.useMainFont();
+	VisualSwap.useMainFill();
+
+	this.posy -= this.speed;
+	this.lifespan -= 1;
+	if (this.lifespan == 0) {
+	    this.dead = true;
+	}
+    }
 }
 
+function spawn_floaty(int, posx, posy) {
+  var fl = new floaty(int.toString(), posx, posy, 5, 30, colors.white, "20px Arial");
+  if (int > 0) {
+    fl.color = colors.positiveScoreFloaty;
+  } else {
+    fl.color = colors.negativeScoreFloaty;
+  }
+  floaties.push(fl);
+}
+
+function draw_floaties() {
+  for (var i = 0; i < floaties.length; i++) {
+     if (floaties[i].dead) {
+       floaties.splice(i, 1);
+     } else {
+       floaties[i].draw();
+     }
+  }
+}
+
+/* Score */
+function increase_score(int, raw) {
+  if (GameData.combo > 1 && !raw) {
+    int *= GameData.combo;
+  }
+  GameData.score += int;
+
+  if (GameData.score < 0) {
+    GameData.score = 0;
+  }
+  call_trigger("score");
+  return int;
+}
+
+/* Menu things (main and wait) */
+// Waiting menu
+function drawWaitMenu() {
+  if (GameData.menu) {
+    requestAnimationFrame(drawWaitMenu);
+
+      // Menu
+      // Clear
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Background
+      ctx.fillStyle = bg.hex();
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Score
+      draw_element(ScoreBar);
+
+      // Now Playing
+      draw_element(AudioBar);
+
+      // Menu button
+      draw_element(MenuButton);
+
+      // Banner
+      draw_element(Banner);
+
+      // Play Button
+      draw_element(StartButton);
+
+      // Mouse
+      draw_mouse();
+
+
+  } else {
+    // Let's start the game!
+    bgm = new bgm_music(-1);
+    bgm.start();
+    enable_clickable_area("ToMenuButton");
+    delete_clickable_area("StartButton");
+
+    drawLoop();
+  }
+}
+
+function draw_menu_button() {
+    if (!menuButtonHovered) {
+	VisualSwap.setSecondFill(colors.mainMenuFill);
+    } else if (!Mouse.pressed) {
+	VisualSwap.setSecondFill(colors.menuButtonHovered);
+    } else {
+	VisualSwap.setSecondFill(colors.menuButtonPressed);
+	if (!triggerLock) {
+	    if (GameData.menu == "main") {
+		bgm.play();
+	    } else if (GameData.menu == "") {
+		bgm.pause();
+	    }
+	    triggerLock = true;
+	}
+	VisualSwap.setMainFill(colors.mainMenuFill);
+	VisualSwap.setMainStroke(colors.mainMenuStroke);
+    }
+
+    VisualSwap.useSecondFill();
+    draw_element(MenuButton);
+    VisualSwap.useMainFill();
+    VisualSwap.useMainStroke();
+}
+
+/* Mouse methods and data */
+// Mouse stuff
+function draw_mouse() {
+    // Mouse stuff
+    // From http://ncase.me/sight-and-light/
+
+    var rad = fradius;
+    if (Mouse.pressed) {
+	rad = sradius;
+	Mouse.rotary = (Mouse.rotary + 0.1) % 210;
+    }
+
+    VisualSwap.setSecondFill(colors.mouseCenter);
+    VisualSwap.setSecondStroke(colors.mouseCircle);
+    VisualSwap.useSecondFill();
+    VisualSwap.useSecondStroke();
+
+    ctx.beginPath();
+    ctx.arc(Mouse.x, Mouse.y, 3, 0, 2 * Math.PI, false);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(Mouse.x, Mouse.y, rad, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    VisualSwap.setSecondFill(colors.mouseRotor);
+    VisualSwap.useSecondFill();
+    VisualSwap.setSecondStroke(colors.mouseRotor);
+    VisualSwap.useSecondStroke();
+    for (var angle=0; angle<Math.PI*2; angle+=(2*Math.PI)/surround) {
+	var dx = Math.cos(angle + Mouse.rotary * Math.PI) * rad;
+	var dy = Math.sin(angle + Mouse.rotary * Math.PI) * rad;
+	ctx.beginPath();
+	ctx.arc(Mouse.x+dx, Mouse.y+dy, 2, 0, 2 * Math.PI, false);
+	ctx.stroke();
+	ctx.fill();
+    }
+}
+
+// Callbacks
 canvas.onmousemove = function (event) {
     Mouse.x = event.clientX;
     Mouse.y = event.clientY;
@@ -1081,18 +1003,22 @@ canvas.onmousemove = function (event) {
 }
 
 canvas.onmousedown = function(event) {
-    Mouse.pressed = true;
-    // Check clickables first
-   for (var i = 0; i < clickable.length; i++) {
-            if (!clickable[i].active) {continue;}
-            if (Mouse.x < clickable[i].start.x - sradius) {continue;}
-            if (Mouse.x > clickable[i].end.x + sradius) {continue;}
-            if (Mouse.y < clickable[i].start.y - sradius) {continue;}
-            if (Mouse.y > clickable[i].end.y + sradius) {continue;}
+        Mouse.pressed = true;
+        // Check clickables first
+        for (name in clickable) {
+                if (!clickable[name].active) {continue;}
+                if (Mouse.x < clickable[name].start.x - sradius) {continue;}
+                if (Mouse.x > clickable[name].end.x + sradius) {continue;}
+                if (Mouse.y < clickable[name].start.y - sradius) {continue;}
+                if (Mouse.y > clickable[name].end.y + sradius) {continue;}
 
-            clickable[i].action();
-            break;
-    }
+                if (clickable[name].on_click) {
+                        console.log("Clicked trigger " + name);
+                        clickable[name].on_click();
+                }
+                Mouse.clicked = name;
+                break;
+        }
 
     GameData.overlap = 0;
     for (var i=0; i<enemies.length; i++) {
@@ -1151,96 +1077,314 @@ canvas.onmousedown = function(event) {
 canvas.onmouseup = function(event) {
     Mouse.pressed = false;
     triggerLock = false;
-}
-
-function sound() {
-  this.sound = document.createElement("audio");
-  this.sound.setAttribute("preload", "auto");
-  this.sound.setAttribute("controls", "none");
-  this.sound.style.display = "none";
-  document.body.appendChild(this.sound);
-  this.play = function(src) {
-    this.sound.src = src;
-    this.sound.play();
-  }
-}
-
-function bgm_music() {
-  this.sound = document.createElement("audio");
-  this.sound.setAttribute("preload", "auto");
-  this.sound.setAttribute("controls", "none");
-  //this.sound.setAttribute("type", "audio/mpeg");
-  this.sound.style.display = "none";
-  document.body.appendChild(this.sound);
-  this.start = function() {
-    nowPlaying = Math.floor(Math.random() * sounds.length);
-    this.sound.src = sounds[nowPlaying];
-    this.sound.play();
-  };
-  this.play = function() {
-    this.sound.play();
-  }
-  this.pause = function() {
-    this.sound.pause();
-  }
-  this.sound.onended = function() {
-    bgm = new bgm_music();
-    bgm.start();
-  }
-}
-
-// Waiting menu
-function drawWaitMenu() {
-  if (GameData.menu) {
-    requestAnimationFrame(drawWaitMenu);
-
-      // Menu
-      // Clear
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Background
-      ctx.fillStyle = bg.hex();
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Score
-      draw_element(ScoreBar);
-
-      // Now Playing
-      draw_element(AudioBar);
-
-      // Menu button
-      draw_element(MenuButton);
-
-      // Banner
-      draw_element(Banner);
-
-      // Play Button
-      draw_element(StartButton);
-
-      // Mouse
-      draw_mouse();
-
-
-  } else {
-    // Let's start the game!
-    bgm = new bgm_music(-1);
-    bgm.start();
-    enable_clickable_area("ToMenuButton");
-    delete_clickable_area("PlayButton");
-    drawLoop();
-  }
-}
-
-function register_images() {
-    for (var i = 0; i < record_images.length; i++) {
-	var im = new Image();
-	im.src = record_images[i];
-	images[record_images[i]] = im;
+    if (Mouse.clicked != "") {
+            if (clickable[Mouse.clicked].on_release) {
+                    clickable[Mouse.clicked].on_release();
+            }
+            Mouse.clicked = "";
     }
+}
+
+/* Triggers */
+function register_trigger(name) {
+  triggers[name] = [];
+  achievements[name] = [];
+}
+
+function register_hook(name, func) {
+  triggers[name].push(func);
+}
+
+function call_trigger(name) {
+  for (var i = 0; i < triggers[name].length; i++) {
+    triggers[name][i]();
+  }
+
+  for (var u = 0; u < achievements[name].length; u++) {
+    achievements[name][u].check();
+  }
+}
+
+
+// NOW CUSTOM DEFINITIONS USING THOSE PREVIOUS CLASS/METHODS //
+
+
+// Achievement garbage
+function register_achievement(name, trigger, icon, howto, desc, condition, runthrough) {
+  var ach = new achievement(name, trigger, icon, howto, desc, condition, runthrough);
+  achievements[trigger].push(ach);
+}
+
+function trigger_achievement(ach) {
+    ach.triggered = true;
+
+    // Dopre-graphical stuff here
+    showQueue.push(new slider_component("rtl", canvas.width, canvas.height - 150, 250, 110, 20, 150, [
+	{
+	    class: "image",
+	    src: ach.icon,
+	    xorg: 93,
+	    yorg: 13,
+	    width: 64,
+	    height: 64
+	},
+	{
+		class: "rect",
+		xorg: 93,
+		yorg: 13,
+		width: 64,
+		height: 64,
+		fill: false,
+		visuals: {
+			stroke: colors.red,
+		}
+	},
+	{
+	    class: "text",
+	    text: ach.name,
+	    xorg: 125,
+	    yorg: 100,
+	    stroke: true,
+	    visuals: {
+		fill: "currentStroke",
+		font: "20px Arial",
+	    }
+	}
+  ]));
+}
+
+function cycle_through() {
+  for (var i = 0; i < achievements.length; i++) {
+    achievements[i].runthrough();
+    achievements[i].check();
+  }
+}
+
+function draw_ach() {
+    if (showQueue.length == 0) {return;}
+
+    var slider = showQueue[0];
+    if (slider.state == "dead") {showQueue.shift(); return;}
+    slider.elapsed += 1;
+    var comp = slider.component();
+    draw_element([comp]);
+    VisualSwap.setMainFill(colors.mainMenuFill);
+    VisualSwap.useMainFill();
+}
+
+
+// Triggers
+register_trigger("mousemove");
+register_trigger("step");
+register_trigger("mousedown");
+register_trigger("score");
+
+// Score achievements
+register_achievement("The Cell Slayer", "score", "images/game/slayer.gif",
+                     "You'll never see that text.. POOOP!",
+                     "Yes you have an achievement for squishing a cell. I am that desperate about filling my game with content",
+                     function () { return GameData.score > 0; },
+		     null);
+
+register_achievement("Over 9000", "score", "images/game/gt9000.gif",
+                     "Get 9000 of score. Yeah, lame.",
+                     "Pretty easy, duh",
+                     function () { return GameData.score > 9000; },
+		     null);
+
+register_achievement("A pet named Steve", "score", "images/game/steve.gif",
+                     "Kudos if you get the reference. Reach a certain score (circa 3.6*10^6)",
+                     "3,610,827 views in one week, good work",
+                     function() { return GameData.score > 3610827; },
+ 	     null);
+
+register_achievement("Genocidal Rampage", "score", "images/game/genocide.gif",
+		     "You wanted something hard, didn't you?",
+                     "You have earned the lethal injection of salty water for destroying scientifical progress",
+                     function() { return GameData.score > 9000000000; },
+		     null);
+
+// Mouse stuff
+register_achievement("Nonsense of game design", "step", "images/game/mainmenu.gif",
+                     "LOLOLOLOLOL",
+                     "You just found the main menu, probably",
+                     function() { return GameData.menu == "main"; },
+		     null);
+
+
+register_achievement("Trigonometric madness", "step", "images/game/trigonomad.gif",
+                     "Spin the hand-weel around.. 62 times",
+                     "Congrats, your finger is now permanently damaged",
+                     function () { return Mouse.rotary >= 124; },
+		     null);
+
+// Plain weird
+register_achievement("KING COMBO!", "step", "images/game/king_combo.gif",
+		     "Get a 100 combo",
+		     "Hypactivity, amirite?",
+		     function () { return GameData.combo >= 100; },
+		     null);
+
+register_achievement("Collateral Damages", "mousedown", "images/game/collateral.gif",
+		     "Get a 4 overlap or more",
+		     "Squish cells: check",
+		     function () { return GameData.overlap >= 4; },
+		     null);
+
+
+// Clickable areas
+
+register_clickable_area({
+        name: "ToMenuButton",
+        start: {x: MenuButton[0].xorg, y: MenuButton[0].yorg},
+        end: {
+                x: MenuButton[0].xorg + MenuButton[0].width,
+                y: MenuButton[0].yorg + MenuButton[0].length,
+        },
+        on_click: function() {
+                GameData.menu = "main";
+                disable_clickable_area("ToMenuButton");
+                enable_clickable_area("FromMenuButton");
+                enable_clickable_area("SaveToCookie");
+        }
+});
+
+register_clickable_area({
+        name: "FromMenuButton",
+        start: {x: MenuButton[0].xorg, y: MenuButton[0].yorg},
+        end: {
+                x: MenuButton[0].xorg + MenuButton[0].width,
+                y: MenuButton[0].yorg + MenuButton[0].length,
+        },
+        on_click: function() {
+                GameData.menu = "";
+                disable_clickable_area("FromMenuButton");
+                disable_clickable_area("SaveToCookie");
+                enable_clickable_area("ToMenuButton");
+        }
+});
+
+register_clickable_area({
+        name: "StartButton",
+        start: {x: canvas.width / 16 * 7.5, y: canvas.height / 2 - 15},
+        end: {x: canvas.width / 16 * 8.5, y: canvas.height / 2 + 30},
+        on_release: function() {
+                // PLAY!
+                GameData.menu = "";
+                GameData.score = 0;
+        }
+});
+
+register_clickable_area({
+        name: "SaveToCookie",
+        start: {x: 10, y: 32},
+        end: {x: canvas.width / 2 - 5, y: canvas.height - 45},
+        on_disable: function() {
+                colors.cookieSaverFill = '#666666';
+        },
+        on_enable: function() {
+                colors.cookieSaverFill = '#db4540';
+        },
+        on_click: function() {
+                // call compose_cookie
+                showQueue.push(new slider_component("rtl", canvas.width, canvas.height - 150, 250, 110, 20, 150, [
+/*                        {
+                                class: "image",
+                                src: ach.icon,
+                                xorg: 93,
+                                yorg: 13,
+                                width: 64,
+                                height: 64
+                        },
+                        {
+                                class: "rect",
+                                xorg: 93,
+                                yorg: 13,
+                                width: 64,
+                                height: 64,
+                                fill: false,
+                                visuals: {
+                                        stroke: colors.red,
+                                }
+                        },*/
+                        {
+                                class: "text",
+                                text: "Data saved!",
+                                xorg: 125,
+                                yorg: 100,
+                                stroke: true,
+                                visuals: {
+                                        fill: "currentStroke",
+                                        font: "20px Arial",
+                                }
+                        }]));
+
+                GameData.last_cookie_save = new Date().getTime();
+                disable_clickable_area("SaveToCookie");
+        }
+})
+
+
+function draw() {
+        // Update game clock
+        GameData.now = new Date().getTime();
+
+        if (GameData.menu == "main" && !clickable["SaveToCookie"].active && GameData.now - GameData.last_cookie_save > 90000) {
+                enable_clickable_area("SaveToCookie");
+        }
+
+        // Clear
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Background
+        ctx.fillStyle = bg.hex();
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (!GameData.menu) {
+                // Enemies
+                if (Math.random() < 0.5) {
+                        // New enemy at random coords
+                        var en = new enemy();
+                        en.spawn();
+                        enemies.push(en);
+                }
+
+                // Draw enemies
+                draw_enemies();
+        } else if (GameData.menu == "main") {
+                draw_element(MainMenu);
+        }
+
+    // Score
+    draw_element(ScoreBar);
+
+    // Now Playing
+    draw_element(AudioBar);
+
+    // Menu button
+    draw_menu_button();
+
+    // Achievements
+    draw_ach();
+
+    if (!GameData.menu) {
+	// Draw floaties
+	draw_floaties();
+    }
+
+    // Mouse
+    draw_mouse();
+
+    call_trigger("step");
+}
+
+function drawLoop() {
+    requestAnimationFrame(drawLoop);
+    draw();
 }
 
 window.onload = function() {
     register_images();
-    enable_clickable_area("PlayButton");
+    enable_clickable_area("StartButton");
     drawWaitMenu();
 }
