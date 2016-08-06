@@ -4,7 +4,11 @@
 // License WTFPL, CopyLEFT <(°-°<) Lymkwi 2016
 // Version : 0.91
 
-/* Hexadecimal utils */
+/*
+        Hexadecimal
+
+        Dependencies : None
+*/
 squish.hexa = (function() {
         var mod = {};
 

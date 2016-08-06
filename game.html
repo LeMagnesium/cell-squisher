@@ -9,27 +9,35 @@
     }
   </style>
   <!---->
-  <script>
-        var squish = {};
-  </script>
   <meta charset="utf8" />
   <canvas id="canvas0" width="800" height="600"></canvas>
 
+  <script>
+        var squish = {};
+        squish.canvas = document.getElementById('canvas0');
+        squish.ctx = squish.canvas.getContext('2d');
+  </script>
+
+  <script type="text/javascript" src="scripts/triggers.js"></script>
+  <script type="text/javascript" src="scripts/gamedata.js"></script>
+  <script type="text/javascript" src="scripts/assets.js"></script>
   <script type="text/javascript" src="scripts/hexadecimal.js"></script>
   <script type="text/javascript" src="scripts/colors.js"></script>
-  <script type="text/javascript" src="scripts/triggers.js"></script>
+  <script type="text/javascript" src="scripts/mouse.js"></script>
+  <script type="text/javascript" src="scripts/components.js"></script>
+  <script type="text/javascript" src="scripts/slider.js"></script>
+
+  <script type="text/javascript" src="scripts/clickable.js"></script>
+
   <script type="text/javascript" src="scripts/achievements.js"></script>
-  <script type="text/javascript" src="scripts/assets.js"></script>
+
+  <script type="text/javascript" src="scripts/floaties.js"></script>
+  <script type="text/javascript" src="scripts/enemies.js"></script>
   <script type="text/javascript" src="scripts/squish.js"></script>
 
 <!--
 <script type="text/javascript" src="scripts/definitions.js"></script>
-<script type="text/javascript" src="scripts/clickable.js"></script>
-<script type="text/javascript" src="scripts/elements.js"></script>
-<script type="text/javascript" src="scripts/enemies.js"></script>
-<script type="text/javascript" src="scripts/gamedata.js"></script>
 <script type="text/javascript" src="scripts/menu.js"></script>
-<script type="text/javascript" src="scripts/mouse.js"></script>
 <script type="text/javascript" src="scripts/triggers.js"></script>
 <script type="text/javascript" src="scripts/visuals.js"></script>
 -->

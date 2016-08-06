@@ -4,6 +4,12 @@
 // License WTFPL, CopyLEFT <(°-°<) Lymkwi 2016
 // Version : 0.91
 
+/*
+        Assets
+
+        Dependencies : none
+*/
+
 squish.assets = (function(){
         var mod = {};
 

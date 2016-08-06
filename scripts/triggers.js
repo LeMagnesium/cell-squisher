@@ -4,6 +4,12 @@
 // License WTFPL, CopyLEFT <(°-°<) Lymkwi 2016
 // Version : 0.91
 
+/*
+        Triggers
+
+        Dependencies : None
+*/
+
 squish.triggers = (function(){
         var mod = {};
 
@@ -33,5 +39,6 @@ squish.triggers.register("start");
 squish.triggers.register("mousemove");
 squish.triggers.register("step");
 squish.triggers.register("mousedown");
+squish.triggers.register("mouseup");
 squish.triggers.register("score");
 squish.triggers.register("load")

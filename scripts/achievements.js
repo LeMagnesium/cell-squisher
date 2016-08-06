@@ -4,6 +4,16 @@
 // License WTFPL, CopyLEFT <(°-°<) Lymkwi 2016
 // Version : 0.91
 
+/*
+        Achievement
+
+        Dependencies :
+         - Triggers : squish.triggers.hook
+         - Mouse : squish.mouse.surround, squish.mouse.rotary
+         - Slider : squish.slider.slider, squish.slider.push
+         - Gamedata : squish.gamedata.score, squish.gamedata.overlap, squish.gamedata.combo
+*/
+
 squish.achievements = (function(){
         var mod = {};
 
@@ -28,10 +38,11 @@ squish.achievements = (function(){
 
         mod.trigger = function(ach) {
                 ach.triggered = true;
+                squish.mouse.surround += 1;
 
 
                 // Dopre-graphical stuff here
-                showQueue.push(new slider_component("rtl", canvas.width, canvas.height - 150, 250, 110, 20, 150, [
+                squish.slider.push(new squish.slider.slider("rtl", squish.canvas.width, squish.canvas.height - 150, 250, 110, 20, 150, [
                         {
                                 class: "image",
                                 src: ach.icon,
@@ -65,17 +76,16 @@ squish.achievements = (function(){
                 ]));
         };
 
-        mod.draw = function() {
-                if (showQueue.length == 0) {return;}
 
-                var slider = showQueue[0];
-                if (slider.state == "dead") {showQueue.shift(); return;}
-                slider.elapsed += 1;
-                var comp = slider.component();
-                draw_element([comp]);
-                VisualSwap.setMainFill(squish.colors.mainMenuFill);
-                VisualSwap.useMainFill();
-        }
+        /**
+        function cycle_through() {
+          for (var i = 0; i < achievements.length; i++) {
+            achievements[i].runthrough();
+            achievements[i].check();
+          }
+        }*/
+
+
 
         return mod;
 }());
@@ -88,7 +98,7 @@ squish.achievements.register("slayer", "score", {
                 howto: "You'll never see that text.. POOOP!",
                 desc: "Yes you have an achievement for squishing a cell. I am that desperate about filling my game with content",
         },
-        condition: function () { return GameData.score > 0; },
+        condition: function () { return squish.gamedata.score > 0; },
 });
 
 squish.achievements.register("gt9000", "score", {
@@ -98,7 +108,7 @@ squish.achievements.register("gt9000", "score", {
                 howto: "Get 9000 of score. Yeah, lame.",
                 desc: "Pretty easy, duh",
         },
-        condition: function () { return GameData.score > 9000; },
+        condition: function () { return squish.gamedata.score > 9000; },
 });
 
 squish.achievements.register("steve", "score", {
@@ -108,7 +118,7 @@ squish.achievements.register("steve", "score", {
                 howto: "Reach the view count in a week (circa 3.6*10^6)",
                 desc: "Kudos if you get the reference. Also, have a surgery to free the doggo",
         },
-        condition: function() { return GameData.score > 3610827; },
+        condition: function() { return squish.gamedata.score > 3610827; },
 });
 
 squish.achievements.register("genocide", "score", {
@@ -118,7 +128,7 @@ squish.achievements.register("genocide", "score", {
                 howto: "You wanted something hard, didn't you?",
                 desc: "You have earned the lethal injection of salty water for destroying scientifical progress",
         },
-        condition: function() { return GameData.score > 9000000000; },
+        condition: function() { return squish.gamedata.score > 9000000000; },
 });
 
 // Mouse stuff
@@ -129,7 +139,7 @@ squish.achievements.register("nonsense", "step", {
                 howto: "LOLOLOLOLOL",
                 desc: "You just found the main menu, probably. That or you're reading the code.",
         },
-        condition: function() { return GameData.menu == "main"; },
+        condition: function() { return squish.gamedata.menu == "main"; },
 });
 
 
@@ -140,7 +150,7 @@ squish.achievements.register("trigomad", "step", {
                 howto: "Spin the hand-weel around.. 62 times",
                 desc: "Congrats, your finger is now permanently damaged",
         },
-        condition: function () { return Mouse.rotary >= 124; },
+        condition: function () { return squish.mouse.rotary >= 124; },
 });
 
 // Plain weird
@@ -151,7 +161,7 @@ squish.achievements.register("kingcombo", "step", {
                 howto: "Get a 100 combo",
                 desc: "Hypactivity, amirite?",
         },
-        condition: function () { return GameData.combo >= 100; },
+        condition: function () { return squish.gamedata.combo >= 100; },
 });
 
 squish.achievements.register("collateral", "mousedown", {
@@ -161,5 +171,5 @@ squish.achievements.register("collateral", "mousedown", {
                 howto: "Get a 4 overlap or more",
                 desc: "Squish cells: check",
         },
-        condition: function () { return GameData.overlap >= 4; },
+        condition: function () { return squish.gamedata.overlap >= 4; },
 });

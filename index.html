@@ -31,24 +31,34 @@
         <script src="https://fgtools.fr/ressources/jquery/jquery.js"></script>
         <script language="javascript">
                var nightmode = false;
+               var extfloaties = true;
 
                // Some customization stuff
-               function switchTheme() {
-                       if (!nightmode) {
-                               document.body.style.backgroundColor = "#111122";
-                               document.body.style.color = "#66dd22";
-                       } else {
-                               document.body.style.backgroundColor = "#eeeeee"
-                               document.body.style.color = "#222222";
-                       }
-                       $(".panel, .flip").toggleClass("nightslide");
-                       nightmode = !nightmode;
-                       window.frames[0].window.toggle_theme();
-               };
-
-               // Panel flip
                $(document).ready(function() {
-                       $(".flip").click(function() {
+                        $("#themeSwitch").click(function() {
+                                if (!nightmode) {
+                                        document.body.style.backgroundColor = "#111122";
+                                        document.body.style.color = "#66dd22";
+                                } else {
+                                        document.body.style.backgroundColor = "#eeeeee"
+                                        document.body.style.color = "#222222";
+                                }
+                                $(".panel, .flip").toggleClass("nightslide");
+                                nightmode = !nightmode;
+                                window.frames[0].window.toggle_theme();
+                        });
+
+                        $("#extraFloatySwitch").click(function() {
+                                //window.frames[0].window.toggle_floaties();
+                                extfloaties = !extfloaties;
+                                if (extfloaties) {
+                                        $(this).text("Disable extra floaties");
+                                } else {
+                                        $(this).text("Enable extra floaties");
+                                }
+                        })
+
+                        $(".flip").click(function() {
                                $($(this).next()[0]).slideToggle("slow");
                        });
                });
@@ -70,10 +80,11 @@
         <noscript>^ Without Javascript, nothing will work... ^</noscript>
     </div>
     <hr>
-    <p>Options: </p>
-    <ul>
-      <button id="themeSwitch" onclick="switchTheme()">Switch Theme</button>
-    </ul>
+    <div class="flip">[Options]</div>
+    <div class="panel" style="padding: 10px; justify-content: space-between;">
+            <button id="themeSwitch">Switch Theme</button>
+            <button id="extraFloatySwitch">Disable extra floaties</button>
+    </div>
 
     <hr>
     <br>
@@ -98,6 +109,7 @@
                         <li>Main Menu's design</li>
                         <li>Data storage in cookies (Hmm, cookies *drool*)</li>
                         <li>Performance enhancement(?)</li>
+                        <li>Audio menu</li>
                 </ul>
         </div>
 
