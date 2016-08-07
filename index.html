@@ -16,9 +16,6 @@
                         background-color: #e5eecc;
                         border: solid 1px #c3c3c3;
                 }
-                .panel {
-                        display: none;
-                }
                 .flip {
                         text-align: center;
                 }
@@ -33,35 +30,45 @@
                var nightmode = false;
                var extfloaties = true;
 
-               // Some customization stuff
-               $(document).ready(function() {
-                        $("#themeSwitch").click(function() {
-                                if (!nightmode) {
-                                        document.body.style.backgroundColor = "#111122";
-                                        document.body.style.color = "#66dd22";
-                                } else {
-                                        document.body.style.backgroundColor = "#eeeeee"
-                                        document.body.style.color = "#222222";
-                                }
-                                $(".panel, .flip").toggleClass("nightslide");
-                                nightmode = !nightmode;
-                                window.frames[0].window.toggle_theme();
-                        });
+               // See if we've got jQuery
+               var jq = true;
+               try {
+                       var u = $(document);
+               } catch (ReferenceError) {
+                       jq = false;
+               }
+               if (jq) {
+                        // Some customization stuff
+                        $(document).ready(function() {
+                                $(".panel").css("display", "none");
+                                $("#themeSwitch").click(function() {
+                                        if (!nightmode) {
+                                                document.body.style.backgroundColor = "#111122";
+                                                document.body.style.color = "#66dd22";
+                                        } else {
+                                                document.body.style.backgroundColor = "#eeeeee"
+                                                document.body.style.color = "#222222";
+                                        }
+                                        $(".panel, .flip").toggleClass("nightslide");
+                                        nightmode = !nightmode;
+                                        window.frames[0].window.toggle_theme();
+                                });
 
-                        $("#extraFloatySwitch").click(function() {
-                                //window.frames[0].window.toggle_floaties();
-                                extfloaties = !extfloaties;
-                                if (extfloaties) {
-                                        $(this).text("Disable extra floaties");
-                                } else {
-                                        $(this).text("Enable extra floaties");
-                                }
-                        })
+                                $("#extraFloatySwitch").click(function() {
+                                        //window.frames[0].window.toggle_floaties();
+                                        extfloaties = !extfloaties;
+                                        if (extfloaties) {
+                                                $(this).text("Disable extra floaties");
+                                        } else {
+                                                $(this).text("Enable extra floaties");
+                                        }
+                                })
 
-                        $(".flip").click(function() {
-                               $($(this).next()[0]).slideToggle("slow");
+                                $(".flip").click(function() {
+                                       $($(this).next()[0]).slideToggle("slow");
+                               });
                        });
-               });
+               }
         </script>
 
 
