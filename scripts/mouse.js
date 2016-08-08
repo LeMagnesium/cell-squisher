@@ -11,6 +11,7 @@
          - Gamedata : squish.VisualSwap
          - Colors : squish.colors.mouseCenter, squish.colors.mouseRotor, squish.colors.mouseCircle
          - Clickable : squish.clickable.register
+         - Triggers : squish.triggers.call
 */
 
 squish.mouse = (function() {
@@ -27,6 +28,7 @@ squish.mouse = (function() {
           sradius: 6,
         };
 
+        // Lag profile : { max: 7, min: 0, avg: 0.6178845171180388, cnt: 9785 }
         mod.draw = function() {
                 // Mouse stuff
                 // From http://ncase.me/sight-and-light/
@@ -56,7 +58,6 @@ squish.mouse = (function() {
 
                 var angle = 0
                 for (var i = 0; i < mod.surround; i+=1) {
-                //for (var angle=0; angle<Math.PI*2; ) {
                         var dx = Math.cos(angle + mod.rotary * Math.PI) * rad;
                         var dy = Math.sin(angle + mod.rotary * Math.PI) * rad;
                         squish.ctx.beginPath();
@@ -76,25 +77,6 @@ squish.mouse = (function() {
                         mod.rotary = mod.rotary % 2; // this way we don't reset wheeling
                 }
 
-                mod.hovering = "";
-                for (name in squish.clickable.register) {
-                        if (!squish.clickable.areas[name].active) {continue;}
-                        if (mod.x < squish.clickable.areas[name].start.x - mod.sradius) {continue;}
-                        if (mod.x > squish.clickable.areas[name].end.x + mod.sradius) {continue;}
-                        if (mod.y < squish.clickable.areas[name].start.y - mod.sradius) {continue;}
-                        if (mod.y > squish.clickable.areas[name].end.y + mod.sradius) {continue;}
-
-                        // Could be jQuery, if it were HTML
-                        if (squish.clickable.areas[name].on_enter) {
-                                squish.clickable.areas[name].on_enter();
-                        }
-                        mod.hovering = name;
-                        break;
-                }
-
-                if (!mod.hovering && mod.clicked) {
-                        mod.clicked = ""; // We left the component, so it's not *technically* clicked any more
-                }
                 squish.triggers.call("mousemove");
         };
 
@@ -124,8 +106,9 @@ squish.mouse = (function() {
                 squish.triggers.call("mouseup");
         };
 
-        squish.canvas.onmouseup = mod.onmouseup;
-        squish.canvas.onmousedown = mod.onmousedown;
+        squish.canvas.onmouseup = mod.onmouseup; // Lag : Avg 0.18ms on 1520
+        squish.canvas.onmousedown = mod.onmousedown; // Lag : Avg 0.51ms on 1052
+        // Lag profile : { max: 1, min: 1, avg: 0.05450070323488043, cnt: 2844 }
         squish.canvas.onmousemove = mod.onmousemove;
 
         return mod;

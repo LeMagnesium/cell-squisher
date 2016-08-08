@@ -12,19 +12,12 @@
          - GameData : squish.gamedata.menu, squish.gamedata.score, squish.gamedata.last_cookie_save
          - Colors : squish.colors.cookieSaverFill
          - Slider : squish.slider.push, squish.slider.slider
+         - Triggers : squish.triggers.hook
 */
 
 squish.clickable = (function() {
         var mod = {};
         mod.areas = [];
-
-        /*mod.clickableArea = function(name, posx, posy, endx, endy, action) {
-                this.name = name;
-                this.start = {x: posx, y: posy};
-                this.end = {x: endx, y: endy};
-                this.action = action;
-                this.active = false;
-        };*/
 
         mod.register = function(def) {
                 mod.areas[def.name] = def;
@@ -52,6 +45,29 @@ squish.clickable = (function() {
                 delete mod.areas[name];
         };
 
+        mod.detect = function() {
+                var found = ""
+                for (name in squish.clickable.areas) {
+                        if (!squish.clickable.areas[name].active) {continue;}
+                        if (squish.mouse.x < squish.clickable.areas[name].start.x - squish.mouse.sradius) {continue;}
+                        if (squish.mouse.x > squish.clickable.areas[name].end.x + squish.mouse.sradius) {continue;}
+                        if (squish.mouse.y < squish.clickable.areas[name].start.y - squish.mouse.sradius) {continue;}
+                        if (squish.mouse.y > squish.clickable.areas[name].end.y + squish.mouse.sradius) {continue;}
+
+                        // Could be in jQuery, if it were in HTML
+                        if (squish.clickable.areas[name].on_enter) {
+                                squish.clickable.areas[name].on_enter();
+                        }
+                        found = name;
+                        break;
+                }
+
+                squish.mouse.hovering = found;
+                if (!squish.mouse.hovering && squish.mouse.clicked) {
+                        squish.mouse.clicked = ""; // We left the component, so it's not *technically* clicked any more
+                }
+        };
+
         return mod;
 }());
 
@@ -68,6 +84,7 @@ squish.clickable.register({
                 squish.clickable.disable("ToMenuButton");
                 squish.clickable.enable("FromMenuButton");
                 squish.clickable.enable("SaveToCookie");
+                squish.clickable.detect();
         }
 });
 
@@ -83,6 +100,7 @@ squish.clickable.register({
                 squish.clickable.disable("FromMenuButton");
                 squish.clickable.disable("SaveToCookie");
                 squish.clickable.enable("ToMenuButton");
+                squish.clickable.detect();
         }
 });
 
@@ -98,12 +116,13 @@ squish.clickable.register({
                 squish.triggers.call("start");
                 squish.clickable.enable("ToMenuButton");
                 squish.clickable.disable("StartButton");
+                squish.clickable.detect();
         }
 });
 
 squish.clickable.register({
         name: "SaveToCookie",
-        start: {x: 10, y: 32},
+        start: {x: 10, y: squish.canvas.height - 80},
         end: {x: squish.canvas.width / 2 - 5, y: squish.canvas.height - 45},
         on_disable: function() {
                 squish.colors.cookieSaverFill = '#666666';
@@ -113,39 +132,12 @@ squish.clickable.register({
         },
         on_click: function() {
                 // call compose_cookie
-                squish.slider.push(new squish.slider.slider("rtl", squish.canvas.width, squish.canvas.height - 150, 250, 110, 20, 150, [
-/*                        {
-                                class: "image",
-                                src: ach.icon,
-                                xorg: 93,
-                                yorg: 13,
-                                width: 64,
-                                height: 64
-                        },
-                        {
-                                class: "rect",
-                                xorg: 93,
-                                yorg: 13,
-                                width: 64,
-                                height: 64,
-                                fill: false,
-                                visuals: {
-                                        stroke: squish.colors.red,
-                                }
-                        },*/
-                        {
-                                class: "text",
-                                text: "Data saved!",
-                                xorg: 125,
-                                yorg: 100,
-                                stroke: true,
-                                visuals: {
-                                        fill: "currentStroke",
-                                        font: "20px Arial",
-                                }
-                        }]));
-
+                (new squish.floaties.floaty("Data saved!", squish.mouse.x, squish.mouse.y, 3, 150, squish.colors.red)).spawn();
                 squish.gamedata.last_cookie_save = new Date().getTime();
                 squish.clickable.disable("SaveToCookie");
+                squish.clickable.detect();
         }
 })
+
+// Hook to determine the hovered clickable
+squish.triggers.hook("mousemove", squish.mouse.hovering = squish.clickable.detect);
