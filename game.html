@@ -16,6 +16,30 @@
         var squish = {};
         squish.canvas = document.getElementById('canvas0');
         squish.ctx = squish.canvas.getContext('2d');
+        squish.profile_data = {
+                max: 0,
+                min: -1,
+                avg: 0,
+                cnt: 0,
+        }
+
+        squish.profile = function(fnc) {
+                return function(...args) {
+                        var t = (new Date().getTime());
+                        var r = fnc(...args);
+                        var u = (new Date().getTime() - t);
+
+                        if (u > 0 && squish.profile_data.min == -1) {squish.profile_data.min = u;}
+                        if (squish.profile_data.max < u) {
+                                squish.profile_data.max = u;
+                                console.log("Worser lag " + u);
+                        }
+                        if (u > 0 && squish.profile_data.min > u) {squish.profile_data.min = u;}
+                        squish.profile_data.avg = ((squish.profile_data.avg * squish.profile_data.cnt + u)/(squish.profile_data.cnt+1));
+                        squish.profile_data.cnt +=1;
+                        return r;
+                }
+        }
   </script>
 
   <script type="text/javascript" src="scripts/triggers.js"></script>
