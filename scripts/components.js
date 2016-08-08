@@ -158,7 +158,30 @@ squish.components = (function() {
                                fill: "#000000",
                                stroke: "#008787"
                        }
+               },
+               // Stack print
+               {
+                       class: "rect",
+                       xorg: 10,
+                       yorg: squish.canvas.height - 160,
+                       width: squish.canvas.width / 2 - 15,
+                       height: 35,
+                       visuals: {
+                               stroke: "#33cfdf",
+                               fill: "#771111",
+                       },
+               },
+               {
+                       class: "text",
+                       xorg: squish.canvas.width / 4 - 2.5,
+                       yorg: squish.canvas.height - 135,
+                       text: "Output profile data",
+                       visuals: {
+                               fill: "#000000",
+                               stroke: "#003322"
+                       }
                }
+
        ];
 
        mod.AudioMenu = [

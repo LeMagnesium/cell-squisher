@@ -84,6 +84,7 @@ squish.clickable.register({
                 squish.gamedata.menu = "main";
                 squish.clickable.disable("ToMenuButton");
                 squish.clickable.enable("FromMenuButton");
+                squish.clickable.enable("OutputStack");
                 squish.clickable.enable("SaveToCookie");
                 squish.clickable.detect();
         }
@@ -100,6 +101,7 @@ squish.clickable.register({
                 squish.gamedata.menu = "";
                 squish.clickable.disable("FromMenuButton");
                 squish.clickable.disable("SaveToCookie");
+                squish.clickable.disable("OutputStack");
                 squish.clickable.enable("ToMenuButton");
                 squish.clickable.detect();
         }
@@ -189,6 +191,15 @@ squish.clickable.register({
                 }
         }
 });
+
+squish.clickable.register({
+        name: "OutputStack",
+        start: {x: 10, y: squish.canvas.height - 120},
+        end: {x: squish.canvas.width / 2 - 5, y: squish.canvas.height - 45},
+        on_click: function() {
+                console.log(squish.profile_data);
+        }
+})
 
 // Hook to determine the hovered clickable
 squish.triggers.hook("mousemove", squish.mouse.hovering = squish.clickable.detect);
