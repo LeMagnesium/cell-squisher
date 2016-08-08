@@ -16,7 +16,7 @@ squish.floaties = (function() {
         var mod = {};
         var floaties = [];
 
-        mod.floaty = function(text, posx, posy, speed, lifespan, color, font) {
+        mod.floaty = function(text, posx, posy, speed, lifespan, color, font, show_condition) {
                 this.text = text || "";
                 this.posx = posx;
                 this.posy = posy;
@@ -24,6 +24,7 @@ squish.floaties = (function() {
                 this.lifespan = lifespan || 200;
                 this.font = font || squish.ctx.font;
                 this.color = color || squish.colors.white;
+                this.condition = show_condition || function() {return true;};
                 this.dead = false;
 
                 this.spawn = function() {
@@ -31,7 +32,7 @@ squish.floaties = (function() {
                 }
 
                 this.draw = function() {
-                        if (this.dead) {return;}
+                        if (this.dead || !this.condition()) {return;}
 
                         squish.VisualSwap.setSecondFont(this.font);
                         squish.VisualSwap.useSecondFont();
@@ -52,7 +53,7 @@ squish.floaties = (function() {
         };
 
         mod.spawn = function(int, posx, posy) {
-                var fl = new mod.floaty(int.toString(), posx, posy, 5, 30, squish.colors.white, "20px Arial");
+                var fl = new mod.floaty(int.toString(), posx, posy, 5, 30, squish.colors.white, "20px Arial", function() {return squish.gamedata.menu != "main";});
                 if (int > 0) {
                         fl.color = squish.colors.positiveScoreFloaty;
                 } else {
