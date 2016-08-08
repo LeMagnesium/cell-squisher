@@ -22,7 +22,7 @@ squish.enemies = (function() {
         mod.enemy = function() {
                 this.posx = Math.random() * squish.canvas.width;
                 this.posy = Math.random() * (squish.canvas.height-70) + 35;
-                this.health = Math.ceil(Math.random()) * 120 + 200;
+                this.health = Math.ceil(Math.random()) * 170 + 200;
                 this.color = new squish.colors.color();
                 this.border_color = new squish.colors.color();
                 this.squished = false;
@@ -51,9 +51,22 @@ squish.enemies = (function() {
         };
 
         mod.draw = function() {
-                // Bring out yer dead!
-                var nosquish = true;
+                // Combo reset if no pellet squished
+                // Lag : <1ms
+                var somesquish = enemies.some(function(x){return x.squished;});
+                if (squish.gamedata.combo > 0 && !somesquish) {
+                        if (squish.gamedata.combo > 1) {
+                                (new squish.floaties.floaty("Combo reset..", squish.mouse.x, squish.mouse.y, 5, 30, squish.colors.comboReset, "20px Arial", function() {return squish.gamedata.menu != "main";})).spawn();
+                        }
+                        squish.gamedata.combo = 0;
+                }
+
+                // Cell decay
+                // Lag : 7-18ms
+                // HIGH LAG
+                ////////////////////////////////////////////////////////////////
                 for (var i=0; i<enemies.length; i++) {
+                        // Grave shifting
                         if (enemies[i].health <= 0) {
                                 squish.floaties.spawn(enemies[i].balance, enemies[i].posx, enemies[i].posy);
                                 // The balance is only added now if the cell dies of natural causes; otherwise score has been added progressively
@@ -61,21 +74,9 @@ squish.enemies = (function() {
                                         squish.gamedata.increase_score(enemies[i].balance, true);
                                 }
                                 enemies.splice(i, 1);
-                        } else if (enemies[i].squished) {
-                                nosquish = false;
+                                continue;
                         }
-                }
-
-                // Combo reset if no pellet squished
-                if (squish.gamedata.combo > 0 && nosquish) {
-                        if (squish.gamedata.combo > 1) {
-                                (new squish.floaties.floaty("Combo reset..", squish.mouse.x, squish.mouse.y, 5, 30, squish.colors.comboReset, "20px Arial")).spawn();
-                        }
-                        squish.gamedata.combo = 0;
-                }
-
-                for (var i=0; i<enemies.length; i++) {
-                        if (enemies[i].health > 0) {mod.draw_enemy(enemies[i]);}
+                        mod.draw_enemy(enemies[i]);
                         if (enemies[i].squished) {
                                 // The cell slowly shrinks and dies. "Slowly"
                                 var h = Math.floor(Math.random() * 10);
@@ -85,9 +86,11 @@ squish.enemies = (function() {
                         }
                         enemies[i].health -= Math.ceil(Math.random() * 4);
                 }
+                ////////////////////////////////////////////////////////////////
         };
 
         squish.triggers.hook("mousedown", function() {
+                if (squish.gamedata.menu != "") {return;}
                 squish.gamedata.overlap = 0;
                 for (var i=0; i<enemies.length; i++) {
                         if (enemies[i].squished) {continue;}
@@ -132,9 +135,9 @@ squish.enemies = (function() {
                         squish.gamedata.overlap += 1;
                 }
                 if (squish.gamedata.overlap > 1) {
-                        (new squish.floaties.floaty("Overlap! * " + squish.gamedata.overlap.toString(), squish.mouse.x, squish.mouse.y, 5, 30, squish.colors.overlapTag, "20px Arial Bold")).spawn();
+                        (new squish.floaties.floaty("Overlap! * " + squish.gamedata.overlap.toString(), squish.mouse.x, squish.mouse.y, 5, 30, squish.colors.overlapTag, "20px Arial Bold", function() {return squish.gamedata.menu != "main";})).spawn();
                 } else if (squish.gamedata.overlap > 0 && squish.gamedata.combo > 1) {
-                        (new squish.floaties.floaty("Combo " + squish.gamedata.combo.toString() + "!", squish.mouse.x, squish.mouse.y, 5, 30, squish.colors.comboTag, "20px Arial")).spawn();
+                        (new squish.floaties.floaty("Combo " + squish.gamedata.combo.toString() + "!", squish.mouse.x, squish.mouse.y, 5, 30, squish.colors.comboTag, "20px Arial", function() {return squish.gamedata.menu != "main";})).spawn();
                 }
         });
 
