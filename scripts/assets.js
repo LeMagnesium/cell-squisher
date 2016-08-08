@@ -36,14 +36,18 @@ squish.assets = (function(){
                 "audio/No Rocking in the Jazzhands Zone.mp3",
                 "audio/Skipping Through the Orchestra Pit.mp3",
                 "audio/Babylon.mp3",
-                "audio/Club Diver.mp3"
+                "audio/Club Diver.mp3",
+                "audio/The Missing Link - Funk-a-Dump.mp3",
+                "audio/The Missing Link - Sugarcow.mp3"
         ];
 
         var audio_titles = [
                 "Peter Gresser - No Rocking the Jazzhands Zone",
                 "Peter Gresser - Skipping Through the Orchestra Pit",
                 "Kevin MacLeod - Babylon",
-                "Kevin MacLeod - Club Diver"
+                "Kevin MacLeod - Club Diver",
+                "The Missing Link - Funk-a-Dump",
+                "The Missing Link - Sugarcow"
         ];
 
         var nowPlaying = -1;
