@@ -60,6 +60,7 @@ squish.components = (function() {
         ];
 
         mod.MainMenu = [
+                // Base
                 {
                         class: "rect",
                         xorg: 5,
@@ -83,6 +84,7 @@ squish.components = (function() {
                                 stroke: function() {return squish.colors.mainMenuStroke;},
                         }
                },
+               // Save Game Data
                {
                         class: "rect",
                         xorg: 10,
@@ -90,9 +92,8 @@ squish.components = (function() {
                         width: squish.canvas.width / 2 - 15,
                         height: 35,
                         visuals: {
-                                live: true,
-                                stroke: function() {return "#33cfdf";},
-                                fill: function() {return squish.colors.cookieSaverFill},
+                                stroke: "#33cfdf",
+                                fill: squish.colors.cookieSaverFill,
                        }
                },
                {
@@ -103,6 +104,29 @@ squish.components = (function() {
                        visuals: {
                                fill: "#000000",
                                stroke: "#003322"
+                       }
+               },
+               // Clear Game Data
+               {
+                       class: "rect",
+                       xorg: 10,
+                       yorg: squish.canvas.height - 120,
+                       width: squish.canvas.width / 2 - 15,
+                       height: 35,
+                       visuals: {
+                               live: true,
+                               stroke: function() {return "#22cd64";},
+                               fill: function() {return squish.colors.cookieCleanerFill;}
+                       }
+               },
+               {
+                       class: "text",
+                       xorg: squish.canvas.width / 4 - 2.5,
+                       yorg: squish.canvas.height - 95,
+                       text: "Clear game data",
+                       visuals: {
+                               fill: "#000000",
+                               stroke: "#008787"
                        }
                }
        ];

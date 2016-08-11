@@ -21,6 +21,7 @@ squish.colors = (function() {
                 menuButtonPressed: '#dd2222',
 
                 cookieSaverFill: '#db4540',
+                cookieCleanerFill: '#db0000',
 
                 deadEnemy: '#000000',
 

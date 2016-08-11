@@ -88,7 +88,6 @@ squish.slider = (function() {
                                 }
                         }
 
-                        //console.log(dx);
                         return {
                                 class: "canvas",
                                 xorg: dx,

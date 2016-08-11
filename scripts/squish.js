@@ -65,16 +65,9 @@ function draw() {
         squish.floaties.draw();
 }
 
+// Lag profile : { max: 40, min: 1, avg: 7.461604619732151, cnt: 16278 }
 function mainloop() {
         requestAnimationFrame(mainloop);
-        // Update game clock
-        // <1ms
-        squish.gamedata.now = new Date().getTime();
-
-        // FIXME
-        if (squish.gamedata.menu == "main" && !squish.clickable.areas["SaveToCookie"].active && squish.gamedata.now - squish.gamedata.last_cookie_save > 90000) {
-                squish.clickable.enable("SaveToCookie");
-        }
 
         // Clear
         // Lag : <1ms;
@@ -130,6 +123,7 @@ function mainloop() {
 
 
 window.onload = function() {
+        squish.cookies.eat();
         squish.clickable.enable("StartButton");
         squish.triggers.call("load");
         mainloop();

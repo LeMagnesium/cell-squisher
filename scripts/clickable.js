@@ -13,6 +13,7 @@
          - Colors : squish.colors.cookieSaverFill
          - Slider : squish.slider.push, squish.slider.slider
          - Triggers : squish.triggers.hook
+         - Cookies : squish.cookies.bake, squish.cookies.trash
 */
 
 squish.clickable = (function() {
@@ -111,7 +112,9 @@ squish.clickable.register({
         on_release: function() {
                 // PLAY!
                 squish.gamedata.menu = "";
-                squish.gamedata.score = 0;
+                if (squish.gamedata.score < 0) {
+                        squish.gamedata.score = 0;
+                }
                 // Let's start the game!
                 squish.triggers.call("start");
                 squish.clickable.enable("ToMenuButton");
@@ -124,20 +127,40 @@ squish.clickable.register({
         name: "SaveToCookie",
         start: {x: 10, y: squish.canvas.height - 80},
         end: {x: squish.canvas.width / 2 - 5, y: squish.canvas.height - 45},
+        on_click: function() {
+                // Call the baker
+                squish.cookies.bake();
+                (new squish.floaties.floaty("Data saved!", squish.mouse.x, squish.mouse.y, 3, 150, squish.colors.red)).spawn();
+                squish.clickable.detect();
+        }
+})
+
+squish.clickable.register({
+        name: "ClearCookie",
+        start: {x: 10, y: squish.canvas.height - 120},
+        end: {x: squish.canvas.width / 2 - 5, y: squish.canvas.height - 85},
         on_disable: function() {
-                squish.colors.cookieSaverFill = '#666666';
+                squish.colors.cookieCleanerFill = '#323232';
         },
         on_enable: function() {
-                squish.colors.cookieSaverFill = '#db4540';
+                squish.colors.cookieCleanerFill = '#db0000';
         },
         on_click: function() {
-                // call compose_cookie
-                (new squish.floaties.floaty("Data saved!", squish.mouse.x, squish.mouse.y, 3, 150, squish.colors.red)).spawn();
-                squish.gamedata.last_cookie_save = new Date().getTime();
-                squish.clickable.disable("SaveToCookie");
+                // Call the garbage man
+                squish.cookies.trash();
+                (new squish.floaties.floaty("Data cleaned!", squish.mouse.x, squish.mouse.y, 3, 150, squish.colors.red)).spawn();
                 squish.clickable.detect();
         }
 })
 
 // Hook to determine the hovered clickable
 squish.triggers.hook("mousemove", squish.mouse.hovering = squish.clickable.detect);
+
+// Hook to activate the cookie cleaner
+squish.triggers.hook("step", function() {
+        if (squish.gamedata.menu == "main" && !squish.clickable.areas["ClearCookie"].active && squish.gamedata.last_cookie_save != 0) {
+                squish.clickable.enable("ClearCookie");
+        } else if (squish.gamedata.menu == "main" && squish.gamedata.last_cookie_save == 0 && squish.clickable.areas["ClearCookie"]) {
+                squish.clickable.disable("ClearCookie");
+        }
+})
