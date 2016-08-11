@@ -160,7 +160,7 @@ squish.triggers.hook("mousemove", squish.mouse.hovering = squish.clickable.detec
 squish.triggers.hook("step", function() {
         if (squish.gamedata.menu == "main" && !squish.clickable.areas["ClearCookie"].active && squish.gamedata.last_cookie_save != 0) {
                 squish.clickable.enable("ClearCookie");
-        } else if (squish.gamedata.menu == "main" && squish.gamedata.last_cookie_save == 0 && squish.clickable.areas["ClearCookie"]) {
+        } else if (squish.clickable.areas["ClearCookie"] && (squish.gamedata.menu != "main" || squish.gamedata.last_cookie_save == 0)) {
                 squish.clickable.disable("ClearCookie");
         }
 })
