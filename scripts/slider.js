@@ -35,7 +35,6 @@ squish.slider = (function() {
                 this.component = function() {
                         if (this.state == "idling") {
                                 this.state = "unfolding";
-                                this.elapsed = 0;
                                 children.unshift({
                                         class: "rect",
                                         xorg: 0,
@@ -59,10 +58,10 @@ squish.slider = (function() {
                                         dx += width * (1 - Math.pow(this.elapsed , curve));
                                 }
 
-                        if (this.elapsed == this.slide_time) {
-                                this.elapsed = 0;
-                                this.state = "static";
-                        }
+                                if (this.elapsed == this.slide_time) {
+                                        this.elapsed = 0;
+                                        this.state = "static";
+                                }
 
                         } else if (this.state == "static") {
                                 if (this.direction == "rtl") {
@@ -89,6 +88,7 @@ squish.slider = (function() {
                                 }
                         }
 
+                        //console.log(dx);
                         return {
                                 class: "canvas",
                                 xorg: dx,
