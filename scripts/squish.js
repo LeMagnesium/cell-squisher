@@ -115,10 +115,8 @@ function mainloop() {
         // Lag : ~1ms
         squish.components.draw(squish.components.MenuButton);
 
-        // Sliding announces -- Moderatee lag
-        // None : <1ms
-        // Idling : 4ms<x<7ms
-        // Active : 1ms<x<4ms
+        // Sliding announces
+        // Lag profile : { max: 8, min: 0, avg: 0.18591913961362197, cnt: 20084 }
         squish.slider.draw();
 
         // Mouse
