@@ -21,11 +21,11 @@ squish.achievements = (function(){
 
         mod.register = function(name, trigger, def) {
                 def.triggered = false;
-                def.check = function() {//def) {
+                def.check = function() {
                         if (def.triggered) {return;}
                         var ret = def.condition();
                         if (ret) {
-                                mod.trigger(def);
+                                mod.trigger(name);
                         }
                 };
 
@@ -39,56 +39,51 @@ squish.achievements = (function(){
                 achievements[name] = def;
         };
 
-        mod.trigger = function(ach) {
+        // Trigger function
+        mod.trigger = function(name, silent) {
+                if (!achievements[name]) {return false;}
+                var ach = achievements[name];
                 ach.triggered = true;
                 squish.mouse.surround += 1;
+                squish.gamedata.achieved.push(name);
 
-
-                // Dopre-graphical stuff here
-                squish.slider.push(new squish.slider.slider("rtl", squish.canvas.width, squish.canvas.height - 150, 250, 110, 20, 150, [
-                        {
-                                class: "image",
-                                src: ach.icon,
-                                xorg: 93,
-                                yorg: 13,
-                                width: 64,
-                                height: 64
-                        },
-                        {
-                                class: "rect",
-                                xorg: 93,
-                                yorg: 13,
-                                width: 64,
-                                height: 64,
-                                fill: false,
-                                visuals: {
-                                        stroke: squish.colors.red,
+                if (!silent) {
+                        // Dopre-graphical stuff here
+                        squish.slider.push(new squish.slider.slider("rtl", squish.canvas.width, squish.canvas.height - 150, 250, 110, 20, 150, [
+                                {
+                                        class: "image",
+                                        src: ach.icon,
+                                        xorg: 93,
+                                        yorg: 13,
+                                        width: 64,
+                                        height: 64
+                                },
+                                {
+                                        class: "rect",
+                                        xorg: 93,
+                                        yorg: 13,
+                                        width: 64,
+                                        height: 64,
+                                        fill: false,
+                                        visuals: {
+                                                stroke: squish.colors.red,
+                                        }
+                                },
+                                {
+                                        class: "text",
+                                        text: ach.title,
+                                        xorg: 125,
+                                        yorg: 100,
+                                        stroke: true,
+                                        visuals: {
+                                                fill: "currentStroke",
+                                                font: "20px Arial",
+                                        }
                                 }
-                        },
-                        {
-                                class: "text",
-                                text: ach.title,
-                                xorg: 125,
-                                yorg: 100,
-                                stroke: true,
-                                visuals: {
-                                        fill: "currentStroke",
-                                        font: "20px Arial",
-                                }
-                        }
-                ]));
+                        ]));
+                }
+                return true;
         };
-
-
-        /**
-        function cycle_through() {
-          for (var i = 0; i < achievements.length; i++) {
-            achievements[i].runthrough();
-            achievements[i].check();
-          }
-        }*/
-
-
 
         return mod;
 }());

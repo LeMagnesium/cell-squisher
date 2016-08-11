@@ -18,7 +18,7 @@ squish.gamedata = (function() {
         mod.menu = "start";
         mod.overlap = 0;
         mod.last_cookie_save = 0;
-        mod.now = 0;
+        mod.achieved = [];
 
         /* Score */
         mod.increase_score = function(int, raw) {
