@@ -31,7 +31,10 @@ squish.achievements = (function(){
 
                 squish.triggers.hook(trigger, def.check);
                 if (def.runthrough) {
-                        squish.triggers.hook("step", def.runthrough);
+                        squish.triggers.hook("step", function() {
+                                if (def.triggered) {return;}
+                                def.runthrough();
+                        });
                 }
                 achievements[name] = def;
         };
