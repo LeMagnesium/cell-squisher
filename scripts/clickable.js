@@ -118,6 +118,7 @@ squish.clickable.register({
                 // Let's start the game!
                 squish.triggers.call("start");
                 squish.clickable.enable("ToMenuButton");
+                squish.clickable.enable("AudioMenu");
                 squish.clickable.disable("StartButton");
                 squish.clickable.detect();
         }
@@ -152,6 +153,42 @@ squish.clickable.register({
                 squish.clickable.detect();
         }
 })
+
+// Audio menu
+squish.clickable.register({
+        name: "AudioMenu",
+        start: {x: squish.components.AudioButton[0].xorg, y: squish.components.AudioButton[0].yorg},
+        end: {
+                x: squish.components.AudioButton[0].xorg + squish.components.AudioButton[0].width,
+                y: squish.components.AudioButton[0].yorg + squish.components.AudioButton[0].length,
+        },
+        on_click: function() {
+                if (squish.gamedata.menu == "audio") {
+                        squish.gamedata.menu = "";
+                        squish.clickable.disable("AudioMute");
+                } else {
+                        squish.gamedata.menu = "audio";
+                        squish.clickable.enable("AudioMute");
+                }
+                squish.clickable.detect();
+        }
+});
+
+squish.clickable.register({
+        name: "AudioMute",
+        start: {x: squish.components.AudioMenu[1].xorg, y: squish.components.AudioMenu[1].yorg},
+        end: {
+                x: squish.components.AudioMenu[1].xorg + squish.components.AudioMenu[1].width,
+                y: squish.components.AudioMenu[1].yorg + squish.components.AudioMenu[1].length,
+        },
+        on_click: function() {
+                if (squish.assets.bgm_get_volume()) {
+                        squish.assets.bgm_set_volume(0);
+                } else {
+                        squish.assets.bgm_set_volume(1);
+                }
+        }
+});
 
 // Hook to determine the hovered clickable
 squish.triggers.hook("mousemove", squish.mouse.hovering = squish.clickable.detect);

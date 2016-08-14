@@ -16,6 +16,36 @@
 squish.components = (function() {
         var mod = {};
 
+        mod.AudioButton = [
+                {
+                        class: "rect",
+                        xorg: 5,
+                        yorg: squish.canvas.height - 35,
+                        width: 30,
+                        height: 30,
+                        visuals: {
+                                live: true,
+                                fill: function() {
+                                        if (squish.mouse.clicked == "AudioMenu") {
+                                                return squish.colors.menuButtonPressed;
+                                        } else if (squish.mouse.hovering == "AudioMenu") {
+                                                return squish.colors.menuButtonHovered;
+                                        } else {
+                                                return squish.colors.mainMenuFill;
+                                        }
+                                },
+                        }
+                },
+                {
+                        class: "image",
+                        xorg: 5,
+                        yorg: squish.canvas.height - 35,
+                        width: 30,
+                        height: 30,
+                        src: "images/game/audio_menu.gif",
+                }
+        ],
+
         mod.MenuButton = [
             {
                 class: "rect",
@@ -131,6 +161,50 @@ squish.components = (function() {
                }
        ];
 
+       mod.AudioMenu = [
+               {
+                       class: "line",
+                       xorg: 5,
+                       yorg: squish.canvas.height - 40,
+                       width: 30,
+                       height: 0,
+               },
+               {
+                       class: "rect",
+                       xorg: 5,
+                       yorg: squish.canvas.height - 75,
+                       width: 30,
+                       height: 30,
+                       visuals: {
+                               live: true,
+                               fill: function() {
+                                       if (squish.mouse.clicked == "AudioMute") {
+                                               return squish.colors.menuButtonPressed;
+                                       } else if (squish.mouse.hovering == "AudioMute") {
+                                               return squish.colors.menuButtonHovered;
+                                       } else {
+                                               return squish.colors.mainMenuFill;
+                                       }
+                               },
+                       }
+               },
+               {
+                       class: "image",
+                       xorg: 5,
+                       yorg: squish.canvas.height - 75,
+                       width: 30,
+                       height: 30,
+                       live: true,
+                       src: function() {
+                               if (squish.assets.bgm_get_volume() > 0) {
+                                       return "images/game/audio_mute.gif";
+                               } else {
+                                       return "images/game/audio_unmute.gif";
+                               }
+                       }
+               }
+       ];
+
        mod.ScoreBar = [
            {
                class: "rect",
@@ -162,9 +236,9 @@ squish.components = (function() {
        mod.AudioBar = [
            {
                class: "rect",
-               xorg: 5,
+               xorg: 40,
                yorg: squish.canvas.height - 35,
-               width: squish.canvas.width - 45,
+               width: squish.canvas.width - 80,
                height: 30,
                visuals: {
                        live: true,
@@ -306,7 +380,11 @@ squish.components = (function() {
                                squish.ctx.translate(-obj.xorg, -obj.yorg);
 
                        } else if (obj.class == "image") {
-                               squish.ctx.drawImage(squish.assets.get_image(obj.src), // img
+                               var src = obj.src;
+                               if (obj.live) {
+                                       src = src();
+                               }
+                               squish.ctx.drawImage(squish.assets.get_image(src), // img
                                         obj.xorg, obj.yorg, // x, y
                                         obj.width, obj.height // width height
                                         );

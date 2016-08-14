@@ -91,7 +91,6 @@ squish.assets = (function(){
                         this.sound.pause();
                 }
                 this.sound.onended = function() {
-                        //bgm = new mod.bgm_music();
                         bgm.start();
                 }
                 this.getvolume = function() {

@@ -89,6 +89,10 @@ function mainloop() {
                         squish.components.draw(squish.components.MainMenu);
                         squish.floaties.draw();
                         break;
+                case "audio":
+                        squish.components.draw(squish.components.AudioMenu);
+                        break;
+
                 case "":
                         // Lag : 7-19ms
                         // HIGH LAG
@@ -107,6 +111,10 @@ function mainloop() {
         // Menu button
         // Lag : ~1ms
         squish.components.draw(squish.components.MenuButton);
+
+        // Audio button
+        // Lag profile : unknown
+        squish.components.draw(squish.components.AudioButton);
 
         // Sliding announces
         // Lag profile : { max: 8, min: 0, avg: 0.18591913961362197, cnt: 20084 }
