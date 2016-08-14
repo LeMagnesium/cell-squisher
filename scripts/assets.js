@@ -17,17 +17,27 @@ squish.assets = (function(){
         // Images once loaded
         var images = [];
 
+        var preload = [
+                "images/game/audio_mute.gif",
+                "images/game/audio_unmute.gif",
+                "images/game/audio_menu.gif",
+        ];
+
         mod.register_image = function(path) {
                 var im = new Image();
                 im.src = path;
                 images[path] = im;
-        }
+        };
 
         mod.get_image = function(path) {
                 if (!images[path]) {
                         mod.register_image(path);
                 }
                 return images[path];
+        };
+
+        for (var x in preload) {
+                mod.register_image(preload[x]);
         }
 
         /* Sounds */
@@ -61,7 +71,7 @@ squish.assets = (function(){
                         this.sound.src = src;
                         this.sound.play();
                 }
-        }
+        };
 
         mod.bgm_music = function() {
                 this.sound = document.createElement("audio");
@@ -81,22 +91,36 @@ squish.assets = (function(){
                         this.sound.pause();
                 }
                 this.sound.onended = function() {
-                        bgm = new mod.bgm_music();
+                        //bgm = new mod.bgm_music();
                         bgm.start();
                 }
-        }
+                this.getvolume = function() {
+                        return this.sound.volume;
+                }
+                this.setvolume = function(v) {
+                        this.sound.volume = v;
+                }
+        };
 
         mod.pause_bgm = function() {
                 bgm.pause();
-        }
+        };
         mod.start_bgm = function() {
                 bgm.start();
-        }
+        };
 
         mod.now_playing = function() {
                 if (nowPlaying == -1) {return {path: "", title: ""};}
                 return {path: sounds[nowPlaying], title: audio_titles[nowPlaying]};
-        }
+        };
+
+        mod.bgm_get_volume = function() {
+                return bgm.getvolume();
+        };
+
+        mod.bgm_set_volume = function(v) {
+                bgm.setvolume(v);
+        };
 
         squish.triggers.hook("start", function() {
                 bgm = new mod.bgm_music(-1);

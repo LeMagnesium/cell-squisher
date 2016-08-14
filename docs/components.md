@@ -45,9 +45,10 @@ We'll now explain all the fields an element can have so far :
  - `height` : **REQUIRED BY : rect, line, image**
    - Defines the height of the element to be drawn. For images, resize to that height
 
- - `live` : **OPTIONAL FOR : text**
+ - `live` : **OPTIONAL FOR : text, image**
    - States whether some fields like `text` are live, i.e. functions to be executed in order to retrieve the needed value
    - For text elements, live fields are : `text`
+   - For image components, live fields are : `src`
 
  - `text` : **REQUIRED BY : text**
    - The string to be written on the canvas
