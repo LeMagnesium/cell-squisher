@@ -248,7 +248,7 @@ squish.components = (function() {
            {
                class: "text",
                live: true,
-               xorg: squish.canvas.width / 2 - 45,
+               xorg: squish.canvas.width / 2,
                yorg: squish.canvas.height - 13,
                stroke: false,
                text: function() {
