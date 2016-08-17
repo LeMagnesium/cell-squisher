@@ -48,6 +48,12 @@ function draw_wait_menu() {
 
 
 function draw() {
+        var d = Math.floor(squish.gamedata.combo / 50) * 2;
+        var x = Math.ceil(Math.random() * d) - d/2;
+        var y = Math.ceil(Math.random() * d) - d/2;
+
+        squish.ctx.translate(x, y);
+
         // Enemies spawn
         // Lag : <1ms
         if (Math.random() < 0.45) {
@@ -63,6 +69,8 @@ function draw() {
         // Draw floaties
         // Lag : 1-2ms
         squish.floaties.draw();
+
+        squish.ctx.translate(-x, -y);
 }
 
 // Lag profile : { max: 40, min: 1, avg: 7.461604619732151, cnt: 16278 }
@@ -94,7 +102,7 @@ function mainloop() {
                         break;
 
                 case "":
-                        // Lag : 7-19ms
+                        // Lag profile : Object { max: 31, min: 1, avg: 14.992790500424082, cnt: 2358 }
                         // HIGH LAG
                         draw();
                         break;
