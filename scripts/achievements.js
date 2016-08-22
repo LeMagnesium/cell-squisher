@@ -18,6 +18,7 @@ squish.achievements = (function(){
         var mod = {};
 
         var achievements = {};
+        var achamount = 0;
 
         mod.register = function(name, trigger, def) {
                 def.triggered = false;
@@ -37,6 +38,7 @@ squish.achievements = (function(){
                         });
                 }
                 achievements[name] = def;
+                achamount += 1;
         };
 
         // Trigger function
@@ -85,10 +87,94 @@ squish.achievements = (function(){
                 return true;
         };
 
+        mod.build_main_menu_component = function() {
+                var comp = [
+                        {
+                                class: "rect",
+                                xorg: squish.canvas.width / 2 + 5,
+                                yorg: 45,
+                                width: squish.canvas.width / 2 - 15,
+                                height: squish.canvas.height - 90,
+                                fill: false,
+                                stroke: true,
+                        }
+                ];
+
+                var heightperach = (squish.canvas.height - (90 + (achamount-1)*2))/achamount;
+                var i = 0;
+                for (var x in achievements) {
+                        var ach = achievements[x];
+
+                        var desc;
+                        var imgsrc;
+                        var bgcolor;
+
+                        if (ach.triggered) {
+                                desc = ach.menu.desc;
+                                imgsrc = ach.icon;
+                        } else {
+                                desc = ach.menu.howto;
+                                imgsrc = "images/game/notthereyet.gif";
+                        }
+
+                        if (i%2) {
+                                bgcolor = squish.colors.achListOdd;
+                        } else {
+                                bgcolor = squish.colors.achListEven;
+                        }
+
+                        var titlelen = squish.ctx.measureText(ach.title).width;
+
+                        comp.push({
+                                class: "rect",
+                                xorg: squish.canvas.width/2+5,
+                                yorg: 45 + (i*(heightperach+2)),
+                                height: heightperach,
+                                width: squish.canvas.width/2-15,
+                                visuals: {
+                                        fill: bgcolor,
+                                }
+                        })
+                        comp.push({
+                                class: "image",
+                                src: imgsrc,
+                                xorg: squish.canvas.width/2+5,
+                                yorg: 45 + (i*(heightperach+2)),
+                                height: heightperach,
+                                width: heightperach,
+                        });
+                        comp.push({
+                                class: "text",
+                                text: ach.title,
+                                xorg: squish.canvas.width / 2 + 17 + heightperach + (titlelen/2),
+                                yorg: 45 + (heightperach/2+5) + (i*(heightperach+2)),
+                                maxwidth: squish.canvas.width/2-12-heightperach,
+                                fill: true,
+                                stroke: false,
+                                visuals: {
+                                        fill: "currentStroke",
+                                }
+                        });
+
+                        i+=1;
+                }
+
+                return comp;
+        };
+
         return mod;
 }());
 
-// Score achievements
+squish.achievements.register("nonsense", "step", {
+        title: "Nonsense of game design",
+        icon: "images/game/mainmenu.gif",
+        menu: {
+                howto: "LOLOLOLOLOL",
+                desc: "You just found the main menu, probably. That or you're reading the code.",
+        },
+        condition: function() { return squish.gamedata.menu == "main"; },
+});
+
 squish.achievements.register("slayer", "score", {
         title: "The Cell Slayer",
         icon: "images/game/slayer.gif",
@@ -109,6 +195,16 @@ squish.achievements.register("gt9000", "score", {
         condition: function () { return squish.gamedata.score > 9000; },
 });
 
+squish.achievements.register("collateral", "mousedown", {
+        title: "Collateral Damages",
+        icon: "images/game/collateral.gif",
+        menu: {
+                howto: "Get a 4 overlap or more",
+                desc: "Squish cells: check",
+        },
+        condition: function () { return squish.gamedata.overlap >= 4; },
+});
+
 squish.achievements.register("steve", "score", {
         title: "A pet named Steve",
         icon: "images/game/steve.gif",
@@ -119,25 +215,14 @@ squish.achievements.register("steve", "score", {
         condition: function() { return squish.gamedata.score > 3610827; },
 });
 
-squish.achievements.register("genocide", "score", {
-        title: "Genocidal Rampage",
-        icon: "images/game/genocide.gif",
+squish.achievements.register("kingcombo", "step", {
+        title: "KING COMBO!",
+        icon: "images/game/king_combo.gif",
         menu: {
-                howto: "You wanted something hard, didn't you?",
-                desc: "You have earned the lethal injection of salty water for destroying scientifical progress",
+                howto: "Get a 100 combo",
+                desc: "Hypactivity, amirite?",
         },
-        condition: function() { return squish.gamedata.score > 9000000000; },
-});
-
-// Mouse stuff
-squish.achievements.register("nonsense", "step", {
-        title: "Nonsense of game design",
-        icon: "images/game/mainmenu.gif",
-        menu: {
-                howto: "LOLOLOLOLOL",
-                desc: "You just found the main menu, probably. That or you're reading the code.",
-        },
-        condition: function() { return squish.gamedata.menu == "main"; },
+        condition: function () { return squish.gamedata.combo >= 100; },
 });
 
 
@@ -151,23 +236,13 @@ squish.achievements.register("trigomad", "step", {
         condition: function () { return squish.mouse.rotary >= 124; },
 });
 
-// Plain weird
-squish.achievements.register("kingcombo", "step", {
-        title: "KING COMBO!",
-        icon: "images/game/king_combo.gif",
-        menu: {
-                howto: "Get a 100 combo",
-                desc: "Hypactivity, amirite?",
-        },
-        condition: function () { return squish.gamedata.combo >= 100; },
-});
 
-squish.achievements.register("collateral", "mousedown", {
-        title: "Collateral Damages",
-        icon: "images/game/collateral.gif",
+squish.achievements.register("genocide", "score", {
+        title: "Genocidal Rampage",
+        icon: "images/game/genocide.gif",
         menu: {
-                howto: "Get a 4 overlap or more",
-                desc: "Squish cells: check",
+                howto: "You wanted something hard, didn't you?",
+                desc: "You have earned the lethal injection of salty water for destroying scientifical progress",
         },
-        condition: function () { return squish.gamedata.overlap >= 4; },
+        condition: function() { return squish.gamedata.score > 900000000; },
 });

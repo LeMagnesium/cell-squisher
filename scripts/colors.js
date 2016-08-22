@@ -42,6 +42,9 @@ squish.colors = (function() {
                 mouseRotor: '#ff2222',
                 mouseCircle: '#000000',
 
+                achListEven: '#aaaaaa',
+                achListOdd: '#dddddd',
+
                 // Some defaults
                 red: '#ff0000',
                 green: '#00ff00',

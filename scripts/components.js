@@ -367,10 +367,10 @@ squish.components = (function() {
                                }
 
                                if (obj.fill == null || obj.fill == true) {
-                                       squish.ctx.fillText(txt, obj.xorg, obj.yorg);
+                                       squish.ctx.fillText(txt, obj.xorg, obj.yorg, obj.maxwidth);
                                }
                                if (obj.stroke == null || obj.stroke == true) {
-                                       squish.ctx.strokeText(txt, obj.xorg, obj.yorg);
+                                       squish.ctx.strokeText(txt, obj.xorg, obj.yorg, obj.maxwidth);
                                }
 
                        } else if (obj.class == "canvas") {

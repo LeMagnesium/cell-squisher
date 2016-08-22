@@ -64,6 +64,9 @@ We'll now explain all the fields an element can have so far :
  - `fill`: **OPTIONAL FOR : rect, text**
    - States whether or not the object will be filled (using fill methods and the current fillStyle)
 
+ - `maxwidth` : **OPTIONAL FOR : text**
+   - States how many pixels are allow in width for the text
+
  - `visuals` : **OPTIONAL FOR : rect, line, image, text**
    - A table of configuration fields on how to render the element
    - If a field is not specified, then the currently default value will be used instead

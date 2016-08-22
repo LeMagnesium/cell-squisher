@@ -96,6 +96,7 @@ function mainloop() {
                         // Moderate lag
                         squish.components.draw(squish.components.MainMenu);
                         squish.floaties.draw();
+                        squish.components.draw(squish.achievements.build_main_menu_component());
                         break;
                 case "audio":
                         squish.components.draw(squish.components.AudioMenu);
