@@ -87,7 +87,7 @@ function mainloop() {
         squish.ctx.fillRect(0, 0, squish.canvas.width, squish.canvas.height);
 
         switch (squish.gamedata.menu) {
-                case "start":
+                case "prestart":
                         // Lag : 1ms
                         draw_wait_menu();
                         break;
@@ -140,8 +140,6 @@ function mainloop() {
 
 
 window.onload = function() {
-        squish.cookies.eat();
-        squish.clickable.enable("StartButton");
         squish.triggers.call("load");
         mainloop();
 }

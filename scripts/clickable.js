@@ -14,6 +14,7 @@
          - Slider : squish.slider.push, squish.slider.slider
          - Triggers : squish.triggers.hook
          - Cookies : squish.cookies.bake, squish.cookies.trash
+         - Menu : squish.menu.switch, squish.menu.leave
 */
 
 squish.clickable = (function() {
@@ -74,34 +75,18 @@ squish.clickable = (function() {
 
 // Clickable areas
 squish.clickable.register({
-        name: "ToMenuButton",
+        name: "MainMenu",
         start: {x: squish.components.MenuButton[0].xorg, y: squish.components.MenuButton[0].yorg},
         end: {
                 x: squish.components.MenuButton[0].xorg + squish.components.MenuButton[0].width,
                 y: squish.components.MenuButton[0].yorg + squish.components.MenuButton[0].length,
         },
         on_click: function() {
-                squish.gamedata.menu = "main";
-                squish.clickable.disable("ToMenuButton");
-                squish.clickable.enable("FromMenuButton");
-                squish.clickable.enable("SaveToCookie");
-                squish.clickable.detect();
-        }
-});
-
-squish.clickable.register({
-        name: "FromMenuButton",
-        start: {x: squish.components.MenuButton[0].xorg, y: squish.components.MenuButton[0].yorg},
-        end: {
-                x: squish.components.MenuButton[0].xorg + squish.components.MenuButton[0].width,
-                y: squish.components.MenuButton[0].yorg + squish.components.MenuButton[0].length,
-        },
-        on_click: function() {
-                squish.gamedata.menu = "";
-                squish.clickable.disable("FromMenuButton");
-                squish.clickable.disable("SaveToCookie");
-                squish.clickable.enable("ToMenuButton");
-                squish.clickable.detect();
+                if (squish.gamedata.menu == "main") {
+                        squish.menu.leave("main");
+                } else {
+                        squish.menu.switch("main");
+                }
         }
 });
 
@@ -111,16 +96,12 @@ squish.clickable.register({
         end: {x: squish.canvas.width / 16 * 8.5, y: squish.canvas.height / 2 + 30},
         on_release: function() {
                 // PLAY!
-                squish.gamedata.menu = "";
                 if (squish.gamedata.score < 0) {
                         squish.gamedata.score = 0;
                 }
                 // Let's start the game!
+                squish.menu.leave("prestart");
                 squish.triggers.call("start");
-                squish.clickable.enable("ToMenuButton");
-                squish.clickable.enable("AudioMenu");
-                squish.clickable.disable("StartButton");
-                squish.clickable.detect();
         }
 });
 
@@ -164,11 +145,9 @@ squish.clickable.register({
         },
         on_click: function() {
                 if (squish.gamedata.menu == "audio") {
-                        squish.gamedata.menu = "";
-                        squish.clickable.disable("AudioMute");
+                        squish.menu.leave("audio");
                 } else {
-                        squish.gamedata.menu = "audio";
-                        squish.clickable.enable("AudioMute");
+                        squish.menu.switch("audio");
                 }
                 squish.clickable.detect();
         }

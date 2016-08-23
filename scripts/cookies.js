@@ -10,6 +10,7 @@
         Dependencies :
          - Gamedata : squish.gamedata.score, squish.gamedata.achieved, squish.gamedata.config.extrafloaties
          - Achievements : squish.achievements.triggers
+         - Triggers : squish.triggers.hook
 */
 
 squish.cookies = (function() {
@@ -78,3 +79,7 @@ squish.cookies = (function() {
 
         return mod;
 })();
+
+squish.triggers.hook("load", function() {
+        squish.cookies.eat();
+});

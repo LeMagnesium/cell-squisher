@@ -25,7 +25,7 @@
                 }
         </style>
 
-        <script src="https://fgtools.fr/ressources/jquery/jquery.js"></script>
+        <script src="http://fgtools.fr/ressources/jquery/jquery.js"></script>
         <script language="javascript">
                var nightmode = false;
                var extfloaties = true;
@@ -37,21 +37,26 @@
                } catch (ReferenceError) {
                        jq = false;
                }
+
+               function toggle_theme() {
+                       if (!nightmode) {
+                               document.body.style.backgroundColor = "#111122";
+                               document.body.style.color = "#66dd22";
+                       } else {
+                               document.body.style.backgroundColor = "#eeeeee"
+                               document.body.style.color = "#222222";
+                       }
+                       nightmode = !nightmode;
+                       window.frames[0].window.toggle_theme();
+               };
+
                if (jq) {
                         // Some customization stuff
                         $(document).ready(function() {
                                 $(".panel").css("display", "none");
                                 $("#themeSwitch").click(function() {
-                                        if (!nightmode) {
-                                                document.body.style.backgroundColor = "#111122";
-                                                document.body.style.color = "#66dd22";
-                                        } else {
-                                                document.body.style.backgroundColor = "#eeeeee"
-                                                document.body.style.color = "#222222";
-                                        }
+                                        toggle_theme();
                                         $(".panel, .flip").toggleClass("nightslide");
-                                        nightmode = !nightmode;
-                                        window.frames[0].window.toggle_theme();
                                 });
 
                                 $("#extraFloatySwitch").click(function() {
@@ -91,7 +96,7 @@
     <hr>
     <div class="flip">[Options]</div>
     <div class="panel" style="padding: 10px; justify-content: space-between;">
-            <button id="themeSwitch">Switch Theme</button>
+            <button id="themeSwitch" onclick="toggle_theme();">Switch Theme</button> <!-- Onclick is overwritten if we can access fgtools.fr -->
             <button id="extraFloatySwitch">Disable extra floaties</button>
     </div>
 

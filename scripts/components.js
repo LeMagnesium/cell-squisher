@@ -56,9 +56,9 @@ squish.components = (function() {
                 visuals: {
                         live: true,
                         fill: function() {
-                                if (squish.mouse.clicked == "ToMenuButton" || squish.mouse.clicked == "FromMenuButton") {
+                                if (squish.mouse.clicked == "MainMenu") {
                                         return squish.colors.menuButtonPressed;
-                                } else if (squish.mouse.hovering == "ToMenuButton" || squish.mouse.hovering == "FromMenuButton") {
+                                } else if (squish.mouse.hovering == "MainMenu") {
                                         return squish.colors.menuButtonHovered;
                                 } else {
                                         return squish.colors.mainMenuFill;
