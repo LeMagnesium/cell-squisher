@@ -55,7 +55,7 @@
                         $(document).ready(function() {
                                 $(".panel").css("display", "none");
                                 $("#themeSwitch").click(function() {
-                                        toggle_theme();
+                                        // toggle_theme is already called since JQuery stacks callbacks;
                                         $(".panel, .flip").toggleClass("nightslide");
                                 });
 
