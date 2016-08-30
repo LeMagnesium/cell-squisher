@@ -50,22 +50,25 @@ squish.clickable = (function() {
         mod.detect = function() {
                 var found = ""
                 for (name in squish.clickable.areas) {
-                        if (!squish.clickable.areas[name].active) {continue;}
-                        if (squish.mouse.x < squish.clickable.areas[name].start.x - squish.mouse.sradius) {continue;}
-                        if (squish.mouse.x > squish.clickable.areas[name].end.x + squish.mouse.sradius) {continue;}
-                        if (squish.mouse.y < squish.clickable.areas[name].start.y - squish.mouse.sradius) {continue;}
-                        if (squish.mouse.y > squish.clickable.areas[name].end.y + squish.mouse.sradius) {continue;}
+			if (!squish.clickable.areas[name].active) {continue;}
+			if (squish.mouse.x < squish.clickable.areas[name].start.x - squish.mouse.sradius) {continue;}
+			if (squish.mouse.x > squish.clickable.areas[name].end.x + squish.mouse.sradius) {continue;}
+			if (squish.mouse.y < squish.clickable.areas[name].start.y - squish.mouse.sradius) {continue;}
+			if (squish.mouse.y > squish.clickable.areas[name].end.y + squish.mouse.sradius) {continue;}
 
-                        // Could be in jQuery, if it were in HTML
-                        if (squish.clickable.areas[name].on_enter) {
-                                squish.clickable.areas[name].on_enter();
-                        }
                         found = name;
                         break;
                 }
 
-                squish.mouse.hovering = found;
-                if (!squish.mouse.hovering && squish.mouse.clicked) {
+		if (squish.mouse.hovering && squish.clickable.areas[squish.mouse.hovering].on_leave) {
+			mod.areas[squish.mouse.hovering].on_leave();
+		}
+		squish.mouse.hovering = found;
+		if (found) {
+			if (squish.clickable.areas[name].on_enter) {
+				squish.clickable.areas[name].on_enter();
+			}
+		} else if(squish.mouse.clicked) {
                         squish.mouse.clicked = ""; // We left the component, so it's not *technically* clicked any more
                 }
         };
@@ -169,8 +172,10 @@ squish.clickable.register({
         }
 });
 
+squish.clickable.register
+
 // Hook to determine the hovered clickable
-squish.triggers.hook("mousemove", squish.mouse.hovering = squish.clickable.detect);
+squish.triggers.hook("mousemove", squish.clickable.detect);
 
 // Hook to activate the cookie cleaner
 squish.triggers.hook("step", function() {
