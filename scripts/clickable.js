@@ -185,7 +185,7 @@ squish.clickable.register({
 	on_click: function() {
 		squish.assets.bgm_set_volume(Math.floor(squish.assets.bgm_get_volume()*100 - 5)/100);
 		if (squish.assets.bgm_get_volume() == 0) {
-			memorized_bgm_volume = 0.05;
+			squish.volatile.store("memorized_bgm_volume", 0.05);
 		}
 	},
 });
