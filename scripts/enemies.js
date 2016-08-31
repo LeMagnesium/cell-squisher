@@ -58,8 +58,8 @@ squish.enemies = (function() {
                         if (squish.gamedata.combo > 1) {
                                 (new squish.floaties.floaty("Combo reset..", squish.mouse.x, squish.mouse.y, 5, 30, squish.colors.comboReset, "20px Arial", function() {return squish.gamedata.menu != "main";})).spawn();
                         }
-                        squish.gamedata.combo = 0;
-                }
+			squish.gamedata.reset_combo();
+		}
 
                 // Cell decay
                 // Lag : 7-18ms
@@ -126,12 +126,16 @@ squish.enemies = (function() {
                                 bg.blue -= 4;
                         }
 
-                        enemies[i].color = squish.colors.deadEnemy;
+                        squish.gamedata.combo += 1;
+			squish.gamedata.combo_path.push([enemies[i].posx, enemies[i].posy, enemies[i].color]);
+			enemies[i].color = squish.colors.deadEnemy;
                         squish.gamedata.increase_score(squish.gamedata.overlap * 50, enemies[i].posx, enemies[i].posy);
                         if (squish.gamedata.overlap > 0) {
                                 squish.floaties.spawn(squish.gamedata.overlap * 50, enemies[i].posx, enemies[i].posy);
                         }
-                        squish.gamedata.combo += 1;
+                       if (squish.gamedata.combo_path.length > 50) {
+				squish.gamedata.combo_path.shift();
+			}
                         squish.gamedata.overlap += 1;
                 }
                 if (squish.gamedata.overlap > 1) {

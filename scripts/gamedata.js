@@ -9,7 +9,7 @@
 
         Dependencies :
          - Triggers : squish.triggers.call
-         */
+*/
 
 squish.gamedata = (function() {
         var mod = {};
@@ -19,6 +19,7 @@ squish.gamedata = (function() {
         mod.overlap = 0;
         mod.last_cookie_save = 0;
         mod.achieved = [];
+	mod.combo_path = [];
 
         /* Score */
         mod.increase_score = function(val, raw) {
@@ -34,11 +35,42 @@ squish.gamedata = (function() {
                 return val;
         };
 
+	/* Combo Reset */
+	mod.reset_combo = function() {
+		mod.combo = 0;
+		mod.combo_path = [];
+	};
+
+	/* Combo Path Drawing */
+	mod.draw_combo_path = function() {
+		if (mod.combo < 2) {return;}
+
+		var point;
+		//squish.ctx.beginPath();
+		for (var i in mod.combo_path) {
+			const npoint = mod.combo_path[i];
+			squish.ctx.beginPath();
+			squish.VisualSwap.setSecondFill(npoint[2]);
+			squish.VisualSwap.useSecondFill();
+			squish.ctx.arc(npoint[0], npoint[1], 2, 0, 2 * Math.PI, false);
+			squish.ctx.fill();
+			squish.ctx.stroke();
+			if (point) {
+				squish.ctx.beginPath();
+				squish.ctx.moveTo(point[0], point[1]);
+				squish.ctx.lineTo(npoint[0], npoint[1]);
+				squish.ctx.stroke();
+			}
+			point = npoint;
+
+		}
+	};
+
         // Config trash
         mod.config = {
           extrafloaties: true,
           theme: "day",
-        }
+        };
 
         return mod;
 }());

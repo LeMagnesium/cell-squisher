@@ -61,6 +61,9 @@ function draw() {
                 (new squish.enemies.enemy()).spawn();
         }
 
+	// Draw the combo path
+	squish.gamedata.draw_combo_path();
+
         // Draw enemies
         // Lag profile : { max: 30, min: 1, avg: 13.154655119084435, cnt: 6466 }
         // HIGH LAG
