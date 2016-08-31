@@ -8,6 +8,7 @@
         Menu
 
         Dependencies :
+	 - Triggers : squish.triggers.call, squish.triggers.hook
          - (Runtime) Clickable
 */
 
@@ -25,6 +26,7 @@ squish.menu = (function() {
                 if (register[name].on_enter) {
                         register[name].on_enter();
                 }
+		squish.triggers.call("menuenter", name);
         };
 
         mod.leave = function() {
@@ -34,6 +36,7 @@ squish.menu = (function() {
                         }
                         squish.gamedata.menu = "";
                 };
+		squish.triggers.call("menuleave", name);
         };
 
         mod.switch = function(name) {
@@ -77,6 +80,8 @@ squish.menu.register("audio", {
         }
 });
 
+// Trigger stuff
 squish.triggers.hook("load", function() {
         squish.menu.enter("prestart");
 });
+

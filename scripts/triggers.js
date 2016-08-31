@@ -25,9 +25,9 @@ squish.triggers = (function(){
           triggers[name].push(func);
         }
 
-        mod.call = function(name) {
+        mod.call = function(name, ...parameters) {
                 for (var i = 0; i < triggers[name].length; i++) {
-                        triggers[name][i]();
+                        triggers[name][i](...parameters);
                 }
         };
 
@@ -41,4 +41,6 @@ squish.triggers.register("step");
 squish.triggers.register("mousedown");
 squish.triggers.register("mouseup");
 squish.triggers.register("score");
-squish.triggers.register("load")
+squish.triggers.register("load");
+squish.triggers.register("menuenter");
+squish.triggers.register("menuleave");
