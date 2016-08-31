@@ -21,17 +21,17 @@ squish.gamedata = (function() {
         mod.achieved = [];
 
         /* Score */
-        mod.increase_score = function(int, raw) {
+        mod.increase_score = function(val, raw) {
                 if (mod.combo > 1 && !raw) {
-                        int *= mod.combo;
+                        val *= mod.combo;
                 }
-                mod.score += int;
+                mod.score += val;
 
                 if (mod.score < 0) {
                         mod.score = 0;
                 }
-                squish.triggers.call("score");
-                return int;
+                squish.triggers.call("score", val);
+                return val;
         };
 
         // Config trash
