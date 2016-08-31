@@ -12,6 +12,7 @@
          - Mouse : squish.mouse.surround, squish.mouse.rotary
          - Slider : squish.slider.slider, squish.slider.push
          - Gamedata : squish.gamedata.score, squish.gamedata.overlap, squish.gamedata.combo
+	 - Volatile : squish.volatile.store, squish.volatile.exists, squish.volatile.delete
 */
 
 squish.achievements = (function(){
@@ -87,6 +88,7 @@ squish.achievements = (function(){
                 return true;
         };
 
+	squish.volatile.store("mainmenu_ach_careas_created_control", true);
         mod.build_main_menu_component = function() {
                 var comp = [
                         {
@@ -124,6 +126,37 @@ squish.achievements = (function(){
                         }
 
                         var titlelen = squish.ctx.measureText(ach.title).width;
+			if (squish.volatile.exists("mainmenu_ach_careas_created_control")) {
+				// Time to register the Clickable Area
+				const achname = x; // Bind that thing..
+				squish.clickable.register({
+					name: "mainmenu_ach_" + x,
+					start: {x: squish.canvas.width/2+5, y: 45 + (i*(heightperach+2))},
+					end: {
+						x: squish.canvas.width/2+5 + squish.canvas.width/2-15,
+						y: 45 + (i*(heightperach+2)) + heightperach,
+					},
+					on_click: function() {
+						if (achievements[achname].triggered) {
+							// Open up the submenu here;
+						}
+					}
+				});
+
+				// One for now...
+				squish.clickable.enable("mainmenu_ach_" + x);
+				// ... two for later.
+				squish.triggers.hook("menuenter", function(name) {
+					if (name == "main") {
+						squish.clickable.enable("mainmenu_ach_" + x);
+					}
+				});
+				squish.triggers.hook("menuleave", function(name) {
+					if (name == "main") {
+						squish.clickable.disable("mainmenu_ach_" + x);
+					}
+				});
+			}
 
                         comp.push({
                                 class: "rect",
@@ -157,6 +190,9 @@ squish.achievements = (function(){
                         });
 
                         i+=1;
+			if (squish.volatile.exists("mainmenu_ach_careas_created_control")) {
+				squish.volatile.delete("mainmenu_ach_careas_created_control");
+			}
                 }
 
                 return comp;

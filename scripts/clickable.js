@@ -15,6 +15,7 @@
          - Triggers : squish.triggers.hook
          - Cookies : squish.cookies.bake, squish.cookies.trash
          - Menu : squish.menu.switch, squish.menu.leave
+	 - Volatile : squish.volatile.store, squish.memory.read
 */
 
 squish.clickable = (function() {
@@ -156,7 +157,7 @@ squish.clickable.register({
         }
 });
 
-var memorized_bgm_volume = -1;
+squish.volatile.store("memorized_bgm_volume", -1);
 squish.clickable.register({
         name: "AudioMute",
         start: {x: squish.components.AudioMenu[1].xorg, y: squish.components.AudioMenu[1].yorg},
@@ -166,10 +167,10 @@ squish.clickable.register({
         },
         on_click: function() {
                 if (squish.assets.bgm_get_volume()) {
-			memorized_bgm_volume = squish.assets.bgm_get_volume();
+			squish.volatile.store("memorized_bgm_volume", squish.assets.bgm_get_volume());
                         squish.assets.bgm_set_volume(0);
                 } else {
-                        squish.assets.bgm_set_volume(memorized_bgm_volume);
+                        squish.assets.bgm_set_volume(squish.volatile.read("memorized_bgm_volume"));
                 }
         }
 });
