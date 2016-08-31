@@ -156,6 +156,7 @@ squish.clickable.register({
         }
 });
 
+var memorized_bgm_volume = -1;
 squish.clickable.register({
         name: "AudioMute",
         start: {x: squish.components.AudioMenu[1].xorg, y: squish.components.AudioMenu[1].yorg},
@@ -165,14 +166,40 @@ squish.clickable.register({
         },
         on_click: function() {
                 if (squish.assets.bgm_get_volume()) {
+			memorized_bgm_volume = squish.assets.bgm_get_volume();
                         squish.assets.bgm_set_volume(0);
                 } else {
-                        squish.assets.bgm_set_volume(1);
+                        squish.assets.bgm_set_volume(memorized_bgm_volume);
                 }
         }
 });
 
-squish.clickable.register
+squish.clickable.register({
+	name: "AudioMinus",
+	start: {x: squish.components.AudioMenu[3].xorg, y: squish.components.AudioMenu[3].yorg},
+	end: {
+		x: squish.components.AudioMenu[3].xorg + squish.components.AudioMenu[3].width,
+		y: squish.components.AudioMenu[3].yorg + squish.components.AudioMenu[3].length,
+	},
+	on_click: function() {
+		squish.assets.bgm_set_volume(Math.floor(squish.assets.bgm_get_volume()*100 - 5)/100);
+		if (squish.assets.bgm_get_volume() == 0) {
+			memorized_bgm_volume = 0.05;
+		}
+	},
+});
+
+squish.clickable.register({
+	name: "AudioPlus",
+	start: {x: squish.components.AudioMenu[7].xorg, y: squish.components.AudioMenu[7].yorg},
+	end: {
+		x: squish.components.AudioMenu[7].xorg + squish.components.AudioMenu[7].width,
+		y: squish.components.AudioMenu[7].yorg + squish.components.AudioMenu[7].length,
+	},
+	on_click: function() {
+		squish.assets.bgm_set_volume(Math.floor(squish.assets.bgm_get_volume()*100 + 5)/100);
+	},
+});
 
 // Hook to determine the hovered clickable
 squish.triggers.hook("mousemove", squish.clickable.detect);

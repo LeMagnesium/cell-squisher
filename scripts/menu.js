@@ -67,9 +67,13 @@ squish.menu.register("prestart", {
 squish.menu.register("audio", {
         on_enter: function() {
                 squish.clickable.enable("AudioMute");
+		squish.clickable.enable("AudioPlus");
+		squish.clickable.enable("AudioMinus");
         },
         on_leave: function() {
                 squish.clickable.disable("AudioMute");
+		squish.clickable.disable("AudioPlus");
+		squish.clickable.disable("AudioMinus");
         }
 });
 

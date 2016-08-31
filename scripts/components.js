@@ -162,48 +162,130 @@ squish.components = (function() {
        ];
 
        mod.AudioMenu = [
-               {
-                       class: "line",
-                       xorg: 5,
-                       yorg: squish.canvas.height - 40,
-                       width: 30,
-                       height: 0,
-               },
-               {
-                       class: "rect",
-                       xorg: 5,
-                       yorg: squish.canvas.height - 75,
-                       width: 30,
-                       height: 30,
-                       visuals: {
-                               live: true,
-                               fill: function() {
-                                       if (squish.mouse.clicked == "AudioMute") {
-                                               return squish.colors.menuButtonPressed;
-                                       } else if (squish.mouse.hovering == "AudioMute") {
-                                               return squish.colors.menuButtonHovered;
-                                       } else {
-                                               return squish.colors.mainMenuFill;
-                                       }
-                               },
-                       }
-               },
-               {
-                       class: "image",
-                       xorg: 5,
-                       yorg: squish.canvas.height - 75,
-                       width: 30,
-                       height: 30,
-                       live: true,
-                       src: function() {
-                               if (squish.assets.bgm_get_volume() > 0) {
-                                       return "images/game/audio_mute.gif";
-                               } else {
-                                       return "images/game/audio_unmute.gif";
-                               }
-                       }
-               }
-       ];
+		{
+			class: "line",
+			xorg: 5,
+			yorg: squish.canvas.height - 40,
+			width: 30,
+			height: 0,
+		},
+
+		// Mute Button
+		{
+			class: "rect",
+			xorg: 5,
+			yorg: squish.canvas.height - 75,
+			width: 30,
+			height: 30,
+			visuals: {
+				live: true,
+				fill: function() {
+					if (squish.mouse.clicked == "AudioMute") {
+						return squish.colors.menuButtonPressed;
+					} else if (squish.mouse.hovering == "AudioMute") {
+						return squish.colors.menuButtonHovered;
+					} else {
+						return squish.colors.mainMenuFill;
+					}
+				},
+			}
+		},
+		{
+			class: "image",
+			xorg: 5,
+			yorg: squish.canvas.height - 75,
+			width: 30,
+			height: 30,
+			live: true,
+			src: function() {
+				if (squish.assets.bgm_get_volume() > 0) {
+					return "images/game/audio_mute.gif";
+				} else {
+					return "images/game/audio_unmute.gif";
+				}
+			}
+		},
+
+		// Volume -
+		{
+			class: "rect",
+			xorg: 5,
+			yorg: squish.canvas.height - 110,
+			width: 30,
+			height: 30,
+			visuals: {
+				live: true,
+				fill: function() {
+					if (squish.assets.bgm_get_volume() == 0) {
+						return squish.colors.menuButtonDisabled;
+					} else if (squish.mouse.clicked == "AudioMinus") {
+						return squish.colors.menuButtonPressed;
+					} else if (squish.mouse.hovering == "AudioMinus") {
+						return squish.colors.menuButtonHovered;
+					} else {
+						return squish.colors.mainMenuFill;
+					}
+				},
+			}
+		},
+		{
+			class: "text",
+			xorg: 20,
+			yorg: squish.canvas.height - 89,
+			text: "-",
+			fill: true,
+		},
+
+		// Volume Level
+		{
+			class: "rect",
+			xorg: 40,
+			yorg: squish.canvas.height - 110,
+			width: 60,
+			height: 30,
+			visuals: {
+				fill: squish.colors.mainMenuFill,
+			},
+		},
+		{
+			class: "text",
+			xorg: 70,
+			yorg: squish.canvas.height - 89,
+			text: function() {
+				return Math.ceil(squish.assets.bgm_get_volume() / 1 * 100).toString() + "%";
+			},
+			live: true,
+		},
+
+		// Volume +
+		{
+			class: "rect",
+			xorg: 105,
+			yorg: squish.canvas.height - 110,
+			width: 30,
+			height: 30,
+			visuals: {
+				live: true,
+				fill: function() {
+					if (squish.assets.bgm_get_volume() == 1) {
+						return squish.colors.menuButtonDisabled;
+					} else if (squish.mouse.clicked == "AudioPlus") {
+						return squish.colors.menuButtonPressed;
+					} else if (squish.mouse.hovering == "AudioPlus") {
+						return squish.colors.menuButtonHovered;
+					} else {
+						return squish.colors.mainMenuFill;
+					}
+				},
+			}
+		},
+		{
+			class: "text",
+			xorg: 120,
+			yorg: squish.canvas.height - 89,
+			text: '+',
+		}
+	];
 
        mod.ScoreBar = [
            {
