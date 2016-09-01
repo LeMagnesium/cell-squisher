@@ -72,11 +72,15 @@ squish.menu.register("audio", {
                 squish.clickable.enable("AudioMute");
 		squish.clickable.enable("AudioPlus");
 		squish.clickable.enable("AudioMinus");
+		squish.clickable.enable("AudioModeSwitch");
+		squish.clickable.enable("AudioNext");
         },
         on_leave: function() {
                 squish.clickable.disable("AudioMute");
 		squish.clickable.disable("AudioPlus");
 		squish.clickable.disable("AudioMinus");
+		squish.clickable.disable("AudioModeSwitch");
+		squish.clickable.disable("AudioNext");
         }
 });
 

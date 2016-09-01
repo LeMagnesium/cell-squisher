@@ -284,6 +284,71 @@ squish.components = (function() {
 			xorg: 120,
 			yorg: squish.canvas.height - 89,
 			text: '+',
+		},
+
+		// Loop
+		{
+			class: "rect",
+			xorg: 5,
+			yorg: squish.canvas.height - 145,
+			width: 30,
+			height: 30,
+			visuals: {
+				live: true,
+				fill: function() {
+					if (squish.mouse.clicked == "AudioModeSwitch") {
+						return squish.colors.menuButtonPressed;
+					} else if (squish.mouse.hovering == "AudioModeSwitch") {
+						return squish.colors.menuButtonHovered;
+					} else {
+						return squish.colors.mainMenuFill;
+					}
+				},
+			}
+		},
+		{
+			class: "image",
+			xorg: 5,
+			yorg: squish.canvas.height - 145,
+			width: 30,
+			height: 30,
+			live: true,
+			src: function() {
+				if (squish.assets.bgm_play_mode() == "loop") {
+					return "images/game/audio_random.gif";
+				} else {
+					return "images/game/audio_loop.gif";
+				}
+			},
+		},
+
+		// Next
+		{
+			class: "rect",
+			xorg: 40,
+			yorg: squish.canvas.height - 145,
+			width: 30,
+			height: 30,
+			visuals: {
+				live: true,
+				fill: function() {
+					if (squish.mouse.clicked == "AudioNext") {
+						return squish.colors.menuButtonPressed;
+					} else if (squish.mouse.hovering == "AudioNext") {
+						return squish.colors.menuButtonHovered;
+					} else {
+						return squish.colors.mainMenuFill;
+					}
+				},
+			},
+		},
+		{
+			class: "image",
+			xorg: 40,
+			yorg: squish.canvas.height - 145,
+			width: 30,
+			height: 30,
+			src: "images/game/audio_next.gif",
 		}
 	];
 

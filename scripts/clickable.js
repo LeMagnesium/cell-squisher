@@ -83,7 +83,7 @@ squish.clickable.register({
         start: {x: squish.components.MenuButton[0].xorg, y: squish.components.MenuButton[0].yorg},
         end: {
                 x: squish.components.MenuButton[0].xorg + squish.components.MenuButton[0].width,
-                y: squish.components.MenuButton[0].yorg + squish.components.MenuButton[0].length,
+                y: squish.components.MenuButton[0].yorg + squish.components.MenuButton[0].height,
         },
         on_click: function() {
                 if (squish.gamedata.menu == "main") {
@@ -145,7 +145,7 @@ squish.clickable.register({
         start: {x: squish.components.AudioButton[0].xorg, y: squish.components.AudioButton[0].yorg},
         end: {
                 x: squish.components.AudioButton[0].xorg + squish.components.AudioButton[0].width,
-                y: squish.components.AudioButton[0].yorg + squish.components.AudioButton[0].length,
+                y: squish.components.AudioButton[0].yorg + squish.components.AudioButton[0].height,
         },
         on_click: function() {
                 if (squish.gamedata.menu == "audio") {
@@ -163,7 +163,7 @@ squish.clickable.register({
         start: {x: squish.components.AudioMenu[1].xorg, y: squish.components.AudioMenu[1].yorg},
         end: {
                 x: squish.components.AudioMenu[1].xorg + squish.components.AudioMenu[1].width,
-                y: squish.components.AudioMenu[1].yorg + squish.components.AudioMenu[1].length,
+                y: squish.components.AudioMenu[1].yorg + squish.components.AudioMenu[1].height,
         },
         on_click: function() {
                 if (squish.assets.bgm_get_volume()) {
@@ -180,9 +180,10 @@ squish.clickable.register({
 	start: {x: squish.components.AudioMenu[3].xorg, y: squish.components.AudioMenu[3].yorg},
 	end: {
 		x: squish.components.AudioMenu[3].xorg + squish.components.AudioMenu[3].width,
-		y: squish.components.AudioMenu[3].yorg + squish.components.AudioMenu[3].length,
+		y: squish.components.AudioMenu[3].yorg + squish.components.AudioMenu[3].height,
 	},
 	on_click: function() {
+		if (squish.assets.bgm_get_volume() <= 0) {return;}
 		squish.assets.bgm_set_volume(Math.floor(squish.assets.bgm_get_volume()*100 - 5)/100);
 		if (squish.assets.bgm_get_volume() == 0) {
 			squish.volatile.store("memorized_bgm_volume", 0.05);
@@ -195,10 +196,36 @@ squish.clickable.register({
 	start: {x: squish.components.AudioMenu[7].xorg, y: squish.components.AudioMenu[7].yorg},
 	end: {
 		x: squish.components.AudioMenu[7].xorg + squish.components.AudioMenu[7].width,
-		y: squish.components.AudioMenu[7].yorg + squish.components.AudioMenu[7].length,
+		y: squish.components.AudioMenu[7].yorg + squish.components.AudioMenu[7].height,
 	},
 	on_click: function() {
-		squish.assets.bgm_set_volume(Math.floor(squish.assets.bgm_get_volume()*100 + 5)/100);
+		if (squish.assets.bgm_get_volume() < 1) {
+			squish.assets.bgm_set_volume(Math.floor(squish.assets.bgm_get_volume()*100 + 5)/100);
+		}
+	},
+});
+
+squish.clickable.register({
+	name: "AudioModeSwitch",
+	start: {x: squish.components.AudioMenu[9].xorg, y: squish.components.AudioMenu[9].yorg},
+	end: {
+		x: squish.components.AudioMenu[9].xorg + squish.components.AudioMenu[9].width,
+		y: squish.components.AudioMenu[9].yorg + squish.components.AudioMenu[9].height,
+	},
+	on_click: function() {
+		squish.assets.bgm_play_mode_switch();
+	},
+});
+
+squish.clickable.register({
+	name: "AudioNext",
+	start: {x: squish.components.AudioMenu[11].xorg, y: squish.components.AudioMenu[11].yorg},
+	end: {
+		x: squish.components.AudioMenu[11].xorg + squish.components.AudioMenu[11].width,
+		y: squish.components.AudioMenu[11].yorg + squish.components.AudioMenu[11].height,
+	},
+	on_click: function() {
+		squish.assets.bgm_play_next();
 	},
 });
 

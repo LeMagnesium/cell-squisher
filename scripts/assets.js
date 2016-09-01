@@ -13,15 +13,23 @@
 squish.assets = (function(){
         var mod = {};
 
-        /* Images */
+	var audio_mode = "shuffle";
+	/* Images */
         // Images once loaded
         var images = [];
 
         var preload = [
+		"images/game/audio_loop.gif",
+		"images/game/audio_random.gif",
+		"images/game/audio_next.gif",
                 "images/game/audio_mute.gif",
                 "images/game/audio_unmute.gif",
                 "images/game/audio_menu.gif",
+		"images/game/nonsense.gif",
+		"images/game/slayer.gif",
         ];
+
+	var bgm_playmode = "random";
 
         mod.register_image = function(path) {
                 var im = new Image();
@@ -80,8 +88,11 @@ squish.assets = (function(){
                 this.sound.style.display = "none";
                 document.body.appendChild(this.sound);
                 this.start = function() {
-                        nowPlaying = Math.floor(Math.random() * sounds.length);
-                        this.sound.src = sounds[nowPlaying];
+                        if (bgm_playmode == "random") {
+				nowPlaying = Math.floor(Math.random() * sounds.length);
+				this.sound.src = sounds[nowPlaying];
+			}
+			this.sound.load();
                         this.sound.play();
                 };
                 this.play = function() {
@@ -120,6 +131,21 @@ squish.assets = (function(){
         mod.bgm_set_volume = function(v) {
                 bgm.setvolume(v);
         };
+
+	mod.bgm_play_mode_switch = function() {
+		switch (bgm_playmode) {
+			case "random": {bgm_playmode = "loop"; break;}
+			case "loop": {bgm_playmode = "random"; break;}
+		}
+	};
+
+	mod.bgm_play_mode = function() {
+		return bgm_playmode;
+	};
+
+	mod.bgm_play_next = function() {
+		bgm.start();
+	};
 
         squish.triggers.hook("start", function() {
                 bgm = new mod.bgm_music(-1);
