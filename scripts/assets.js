@@ -147,9 +147,11 @@ squish.assets = (function(){
 		bgm.start();
 	};
 
-        squish.triggers.hook("start", function() {
+        squish.triggers.hook("load", function() {
                 bgm = new mod.bgm_music(-1);
-                bgm.start();
+        });
+	squish.triggers.hook("start", function() {
+		bgm.start();
         });
 
         return mod;

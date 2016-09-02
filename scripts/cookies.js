@@ -38,7 +38,10 @@ squish.cookies = (function() {
 
                 // Score
                 mod.store("score", squish.gamedata.score, exp);
-        }
+
+		// Audio stuff
+		mod.store("audio.bgm_volume", squish.assets.bgm_get_volume());
+	}
 
         // Eat/Load cookies
         mod.eat = function() {
@@ -61,9 +64,15 @@ squish.cookies = (function() {
                                         for (var ach in achs) {
                                                 var d = squish.achievements.trigger(achs[ach], true);
                                         }
+					break;
 
                                 case "config.extrafloaties":
                                         squish.gamedata.config.extrafloaties = data || true;
+					break;
+
+				case "audio.bgm_volume":
+					squish.assets.bgm_set_volume(Number(data) || 1);
+					break;
                         }
                 }
         }
@@ -74,6 +83,7 @@ squish.cookies = (function() {
                 document.cookie = "achieved=; expires=Wed, 01 Jan 1970";
                 document.cookie = "config.extrafloaties=; expires=Wed, 01 Jan 1970";
                 document.cookie = "lcs=; expires=Wed, 01 Jan 1970";
+		document.cookie = "audio.bgm_volume=; expires=Wed, 01 Jan 1970";
                 squish.gamedata.last_cookie_save = 0; // Literally 0s from Epoch
         }
 
