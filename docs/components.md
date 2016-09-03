@@ -1,4 +1,4 @@
-# Element Specs
+# Component Specs
 
 An element is a static or live graphical component drawn on the canvas in the game.
 It follows the structure of an object, with specific fields detailed below.
