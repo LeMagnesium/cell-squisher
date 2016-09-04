@@ -45,9 +45,9 @@ squish.cookies = (function() {
 
         // Eat/Load cookies
         mod.eat = function() {
-                var str = document.cookie;
-                var strs = str.split("; ");
-                if (strs.length > 0) {
+                const str = document.cookie;
+                const strs = str.split("; ");
+                if (strs.length > 1) {
                         squish.gamedata.last_cookie_save = (new Date()).getTime();
                 }
 
