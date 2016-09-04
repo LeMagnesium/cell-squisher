@@ -71,7 +71,9 @@ squish.cookies = (function() {
 					break;
 
 				case "audio.bgm_volume":
-					squish.assets.bgm_set_volume(Number(data) || 1);
+					const n = Number(data);
+					if (n == null) {n = 1;}
+					squish.assets.bgm_set_volume(n);
 					break;
                         }
                 }
