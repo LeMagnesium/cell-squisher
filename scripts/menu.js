@@ -42,7 +42,13 @@ squish.menu = (function() {
         mod.switch = function(name) {
                 mod.leave(squish.gamedata.menu);
                 mod.enter(name);
-        }
+        };
+
+	mod.draw = function(name) {
+		if (register[name] && register[name].draw) {
+			register[name].draw();
+		}
+	};
 
         return mod;
 })();
@@ -54,6 +60,13 @@ squish.menu.register("main", {
         on_leave: function() {
                 squish.clickable.disable("SaveToCookie");
         },
+	draw: function() {
+		// Lag : 3-5ms
+		// Moderate lag
+		squish.components.draw(squish.components.MainMenu);
+		squish.floaties.draw();
+		squish.components.draw(squish.achievements.build_main_menu_component());
+	},
 })
 
 squish.menu.register("prestart", {
@@ -64,7 +77,11 @@ squish.menu.register("prestart", {
                 squish.clickable.enable("MainMenu");
                 squish.clickable.enable("AudioMenu");
                 squish.clickable.disable("StartButton");
-        }
+        },
+	draw: function() {
+		// Lag : 1ms
+		draw_wait_menu();
+	},
 })
 
 squish.menu.register("audio", {
@@ -81,7 +98,10 @@ squish.menu.register("audio", {
 		squish.clickable.disable("AudioMinus");
 		squish.clickable.disable("AudioModeSwitch");
 		squish.clickable.disable("AudioNext");
-        }
+        },
+	draw: function() {
+		squish.components.draw(squish.components.AudioMenu);
+	},
 });
 
 // Trigger stuff

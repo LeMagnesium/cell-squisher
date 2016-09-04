@@ -90,29 +90,18 @@ function mainloop() {
         squish.ctx.fillRect(0, 0, squish.canvas.width, squish.canvas.height);
 
         switch (squish.gamedata.menu) {
-                case "prestart":
-                        // Lag : 1ms
-                        draw_wait_menu();
-                        break;
-                case "main":
-                        // Lag : 3-5ms
-                        // Moderate lag
-                        squish.components.draw(squish.components.MainMenu);
-                        squish.floaties.draw();
-                        squish.components.draw(squish.achievements.build_main_menu_component());
-                        break;
-                case "audio":
-                        squish.components.draw(squish.components.AudioMenu);
-                        break;
-
                 case "":
                         // Lag profile : Object { max: 31, min: 1, avg: 14.992790500424082, cnt: 2358 }
                         // HIGH LAG
                         draw();
                         break;
+		default:
+			squish.menu.draw(squish.gamedata.menu);
+			break;
         }
 
-        // Score
+	// Evergreen components
+	// Score
         // Lag: ~1ms
         squish.components.draw(squish.components.ScoreBar);
 

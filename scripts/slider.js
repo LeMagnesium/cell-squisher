@@ -100,7 +100,7 @@ squish.slider = (function() {
         }
 
         mod.push = function(sliderobj) {
-                showQueue.push(sliderobj);;
+                showQueue.push(sliderobj);
         };
 
         mod.draw = function() {
