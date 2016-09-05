@@ -2,7 +2,7 @@
 
 // Cell Squisher ßÿ Lymkwi
 // License WTFPL, CopyLEFT <(°-°<) Lymkwi 2016
-// Version : 0.93
+// Version : 0.94
 
 /*
         Clickable
@@ -43,6 +43,10 @@ squish.clickable = (function() {
                         }
                 }
         };
+
+	mod.is_enable = function(name) {
+		return mod.areas[name] && mod.areas[name].active;
+	};
 
         mod.delete = function(name) {
                 delete mod.areas[name];
@@ -117,7 +121,8 @@ squish.clickable.register({
                 // Call the baker
                 squish.cookies.bake();
                 (new squish.floaties.floaty("Data saved!", squish.mouse.x, squish.mouse.y, 3, 150, squish.colors.red)).spawn();
-                squish.clickable.detect();
+                squish.clickable.enable("ClearCookie");
+		squish.clickable.detect();
         }
 })
 
@@ -125,18 +130,13 @@ squish.clickable.register({
         name: "ClearCookie",
         start: {x: 10, y: squish.canvas.height - 120},
         end: {x: squish.canvas.width / 2 - 5, y: squish.canvas.height - 85},
-        on_disable: function() {
-                squish.colors.cookieCleanerFill = '#323232';
-        },
-        on_enable: function() {
-                squish.colors.cookieCleanerFill = '#db0000';
-        },
-        on_click: function() {
+        on_release: function() {
                 // Call the garbage man
                 squish.cookies.trash();
                 (new squish.floaties.floaty("Data cleaned!", squish.mouse.x, squish.mouse.y, 3, 150, squish.colors.red)).spawn();
+        	squish.clickable.disable("ClearCookie");
                 squish.clickable.detect();
-        }
+	}
 })
 
 // Audio menu
@@ -169,48 +169,65 @@ squish.clickable.register({
                 if (squish.assets.bgm_get_volume()) {
 			squish.volatile.store("memorized_bgm_volume", squish.assets.bgm_get_volume());
                         squish.assets.bgm_set_volume(0);
+			squish.clickable.disable("AudioMinus");
+			squish.clickable.enable("AudioPlus");
                 } else {
                         squish.assets.bgm_set_volume(squish.volatile.read("memorized_bgm_volume"));
+			if (squish.assets.bgm_get_volume() == 1) {
+				squish.clickable.disable("AudioPlus");
+			}
+			if (squish.assets.bgm_get_volume() > 0) {
+				squish.clickable.enable("AudioMinus");
+			}
                 }
         }
 });
 
 squish.clickable.register({
 	name: "AudioMinus",
-	start: {x: squish.components.AudioMenu[3].xorg, y: squish.components.AudioMenu[3].yorg},
+	start: {x: squish.components.AudioMenu[2].xorg, y: squish.components.AudioMenu[2].yorg},
 	end: {
-		x: squish.components.AudioMenu[3].xorg + squish.components.AudioMenu[3].width,
-		y: squish.components.AudioMenu[3].yorg + squish.components.AudioMenu[3].height,
+		x: squish.components.AudioMenu[2].xorg + squish.components.AudioMenu[2].width,
+		y: squish.components.AudioMenu[2].yorg + squish.components.AudioMenu[2].height,
 	},
 	on_click: function() {
 		if (squish.assets.bgm_get_volume() <= 0) {return;}
 		squish.assets.bgm_set_volume(Math.floor(squish.assets.bgm_get_volume()*100 - 5)/100);
 		if (squish.assets.bgm_get_volume() == 0) {
 			squish.volatile.store("memorized_bgm_volume", 0.05);
+			squish.clickable.disable("AudioMinus");
+		}
+		if (!squish.clickable.is_enable("AudioPlus")) {
+			squish.clickable.enable("AudioPlus");
 		}
 	},
 });
 
 squish.clickable.register({
 	name: "AudioPlus",
-	start: {x: squish.components.AudioMenu[7].xorg, y: squish.components.AudioMenu[7].yorg},
+	start: {x: squish.components.AudioMenu[5].xorg, y: squish.components.AudioMenu[5].yorg},
 	end: {
-		x: squish.components.AudioMenu[7].xorg + squish.components.AudioMenu[7].width,
-		y: squish.components.AudioMenu[7].yorg + squish.components.AudioMenu[7].height,
+		x: squish.components.AudioMenu[5].xorg + squish.components.AudioMenu[5].width,
+		y: squish.components.AudioMenu[5].yorg + squish.components.AudioMenu[5].height,
 	},
 	on_click: function() {
-		if (squish.assets.bgm_get_volume() < 1) {
-			squish.assets.bgm_set_volume(Math.floor(squish.assets.bgm_get_volume()*100 + 5)/100);
+		if (squish.assets.bgm_get_volume() >= 1) {return;}
+		squish.assets.bgm_set_volume(Math.floor(squish.assets.bgm_get_volume()*100 + 5)/100);
+		if (squish.assets.bgm_get_volume() == 1) {
+			squish.clickable.disable("AudioPlus");
+		}
+		if (!squish.clickable.is_enable("AudioMinus")) {
+			squish.clickable.enable("AudioMinus");
 		}
 	},
 });
 
 squish.clickable.register({
 	name: "AudioModeSwitch",
-	start: {x: squish.components.AudioMenu[9].xorg, y: squish.components.AudioMenu[9].yorg},
+	start: {x: squish.components.AudioMenu[6].xorg, y: squish.components.AudioMenu[6].yorg},
 	end: {
-		x: squish.components.AudioMenu[9].xorg + squish.components.AudioMenu[9].width,
-		y: squish.components.AudioMenu[9].yorg + squish.components.AudioMenu[9].height,
+		x: squish.components.AudioMenu[6].xorg + squish.components.AudioMenu[6].width,
+		y: squish.components.AudioMenu[6].yorg + squish.components.AudioMenu[6].height,
 	},
 	on_click: function() {
 		squish.assets.bgm_play_mode_switch();
@@ -219,24 +236,29 @@ squish.clickable.register({
 
 squish.clickable.register({
 	name: "AudioNext",
-	start: {x: squish.components.AudioMenu[11].xorg, y: squish.components.AudioMenu[11].yorg},
+	start: {x: squish.components.AudioMenu[7].xorg, y: squish.components.AudioMenu[7].yorg},
 	end: {
-		x: squish.components.AudioMenu[11].xorg + squish.components.AudioMenu[11].width,
-		y: squish.components.AudioMenu[11].yorg + squish.components.AudioMenu[11].height,
+		x: squish.components.AudioMenu[7].xorg + squish.components.AudioMenu[7].width,
+		y: squish.components.AudioMenu[7].yorg + squish.components.AudioMenu[7].height,
 	},
 	on_click: function() {
 		squish.assets.bgm_play_next();
 	},
 });
 
+squish.clickable.register({
+	name: "AchSubMenuLeave",
+	start: {x: squish.components.AchSubMenu[1].xorg, y: squish.components.AchSubMenu[1].yorg},
+	end: {
+		x: squish.components.AchSubMenu[1].xorg + squish.components.AchSubMenu[1].width,
+		y: squish.components.AchSubMenu[1].yorg + squish.components.AchSubMenu[1].height,
+	},
+	on_release: function() {
+		squish.volatile.delete("mainmenu_ach_submenu");
+		squish.clickable.disable("AchSubMenuLeave");
+	},
+});
+
 // Hook to determine the hovered clickable
 squish.triggers.hook("mousemove", squish.clickable.detect);
 
-// Hook to activate the cookie cleaner
-squish.triggers.hook("step", function() {
-        if (squish.gamedata.menu == "main" && !squish.clickable.areas["ClearCookie"].active && squish.gamedata.last_cookie_save != 0) {
-                squish.clickable.enable("ClearCookie");
-        } else if (squish.clickable.areas["ClearCookie"] && (squish.gamedata.menu != "main" || squish.gamedata.last_cookie_save == 0)) {
-                squish.clickable.disable("ClearCookie");
-        }
-})

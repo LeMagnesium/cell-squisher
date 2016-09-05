@@ -2,7 +2,7 @@
 
 // Cell Squisher ßÿ Lymkwi
 // License WTFPL, CopyLEFT <(°-°<) Lymkwi 2016
-// Version : 0.93
+// Version : 0.94
 
 /*
         Triggers
@@ -26,7 +26,7 @@ squish.triggers = (function(){
         }
 
         mod.call = function(name, ...parameters) {
-                for (var i = 0; i < triggers[name].length; i++) {
+		for (var i = 0; i < triggers[name].length; i++) {
                         triggers[name][i](...parameters);
                 }
         };

@@ -2,7 +2,7 @@
 
 // Cell Squisher ßÿ Lymkwi
 // License WTFPL, CopyLEFT <(°-°<) Lymkwi 2016
-// Version : 0.93
+// Version : 0.94
 
 /*
         Game Data
@@ -152,6 +152,6 @@ squish.VisualSwap = {
     },
     useSecondFont: function() {
         this.usedFont = false;
-        squish.ctx.font = this.font;
+        squish.ctx.font = this.secfont;
     },
 };

@@ -2,7 +2,7 @@
 
 // Cell Squisher ßÿ Lymkwi
 // License WTFPL, CopyLEFT <(°-°<) Lymkwi 2016
-// Version : 0.93
+// Version : 0.94
 
 /*
         Colors
@@ -21,8 +21,12 @@ squish.colors = (function() {
                 menuButtonPressed: '#dd2222',
 		menuButtonDisabled: '#323232',
 
-                cookieSaverFill: '#db4540',
-                cookieCleanerFill: '#db0000',
+                cookieSaver: '#00db00',
+		cookieSaverHovered: '#66db00',
+		cookieSaverPressed: '#3300db',
+                cookieCleaner: '#db0000',
+		cookieCleanerHovered: '#db6600',
+		cookieCleanerPressed: '#0033db', 
 
                 deadEnemy: '#000000',
 

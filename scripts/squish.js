@@ -2,7 +2,7 @@
 
 // Cell Squisher ßÿ Lymkwi
 // License WTFPL, CopyLEFT <(°-°<) Lymkwi 2016
-// Version : 0.93
+// Version : 0.94
 
 // Other misc definitions
 var bg = new squish.colors.color(255, 255, 255);
@@ -48,12 +48,6 @@ function draw_wait_menu() {
 
 
 function draw() {
-        var d = Math.floor(squish.gamedata.combo / 50) * 2;
-        var x = Math.ceil(Math.random() * d) - d/2;
-        var y = Math.ceil(Math.random() * d) - d/2;
-
-        squish.ctx.translate(x, y);
-
         // Enemies spawn
         // Lag : <1ms
         if (Math.random() < 0.45) {
@@ -64,17 +58,23 @@ function draw() {
 	// Draw the combo path
 	squish.gamedata.draw_combo_path();
 
+        var d = Math.floor(squish.gamedata.combo / 50) * 2;
+        var x = Math.ceil(Math.random() * d) - d/2;
+        var y = Math.ceil(Math.random() * d) - d/2;
+
+        squish.ctx.translate(x, y);
+
         // Draw enemies
         // Lag profile : { max: 30, min: 1, avg: 13.154655119084435, cnt: 6466 }
         // HIGH LAG
         squish.enemies.draw();
+        squish.ctx.translate(-x, -y);
 
         // Draw floaties
         // Lag : 1-2ms
         squish.floaties.draw();
-
-        squish.ctx.translate(-x, -y);
 }
+
 
 // Lag profile : { max: 40, min: 1, avg: 7.461604619732151, cnt: 16278 }
 function mainloop() {

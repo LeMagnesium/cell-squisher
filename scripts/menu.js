@@ -2,7 +2,7 @@
 
 // Cell Squisher ßÿ Lymkwi
 // License WTFPL, CopyLEFT <(°-°<) Lymkwi 2016
-// Version : 0.93
+// Version : 0.94
 
 /*
         Menu
@@ -10,6 +10,7 @@
         Dependencies :
 	 - Triggers : squish.triggers.call, squish.triggers.hook
          - (Runtime) Clickable
+	 - (Runtime) Achievements
 */
 
 squish.menu = (function() {
@@ -34,9 +35,9 @@ squish.menu = (function() {
                         if (register[squish.gamedata.menu].on_leave) {
                                 register[squish.gamedata.menu].on_leave();
                         }
+			squish.triggers.call("menuleave", squish.gamedata.menu);
                         squish.gamedata.menu = "";
                 };
-		squish.triggers.call("menuleave", name);
         };
 
         mod.switch = function(name) {
@@ -56,9 +57,15 @@ squish.menu = (function() {
 squish.menu.register("main", {
         on_enter: function() {
                 squish.clickable.enable("SaveToCookie");
+		if (squish.gamedata.last_cookie_save > 0) {
+			squish.clickable.enable("ClearCookie");
+		}
         },
         on_leave: function() {
                 squish.clickable.disable("SaveToCookie");
+		if (squish.clickable.is_enable("ClearCookie")) {
+			squish.clickable.disable("ClearCookie");
+		}
         },
 	draw: function() {
 		// Lag : 3-5ms
@@ -66,6 +73,11 @@ squish.menu.register("main", {
 		squish.components.draw(squish.components.MainMenu);
 		squish.floaties.draw();
 		squish.components.draw(squish.achievements.build_main_menu_component());
+
+		// If we clicked an achievement area we should have something in the VMM
+		if (squish.volatile.exists("mainmenu_ach_submenu")) {
+			squish.components.draw(squish.components.AchSubMenu);
+		}
 	},
 })
 
@@ -87,8 +99,12 @@ squish.menu.register("prestart", {
 squish.menu.register("audio", {
         on_enter: function() {
                 squish.clickable.enable("AudioMute");
-		squish.clickable.enable("AudioPlus");
-		squish.clickable.enable("AudioMinus");
+		if (squish.assets.bgm_get_volume() < 1) {
+			squish.clickable.enable("AudioPlus");
+		}
+		if (squish.assets.bgm_get_volume() > 0) {
+			squish.clickable.enable("AudioMinus");
+		}
 		squish.clickable.enable("AudioModeSwitch");
 		squish.clickable.enable("AudioNext");
         },

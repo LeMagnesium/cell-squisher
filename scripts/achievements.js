@@ -2,7 +2,7 @@
 
 // Cell Squisher ßÿ Lymkwi
 // License WTFPL, CopyLEFT <(°-°<) Lymkwi 2016
-// Version : 0.93
+// Version : 0.94
 
 /*
         Achievement
@@ -41,6 +41,20 @@ squish.achievements = (function(){
                 achievements[name] = def;
                 achamount += 1;
         };
+
+	mod.is_triggered = function(name) {
+		return achievements[name] && achievements[name].triggered;
+	};
+
+	mod.get_data = function(name) {
+		if (!achievements[name]) {return {};}
+		const achdata = {
+			icon: achievements[name].icon,
+			title: achievements[name].title,
+			menu: achievements[name].menu,
+		};
+		return achdata;
+	};
 
         // Trigger function
         mod.trigger = function(name, silent) {
@@ -130,30 +144,29 @@ squish.achievements = (function(){
 				// Time to register the Clickable Area
 				const achname = x; // Bind that thing..
 				squish.clickable.register({
-					name: "mainmenu_ach_" + x,
+					name: "mainmenu_ach_" + achname,
 					start: {x: squish.canvas.width/2+5, y: 45 + (i*(heightperach+2))},
 					end: {
 						x: squish.canvas.width/2+5 + squish.canvas.width/2-15,
 						y: 45 + (i*(heightperach+2)) + heightperach,
 					},
 					on_click: function() {
-						if (achievements[achname].triggered) {
-							// Open up the submenu here;
-						}
+						squish.volatile.store("mainmenu_ach_submenu", achname);
+						squish.clickable.enable("AchSubMenuLeave");
 					}
 				});
 
 				// One for now...
-				squish.clickable.enable("mainmenu_ach_" + x);
+				squish.clickable.enable("mainmenu_ach_" + achname);
 				// ... two for later.
 				squish.triggers.hook("menuenter", function(name) {
 					if (name == "main") {
-						squish.clickable.enable("mainmenu_ach_" + x);
+						squish.clickable.enable("mainmenu_ach_" + achname);
 					}
 				});
 				squish.triggers.hook("menuleave", function(name) {
 					if (name == "main") {
-						squish.clickable.disable("mainmenu_ach_" + x);
+						squish.clickable.disable("mainmenu_ach_" + achname);
 					}
 				});
 			}
@@ -190,11 +203,11 @@ squish.achievements = (function(){
                         });
 
                         i+=1;
-			if (squish.volatile.exists("mainmenu_ach_careas_created_control")) {
-				squish.volatile.delete("mainmenu_ach_careas_created_control");
-			}
-                }
-
+        	}
+		if (squish.volatile.exists("mainmenu_ach_careas_created_control")) {
+			squish.volatile.delete("mainmenu_ach_careas_created_control");
+		}
+ 
                 return comp;
         };
 
@@ -216,7 +229,7 @@ squish.achievements.register("slayer", "score", {
         icon: "images/game/slayer.gif",
         menu: {
                 howto: "You'll never see that text.. POOOP!",
-                desc: "Yes you have an achievement for squishing a cell. I am that desperate about filling my game with content",
+                desc: "Yes you have an achievement for squishing a cell.\nI am that desperate about filling my game with content",
         },
         condition: function () { return squish.gamedata.score > 0; },
 });
