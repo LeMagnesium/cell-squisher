@@ -66,10 +66,11 @@ squish.gamedata = (function() {
 		}
 	};
 
+	mod.theme = "day";
+
         // Config trash
         mod.config = {
           extrafloaties: true,
-          theme: "day",
         };
 
         return mod;

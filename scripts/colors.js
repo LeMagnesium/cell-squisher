@@ -9,7 +9,7 @@
 
         Dependencies :
          - Hexadecimal : squish.hexa.dechex, squish.hexa.hexdec
-         - Gamedata : squish.gamedata.config.theme
+         - Gamedata : squish.gamedata.theme
 */
 
 squish.colors = (function() {
@@ -90,16 +90,16 @@ squish.colors = (function() {
 
         // Current color scheme/theme
         mod.toggle_theme = function() {
-                if (squish.gamedata.config.theme == "day") {
+                if (squish.gamedata.theme == "day") {
                         // Switch to night
                         squish.colors.mainMenuFill = '#111111';
                         squish.colors.mainMenuStroke = '#00f000';
-                        squish.gamedata.config.theme = "night";
-                } else if (squish.gamedata.config.theme == "night") {
+                        squish.gamedata.theme = "night";
+                } else if (squish.gamedata.theme == "night") {
                         // Switch to day
                         squish.colors.mainMenuFill = '#dddddd';
                         squish.colors.mainMenuStroke = '#f00000';
-                        squish.gamedata.config.theme = "day";
+                        squish.gamedata.theme = "day";
                 }
         };
         window.toggle_theme = mod.toggle_theme;
