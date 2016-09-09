@@ -36,19 +36,33 @@ squish.menu = (function() {
                                 register[squish.gamedata.menu].on_leave();
                         }
 			squish.triggers.call("menuleave", squish.gamedata.menu);
-                        squish.gamedata.menu = "";
+                        squish.gamedata.menu = mod.fallback_menu;
+			if (register[mod.fallback_menu] && register[mod.fallback_menu].on_enter) {
+				register[mod.fallback_menu].on_enter();
+			}
                 };
         };
 
         mod.switch = function(name) {
                 mod.leave(squish.gamedata.menu);
-                mod.enter(name);
+		if (register[mod.fallback_menu] && register[mod.fallback_menu].on_leave) {
+			register[mod.fallback_menu].on_leave();
+		}
+		mod.enter(name);
         };
 
 	mod.draw = function(name) {
 		if (register[name] && register[name].draw) {
 			register[name].draw();
 		}
+	};
+
+	mod.set_fallback = function(name) {
+		mod.fallback_menu = name;
+	};
+
+	mod.get_fallback = function() {
+		return mod.fallback_menu;
 	};
 
         return mod;
@@ -84,12 +98,13 @@ squish.menu.register("main", {
 squish.menu.register("prestart", {
         on_enter: function() {
                 squish.clickable.enable("StartButton");
-        },
-        on_leave: function() {
-                squish.clickable.enable("MainMenu");
-                squish.clickable.enable("AudioMenu");
-                squish.clickable.disable("StartButton");
-        },
+		squish.clickable.enable("AudioMenu");
+		squish.clickable.enable("MainMenu");
+		squish.menu.set_fallback("prestart");
+	},
+	on_leave: function() {
+		squish.clickable.disable("StartButton");
+	},
 	draw: function() {
 		// Lag : 1ms
 		draw_wait_menu();

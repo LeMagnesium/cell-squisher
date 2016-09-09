@@ -108,6 +108,7 @@ squish.clickable.register({
                         squish.gamedata.score = 0;
                 }
                 // Let's start the game!
+		squish.menu.set_fallback("");
                 squish.menu.leave("prestart");
                 squish.triggers.call("start");
         }
