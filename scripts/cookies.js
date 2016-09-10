@@ -41,6 +41,9 @@ squish.cookies = (function() {
 
 		// Audio stuff
 		mod.store("audio.bgm_volume", squish.assets.bgm_get_volume());
+
+		// Level
+		mod.store("level", squish.levels.level);
 	}
 
         // Eat/Load cookies
@@ -75,6 +78,10 @@ squish.cookies = (function() {
 					if (n == null) {n = 1;}
 					squish.assets.bgm_set_volume(n);
 					break;
+				case "level":
+					squish.levels.level = Number(data)-1;
+					squish.levels.next_level();
+					break;
                         }
                 }
         }
@@ -86,6 +93,7 @@ squish.cookies = (function() {
                 document.cookie = "config.extrafloaties=; expires=Wed, 01 Jan 1970";
                 document.cookie = "lcs=; expires=Wed, 01 Jan 1970";
 		document.cookie = "audio.bgm_volume=; expires=Wed, 01 Jan 1970";
+		document.cookie = "level=; expires=Wed, 01 Jan 1970";
                 squish.gamedata.last_cookie_save = 0; // Literally 0s from Epoch
         }
 

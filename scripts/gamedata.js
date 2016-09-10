@@ -21,6 +21,13 @@ squish.gamedata = (function() {
         mod.achieved = [];
 	mod.combo_path = [];
 
+	/*mod.level_data = {
+		spawnrate: 0.45,
+		deaddecay: 15,
+		decay: 5,
+		start_balance: -100
+	};*/
+
         /* Score */
         mod.increase_score = function(val, raw) {
                 if (mod.combo > 1 && !raw) {
@@ -85,10 +92,13 @@ squish.VisualSwap = {
     secstroke: "#ffffff",
     font: "Arial 20px",
     secfont: "Arial 14px",
+    align: "center",
+    secalign: "left",
 
     usedFill: true, // true for Main, false for Second
     usedStroke: true, // same
     usedFont: true, // same
+    usedAlign: true, // same
 
     setMainFill: function(col) {
         this.fill = col;
@@ -154,5 +164,27 @@ squish.VisualSwap = {
     useSecondFont: function() {
         this.usedFont = false;
         squish.ctx.font = this.secfont;
+    },
+
+    setMainAlign: function(align) {
+    	this.align = align;
+	if (this.usedAlign) {
+		squish.ctx.textAlign = align;
+	};
+    },
+    useMainAlign: function() {
+    	this.usedAlign = true;
+	squish.ctx.textAlign = this.align;
+    },
+
+    setSecondAlign: function(align) {
+    	this.secalign = align;
+	if (!this.usedAlign) {
+		squish.ctx.textAlign = align;
+	}
+    },
+    useSecondAlign: function() {
+    	this.usedFont = false;
+	squish.ctx.textAlign = this.secalign;
     },
 };

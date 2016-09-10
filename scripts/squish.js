@@ -13,7 +13,8 @@ squish.VisualSwap.setMainFill(squish.colors.mainMenuFill);
 squish.VisualSwap.useMainFill();
 squish.VisualSwap.setMainStroke(squish.colors.mainMenuStroke);
 squish.VisualSwap.useMainStroke();
-squish.ctx.textAlign = "center";
+squish.VisualSwap.setMainAlign("center");
+squish.VisualSwap.useMainAlign();
 
 window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
 
@@ -48,13 +49,6 @@ function draw_wait_menu() {
 
 
 function draw() {
-        // Enemies spawn
-        // Lag : <1ms
-        if (Math.random() < 0.45) {
-                // New enemy at random coords
-                (new squish.enemies.enemy()).spawn();
-        }
-
 	// Draw the combo path
 	squish.gamedata.draw_combo_path();
 

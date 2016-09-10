@@ -388,12 +388,29 @@ squish.components = (function() {
                stroke: false,
                text: function() {
                    if (squish.gamedata.score == -1) { return ""; }
+		   if (squish.gameover) {return "Game Over";}
                    return squish.gamedata.score.toString();
                },
                visuals: {
                    fill: squish.colors.textFill,
                }
-           }
+           },
+	   {
+	   	class: "text",
+		live: true,
+		xorg: 15,
+		yorg: 27,
+		stroke: false,
+		text: function() {
+			if (squish.levels.level == 0) {return "";}
+			if (squish.gameover) {return "U mad bro?";}
+			return "Level " + squish.levels.level.toString();
+		},
+		visuals: {
+			align: "left",
+		}
+	}
+		
        ];
 
        mod.AudioBar = [
@@ -462,6 +479,111 @@ squish.components = (function() {
 			},
 		},
        ];
+	
+	mod.GameOverScreen = [
+		{
+			class: "rect",
+			xorg: squish.canvas.width / 4,
+			yorg: squish.canvas.height / 4,
+			width: squish.canvas.width / 2,
+			height: squish.canvas.height / 2,
+			visuals: {
+				live: true,
+				fill: function() {return squish.colors.mainMenuFill;},
+				stroke: function() {return squish.colors.black;} // I like my border like I like my soul, black
+			}
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: squish.canvas.height / 4 + 30,
+			text: "Damn Son!",
+			stroke: true,
+			fill: true,
+			visuals: {
+				fill: squish.colors.black,
+				stroke: squish.colors.red,
+			}
+		},
+		{
+			class: "line",
+			xorg: squish.canvas.width / 4 + 5,
+			yorg: squish.canvas.height / 4 + 40,
+			stroke: true,
+			width: squish.canvas.width / 2 - 10,
+			height: 0,
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: squish.canvas.height / 4 + 70,
+			text: "You screwed it up!",
+			stroke: false,
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: squish.canvas.height / 4 + 100,
+			text : "You're now overthrown and devoured by the growing mass of cells!",
+			maxwidth: squish.canvas.width / 2 - 10,
+			stroke: false,
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: squish.canvas.height / 4 + 120,
+			text: "It happened and you're now dead, like most humans will be..",
+			maxwidth: squish.canvas.width / 2 - 10,
+			stroke: false
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: squish.canvas.height / 4 + 140,
+			text: "You can go back in time by refreshing, to before your fùck up.",
+			maxwidth: squish.canvas.width / 2 - 10,
+			stroke: false,
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: squish.canvas.height / 4 + 160,
+			text: "Hopefully you saved before. You're the last hope of humanity, so remember : ",
+			maxwidth: squish.canvas.width / 2 - 10,
+			stroke: false,
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: squish.canvas.height / 4 + 210,
+			text: "GIT GUD!",
+			stroke: true,
+			visuals: {
+				font: "30px Arial",
+			}
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: squish.canvas.height / 4 + 250,
+			text: "You can also use this button :",
+			stroke: false,
+			visuals: {
+				font: "20px Arial",
+			}
+		},
+		{
+			class: "button",
+			xorg: squish.canvas.width / 2 - 40,
+			width: 80,
+			yorg: squish.canvas.height / 4 + 260,
+			height: 30,
+			carea: "GitGud",
+			label: {
+				text: "Git Gud",
+			}
+		}
+	];
 
        // Methods
        // Draw elements
@@ -496,6 +618,11 @@ squish.components = (function() {
                                        squish.VisualSwap.setSecondFont(obj.visuals.font);
                                        squish.VisualSwap.useSecondFont();
                                }
+
+				if (obj.visuals.align) {
+					squish.VisualSwap.setSecondAlign(obj.visuals.align);
+					squish.VisualSwap.useSecondAlign();
+				}
                        }
 
                        if (obj.class == "rect") {
@@ -520,8 +647,8 @@ squish.components = (function() {
                                } else {
                                        txt = obj.text;
                                }
-
-                               if (obj.fill == null || obj.fill == true) {
+                               
+			       if (obj.fill == null || obj.fill == true) {
                                        squish.ctx.fillText(txt, obj.xorg, obj.yorg, obj.maxwidth);
                                }
                                if (obj.stroke == null || obj.stroke == true) {
@@ -575,6 +702,7 @@ squish.components = (function() {
 					obj.label.class = "text";
 					obj.label.yorg = obj.yorg + obj.height * (obj.label.y_proportion || 0.7);
 					obj.label.xorg = obj.xorg + obj.width * 0.5;
+					obj.label.maxwidth = obj.width;
 					compdraw.push(obj.label);
 				}
 				if (obj.icon) {
@@ -592,6 +720,7 @@ squish.components = (function() {
                 squish.VisualSwap.useMainFont();
                 squish.VisualSwap.useMainFill();
                 squish.VisualSwap.useMainStroke();
+		squish.VisualSwap.useMainAlign();
         };
 
        return mod;

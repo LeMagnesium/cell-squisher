@@ -107,7 +107,10 @@ squish.clickable.register({
                 if (squish.gamedata.score < 0) {
                         squish.gamedata.score = 0;
                 }
-                // Let's start the game!
+  		if (squish.levels.level == 0) {
+			squish.levels.next_level();
+		}
+	      	// Let's start the game!
 		squish.menu.set_fallback("");
                 squish.menu.leave("prestart");
                 squish.triggers.call("start");
@@ -257,6 +260,18 @@ squish.clickable.register({
 	on_release: function() {
 		squish.volatile.delete("mainmenu_ach_submenu");
 		squish.clickable.disable("AchSubMenuLeave");
+	},
+});
+
+squish.clickable.register({
+	name: "GitGud",
+	start: {x: squish.components.GameOverScreen[10].xorg, y: squish.components.GameOverScreen[10].yorg},
+	end: {
+		x: squish.components.GameOverScreen[10].xorg + squish.components.GameOverScreen[10].width,
+		y: squish.components.GameOverScreen[10].yorg + squish.components.GameOverScreen[10].height,
+	},
+	on_release: function() {
+		window.location = "http://fgtools.fr/file";
 	},
 });
 

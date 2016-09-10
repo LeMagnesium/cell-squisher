@@ -22,6 +22,7 @@ squish.menu = (function() {
         };
 
         mod.enter = function(name) {
+		if (squish.gamedata.menu == name) {return;}
                 squish.gamedata.menu = name;
 
                 if (register[name].on_enter) {
@@ -44,6 +45,7 @@ squish.menu = (function() {
         };
 
         mod.switch = function(name) {
+		if (squish.gamedata.menu == name) {return;}
                 mod.leave(squish.gamedata.menu);
 		if (register[mod.fallback_menu] && register[mod.fallback_menu].on_leave) {
 			register[mod.fallback_menu].on_leave();
@@ -70,9 +72,11 @@ squish.menu = (function() {
 
 squish.menu.register("main", {
         on_enter: function() {
-                squish.clickable.enable("SaveToCookie");
-		if (squish.gamedata.last_cookie_save > 0) {
-			squish.clickable.enable("ClearCookie");
+                if (squish.gamedata.score >= 0) {
+			squish.clickable.enable("SaveToCookie");
+			if (squish.gamedata.last_cookie_save > 0) {
+				squish.clickable.enable("ClearCookie");
+			}
 		}
         },
         on_leave: function() {
@@ -133,6 +137,26 @@ squish.menu.register("audio", {
 	draw: function() {
 		squish.components.draw(squish.components.AudioMenu);
 	},
+});
+
+squish.menu.register("gameover", {
+	on_enter: function() {
+		if (squish.gameover) {return;} // We've done that already
+		squish.assets.stop_bgm();
+		squish.clickable.disable("AudioMenu");
+		squish.clickable.enable("GitGud");
+		var damnson = new squish.assets.sound();
+		damnson.sound.volume = 0.5;
+		var sadviolin = new squish.assets.sound();
+		sadviolin.sound.volume = 0.4;
+		damnson.play("audio/dayum_son.mp3");
+		sadviolin.play("audio/sad_violins.mp3");
+	},
+	draw: function() {
+		squish.enemies.draw();
+		squish.floaties.draw();
+		squish.components.draw(squish.components.GameOverScreen);
+	}
 });
 
 // Trigger stuff

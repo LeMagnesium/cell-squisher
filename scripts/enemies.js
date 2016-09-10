@@ -26,7 +26,7 @@ squish.enemies = (function() {
                 this.color = new squish.colors.color();
                 this.border_color = new squish.colors.color();
                 this.squished = false;
-                this.balance = -10;
+                this.balance = squish.levels.initial_balance;
                 this.spawn = function() {
                         this.color.red = Math.ceil(Math.random() * 255);
                         this.color.green = Math.ceil(Math.random() * 255);
@@ -79,15 +79,26 @@ squish.enemies = (function() {
                         mod.draw_enemy(enemies[i]);
                         if (enemies[i].squished) {
                                 // The cell slowly shrinks and dies. "Slowly"
-                                var h = Math.floor(Math.random() * 10);
+                                var h = Math.floor(Math.random() * squish.levels.dead_decay);
                                 var n = squish.gamedata.increase_score(h);
                                 enemies[i].health -= h;
                                 enemies[i].balance += n;
-                        }
-                        enemies[i].health -= Math.ceil(Math.random() * 4);
+                        } else {
+				enemies[i].health -= Math.ceil(Math.random() * squish.levels.decay);
+			}
                 }
                 ////////////////////////////////////////////////////////////////
         };
+
+	squish.triggers.hook("step", function() {
+		if (squish.gamedata.menu != "" && squish.gamedata.menu != "gameover") {return;}
+		// Enemies spawn
+        	// Lag : <1ms
+        	if (Math.random() < squish.levels.spawn_rate) {
+        	        // New enemy at random coords
+        	        (new squish.enemies.enemy()).spawn();
+        	}
+	});
 
         squish.triggers.hook("mousedown", function() {
                 if (squish.gamedata.menu != "") {return;}

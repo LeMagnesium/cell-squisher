@@ -101,6 +101,11 @@ squish.assets = (function(){
                 this.pause = function() {
                         this.sound.pause();
                 }
+		this.stop = function() {
+			this.sound.pause();
+			nowPlaying = -1;
+			delete this;
+		}
                 this.sound.onended = function() {
                         bgm.start();
                 }
@@ -118,6 +123,9 @@ squish.assets = (function(){
         mod.start_bgm = function() {
                 bgm.start();
         };
+	mod.stop_bgm = function() {
+		bgm.stop();
+	};
 
         mod.now_playing = function() {
                 if (nowPlaying == -1) {return {path: "", title: ""};}
