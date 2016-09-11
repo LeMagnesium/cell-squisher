@@ -443,7 +443,7 @@ squish.components = (function() {
            },
        ];
 
-       mod.Banner = [
+       mod.PrestartMenu = [
            {
                class: "rect",
                xorg: 0,
@@ -456,10 +456,7 @@ squish.components = (function() {
                        stroke: function() {return squish.colors.mainMenuStroke;},
                }
            },
-       ];
-
-	mod.StartButton = [
-		{
+       		{
 			class: "button",
 			xorg: squish.canvas.width / 16 * 7.5,
 			yorg: squish.canvas.height / 2 - 15,
@@ -475,6 +472,26 @@ squish.components = (function() {
 				stroke: false,
 				visuals: {
 					fill: squish.colors.startButtonLabel,
+				}
+			},
+		},
+		{
+			class: "button",
+			xorg: squish.canvas.width / 2 - 40,
+			yorg: squish.canvas.height - squish.canvas.height / 4,
+			width: 80,
+			height: 30,
+			carea: "Tutorial",
+			visuals: {
+				pressed: squish.colors.red,
+				nothing: squish.colors.green,
+				hovered: squish.colors.yellow,
+			},
+			label: {
+				text: "Tutorial",
+				stroke: false,
+				visuals: {
+					fill: squish.colors.magenta,
 				}
 			},
 		},

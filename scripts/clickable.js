@@ -99,6 +99,19 @@ squish.clickable.register({
 });
 
 squish.clickable.register({
+	name: "Tutorial",
+	start: {x: squish.components.PrestartMenu[2].xorg, y: squish.components.PrestartMenu[2].yorg},
+	end: {
+		x: squish.components.PrestartMenu[2].xorg + squish.components.PrestartMenu[2].width,
+		y: squish.components.PrestartMenu[2].yorg + squish.components.PrestartMenu[2].height,
+	},
+	on_click: function() {
+		window.setTimeout(function() {window.location="./game.html";}, 172200);
+		window.location = "./tutorial.html";
+	},
+});
+
+squish.clickable.register({
         name: "StartButton",
         start: {x: squish.canvas.width / 16 * 7.5, y: squish.canvas.height / 2 - 15},
         end: {x: squish.canvas.width / 16 * 8.5, y: squish.canvas.height / 2 + 30},

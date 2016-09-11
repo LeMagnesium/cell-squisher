@@ -104,9 +104,11 @@ squish.menu.register("prestart", {
                 squish.clickable.enable("StartButton");
 		squish.clickable.enable("AudioMenu");
 		squish.clickable.enable("MainMenu");
+		squish.clickable.enable("Tutorial");
 		squish.menu.set_fallback("prestart");
 	},
 	on_leave: function() {
+		squish.clickable.disable("Tutorial");
 		squish.clickable.disable("StartButton");
 	},
 	draw: function() {

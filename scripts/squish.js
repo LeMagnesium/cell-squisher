@@ -35,11 +35,8 @@ function draw_wait_menu() {
         // Menu button
         squish.components.draw(squish.components.MenuButton);
 
-        // Banner
-        squish.components.draw(squish.components.Banner);
-
-        // Play Button
-        squish.components.draw(squish.components.StartButton);
+        // Whole menu
+        squish.components.draw(squish.components.PrestartMenu);
 
         // Mouse
         squish.mouse.draw();
