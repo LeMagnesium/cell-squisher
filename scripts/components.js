@@ -404,6 +404,7 @@ squish.components = (function() {
 		text: function() {
 			if (squish.levels.level == 0) {return "";}
 			if (squish.gameover) {return "U mad bro?";}
+			if (squish.levels.next_level_at < 0) {return "Level ∞";}
 			return "Level " + squish.levels.level.toString();
 		},
 		visuals: {
