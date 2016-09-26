@@ -228,7 +228,7 @@ squish.achievements.register("slayer", "score", {
         title: "The Cell Slayer",
         icon: "images/game/slayer.gif",
         menu: {
-                howto: "You'll never see that text.. POOOP!",
+                howto: "You'll never see that text.. POOOP! Wait, you can access the menu without squishing first? Uhoh..",
                 desc: "Yes you have an achievement for squishing a cell.\nI am that desperate about filling my game with content",
         },
         condition: function () { return squish.gamedata.score > 0; },

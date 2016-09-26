@@ -87,6 +87,14 @@ squish.components = (function() {
                                 stroke: function() {return squish.colors.mainMenuStroke;},
                         }
                },
+		{
+			class: "line",
+			xorg: 10,
+			yorg: squish.canvas.height - 125,
+			width: squish.canvas.width / 2 - 15,
+			height: 0
+		},
+			
                // Save Game Data
                {
                         class: "button",
@@ -134,8 +142,157 @@ squish.components = (function() {
                                fill: "#000000",
                                stroke: "#008787"
                        }
-               }
-       ];
+               },
+	       	{
+			class: "text",
+			text: "Boosters Shop",
+			xorg: squish.canvas.width / 4 - 2.5,
+			yorg: 63,
+		},
+		{
+			class: "line",
+			xorg: 10,
+			yorg: 65,
+			width: squish.canvas.width / 2 - 15,
+			height: 0
+		},
+		{
+			class: "button",
+			xorg: 10,
+			yorg: 75,
+			height: 35,
+			width: squish.canvas.width / 4 - 10,
+			carea: "BuyBoosterComboBreakerImmunity",
+			label: {
+				text: "Combo Breaker Immunity",
+				fill: true,
+			}
+		},
+		{
+			class: "button",
+			xorg: squish.canvas.width / 4 + 5,
+			yorg: 75,
+			height: 35,
+			width: squish.canvas.width / 4 - 10,
+			carea: "BuyBoosterNoNegative",
+			label: {
+				text: "No Negative",
+				fill: true,
+			}
+		},
+		{
+			class: "text",
+			text: "250,000 pts",
+			xorg: 108,
+			yorg: 120,
+			visuals: {
+				font: "10px Arial"
+			}
+		},
+		{
+			class: "text",
+			text: "1,000,000 pts",
+			xorg: 303,
+			yorg: 120,
+			visuals: {
+				font: "10px Arial",
+			}
+		},	
+		{
+			class: "button",
+			xorg: 10,
+			yorg: 125,
+			height: 35,
+			width: squish.canvas.width / 4 - 10,
+			carea: "BuyBoosterDoubleTrouble",
+			label: {
+				text: "Double The Troubles",
+				fill: true,
+				visuals: {
+					font: "20px Arial",
+				}
+			}
+		},
+		{
+			class: "button",
+			xorg: squish.canvas.width / 4 + 5,
+			yorg: 125,
+			height: 35,
+			width: squish.canvas.width / 4 - 10,
+			carea: "BuyBoosterDeusExMachina",
+			label: {
+				text: "Deus Ex Machina",
+			}
+		},
+		{
+			class: "text",
+			xorg: 108,
+			yorg: 170,
+			text: "5,000,000 pts",
+			visuals: {
+				font: "10px Arial",
+			}
+		},
+		{
+			class: "text",
+			xorg: 303,
+			yorg: 170,
+			text: "25,000,000 pts",
+			visuals: {
+				font: "10px Arial",
+			}
+		},
+		{
+			class: "button",
+			xorg: 10,
+			yorg: 180,
+			carea: "BuyBoosterAssistance",
+			height: 35,
+			width: squish.canvas.width / 4 - 10,
+			label: {
+				text: "Assistance",
+				visuals: {
+					font: "20px Arial",
+				}
+			}
+		},
+		{
+			class: "button",
+			xorg: squish.canvas.width / 4 + 5,
+			yorg: 180,
+			carea: "BuyBoosterNobelPrize",
+			height: 35,
+			width: squish.canvas.width / 4 - 10,
+			label: {
+				text: "Nobel Prize"
+			}
+		},
+		{
+			class: "text",
+			xorg: 108,
+			yorg: 225,
+			text: "75,000,000 pts",
+			visuals: {
+				font: "10px Arial",
+			}
+		},
+		{
+			class: "text",
+			xorg: 303,
+			yorg: 225,
+			text: "9,000,000,000 pts",
+			visuals: {
+				font: "10px Arial Bold",
+			}
+		},
+		{
+			class: "line",
+			xorg: 10,
+			yorg: 235,
+			height: 0,
+			width: squish.canvas.width / 2 - 15,
+		}
+	];
 
        mod.AudioMenu = [
 		{
