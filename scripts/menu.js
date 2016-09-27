@@ -36,8 +36,9 @@ squish.menu = (function() {
                         if (register[squish.gamedata.menu].on_leave) {
                                 register[squish.gamedata.menu].on_leave();
                         }
-			squish.triggers.call("menuleave", squish.gamedata.menu);
-                        squish.gamedata.menu = mod.fallback_menu;
+			var oldmenu = squish.gamedata.menu;
+			squish.gamedata.menu = mod.fallback_menu;
+			squish.triggers.call("menuleave", oldmenu);
 			if (register[mod.fallback_menu] && register[mod.fallback_menu].on_enter) {
 				register[mod.fallback_menu].on_enter();
 			}

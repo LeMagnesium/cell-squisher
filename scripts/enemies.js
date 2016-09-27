@@ -54,7 +54,7 @@ squish.enemies = (function() {
                 // Combo reset if no pellet squished
                 // Lag : <1ms
                 var somesquish = enemies.some(function(x){return x.squished;});
-                if (squish.gamedata.combo > 0 && !somesquish) {
+                if (squish.gamedata.combo > 0 && !somesquish && !squish.boosters.combobreakerimmunity) {
                         if (squish.gamedata.combo > 1) {
                                 (new squish.floaties.floaty("Combo reset..", squish.mouse.x, squish.mouse.y, 5, 30, squish.colors.comboReset, "20px Arial", function() {return squish.gamedata.menu != "main";})).spawn();
                         }
@@ -68,12 +68,15 @@ squish.enemies = (function() {
                 for (var i=0; i<enemies.length; i++) {
                         // Grave shifting
                         if (enemies[i].health <= 0) {
-                                squish.floaties.spawn(enemies[i].balance, enemies[i].posx, enemies[i].posy);
-                                // The balance is only added now if the cell dies of natural causes; otherwise score has been added progressively
+			       // The balance is only added now if the cell dies of natural causes; otherwise score has been added progressively
                                 if (!enemies[i].squished) {
+					if (squish.boosters.nonegative && enemies[i].balance <= 0) {
+						enemies[i].balance = 0;
+					}
                                         squish.gamedata.increase_score(enemies[i].balance, true);
                                 }
-                                enemies.splice(i, 1);
+                                squish.floaties.spawn(enemies[i].balance, enemies[i].posx, enemies[i].posy);
+				enemies.splice(i, 1);
                                 continue;
                         }
                         mod.draw_enemy(enemies[i]);

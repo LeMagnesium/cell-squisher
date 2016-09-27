@@ -293,5 +293,5 @@ squish.achievements.register("genocide", "score", {
                 howto: "You wanted something hard, didn't you?",
                 desc: "You have earned the lethal injection of salty water for destroying scientifical progress",
         },
-        condition: function() { return squish.gamedata.score > 900000000; },
+        condition: function() { return squish.gamedata.score > 9000000000; },
 });

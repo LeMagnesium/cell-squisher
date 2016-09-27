@@ -277,6 +277,48 @@ squish.clickable.register({
 });
 
 squish.clickable.register({
+	name: "BuyBoosterDoubleTrouble",
+	start: {x: squish.components.MainMenu[12].xorg, y: squish.components.MainMenu[12].yorg},
+	end: {
+		x: squish.components.MainMenu[12].xorg + squish.components.MainMenu[12].width,
+		y: squish.components.MainMenu[12].yorg + squish.components.MainMenu[12].height,
+	},
+	on_release: function() {
+		squish.boosters.buy("doublethetrouble");
+		squish.boosters.equip("doublethetrouble");
+		squish.boosters.detect();
+	},
+});
+
+squish.clickable.register({
+	name: "BuyBoosterComboBreakerImmunity",
+	start: {x: squish.components.MainMenu[8].xorg, y: squish.components.MainMenu[8].yorg},
+	end: {
+		x: squish.components.MainMenu[8].xorg + squish.components.MainMenu[8].width,
+		y: squish.components.MainMenu[8].yorg + squish.components.MainMenu[8].height,
+	},
+	on_release: function() {
+		squish.boosters.buy("combobreakerimmunity");
+		squish.boosters.equip("combobreakerimmunity");
+		squish.boosters.detect();
+	},
+});
+
+squish.clickable.register({
+	name: "BuyBoosterNoNegative",
+	start: {x: squish.components.MainMenu[9].xorg, y: squish.components.MainMenu[9].yorg},
+	end: {
+		x: squish.components.MainMenu[9].xorg + squish.components.MainMenu[9].width,
+		y: squish.components.MainMenu[9].yorg + squish.components.MainMenu[9].height,
+	},
+	on_release: function() {
+		squish.boosters.buy("nonegative");
+		squish.boosters.equip("nonegative");
+		squish.boosters.detect();
+	},
+});
+
+squish.clickable.register({
 	name: "GitGud",
 	start: {x: squish.components.GameOverScreen[10].xorg, y: squish.components.GameOverScreen[10].yorg},
 	end: {

@@ -33,10 +33,13 @@ squish.gamedata = (function() {
                 if (mod.combo > 1 && !raw) {
                         val *= mod.combo;
                 }
+		if (squish.boosters.doublethetrouble && val > 0) {
+			val *= 2;
+		}
                 mod.score += val;
 
                 if (mod.score < 0) {
-                        mod.score = 0;
+			mod.score = 0;
                 }
                 squish.triggers.call("score", val);
                 return val;

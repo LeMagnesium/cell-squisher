@@ -93,8 +93,7 @@ squish.components = (function() {
 			yorg: squish.canvas.height - 125,
 			width: squish.canvas.width / 2 - 15,
 			height: 0
-		},
-			
+		},	
                // Save Game Data
                {
                         class: "button",
