@@ -157,7 +157,7 @@ squish.components = (function() {
 		},
 		{
 			class: "button",
-			xorg: 10,
+			xorg: squish.canvas.width / 4 + 5,
 			yorg: 75,
 			height: 35,
 			width: squish.canvas.width / 4 - 10,
@@ -169,7 +169,7 @@ squish.components = (function() {
 		},
 		{
 			class: "button",
-			xorg: squish.canvas.width / 4 + 5,
+			xorg: 10,
 			yorg: 75,
 			height: 35,
 			width: squish.canvas.width / 4 - 10,

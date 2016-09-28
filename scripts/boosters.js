@@ -36,7 +36,7 @@ squish.boosters = (function() {
 		doublethetrouble: {
 			price: 5000000,
 			carea: "BuyBoosterDoubleTrouble",
-			duration: 30,
+			duration: 45,
 			equip: function() {
 				mod.doublethetrouble = true;
 				slide_announce("Double The Trouble Enabled!");
@@ -47,9 +47,9 @@ squish.boosters = (function() {
 			}
 		},
 		combobreakerimmunity: {
-			price: 250000,
+			price: 1000000,
 			carea: "BuyBoosterComboBreakerImmunity",
-			duration: 60,
+			duration: 30,
 			equip: function() {
 				mod.combobreakerimmunity = true;
 				slide_announce("Combo Breaker Immunity Enabled!");
@@ -60,9 +60,9 @@ squish.boosters = (function() {
 			}
 		},
 		nonegative: {
-			price: 1000000,
+			price: 250000,
 			carea: "BuyBoosterNoNegative",
-			duration: 15,
+			duration: 60,
 			equip: function() {
 				mod.nonegative = true;
 				slide_announce("No Negative Enabled!");
@@ -74,14 +74,16 @@ squish.boosters = (function() {
 		},
 		deusexmachina: {
 			price: 25000000,
-			duration: 5,
+			duration: 15,
 			carea: "BuyBoosterDeusExMachina",
 			equip: function() {
 				mod.deusexmachina = true;
+				squish.mouse.sradius *= 25;
 				slide_announce("Deus Ex Machina Enabled!");
 			},
 			unequip: function() {
-				mod.nonegative = false;
+				mod.deusexmachina = false;
+				squish.mouse.sradius /= 25;
 				slide_announce("Deus Ex Machina Disabled!");
 			}
 		},

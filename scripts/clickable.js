@@ -305,6 +305,20 @@ squish.clickable.register({
 });
 
 squish.clickable.register({
+	name: "BuyBoosterDeusExMachina",
+	start: {x: squish.components.MainMenu[13].xorg, y: squish.components.MainMenu[13].yorg},
+	end: {
+		x: squish.components.MainMenu[13].xorg + squish.components.MainMenu[13].width,
+		y: squish.components.MainMenu[13].yorg + squish.components.MainMenu[13].height,
+	},
+	on_release: function() {
+		squish.boosters.buy("deusexmachina");
+		squish.boosters.equip("deusexmachina");
+		squish.boosters.detect();
+	},
+});
+
+squish.clickable.register({
 	name: "BuyBoosterNoNegative",
 	start: {x: squish.components.MainMenu[9].xorg, y: squish.components.MainMenu[9].yorg},
 	end: {

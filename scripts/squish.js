@@ -49,7 +49,7 @@ function draw() {
 	// Draw the combo path
 	squish.gamedata.draw_combo_path();
 
-        var d = Math.floor(squish.gamedata.combo / 50) * 2;
+        var d = Math.floor(squish.gamedata.combo / 200) * 2;
         var x = Math.ceil(Math.random() * d) - d/2;
         var y = Math.ceil(Math.random() * d) - d/2;
 
