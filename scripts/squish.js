@@ -53,13 +53,15 @@ function draw() {
         var x = Math.ceil(Math.random() * d) - d/2;
         var y = Math.ceil(Math.random() * d) - d/2;
 
-        squish.ctx.translate(x, y);
+        //squish.ctx.translate(x, y);
 
         // Draw enemies
         // Lag profile : { max: 30, min: 1, avg: 13.154655119084435, cnt: 6466 }
         // HIGH LAG
         squish.enemies.draw();
-        squish.ctx.translate(-x, -y);
+        //squish.ctx.translate(-x, -y);
+	
+	squish.spiders.draw();
 
         // Draw floaties
         // Lag : 1-2ms

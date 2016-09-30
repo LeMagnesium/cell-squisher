@@ -78,23 +78,31 @@ squish.boosters = (function() {
 			carea: "BuyBoosterDeusExMachina",
 			equip: function() {
 				mod.deusexmachina = true;
-				squish.mouse.sradius *= 25;
 				slide_announce("Deus Ex Machina Enabled!");
 			},
 			unequip: function() {
 				mod.deusexmachina = false;
-				squish.mouse.sradius /= 25;
 				slide_announce("Deus Ex Machina Disabled!");
 			}
 		},
-		/*assistance: function() {
+		assistance: {
 			price: 75000000,
+			duration: 60,
 			carea: "BuyBoosterAssistance",
 			equip: function() {
 				mod.assistance = true;
+				for (var i = 0; i < 3; i++) {
+					squish.spiders.spawn();
+				}
+				slide_announce("Assistance Enabled!");
+			},
+			unequip: function() {
+				mod.assistance = false;
+				squish.spiders.flush();
+				slide_announce("Assistance Disabled!");
 			}
 		},
-		nobelprize: function() {
+		/*nobelprize: function() {
 			price: 9000000000,
 			carea: "BuyBoosterNobelPrize",
 			equip: function() {
@@ -103,6 +111,13 @@ squish.boosters = (function() {
 		}*/
 	};
 	squish.volatile.store("prestart_boosterlock", true);
+
+	squish.triggers.hook("step", function() {
+		if (squish.boosters.deusexmachina && squish.gamedata.menu == "main" && squish.mouse.clicked) {
+			console.log("Move");
+			squish.canvas.onmousedown({x: squish.mouse.x, y: squish.mouse.y});
+		}
+	});
 
 	mod.detect = function() {
 		if (squish.volatile.exists("prestart_boosterlock")) {return;}

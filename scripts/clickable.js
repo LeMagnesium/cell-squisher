@@ -333,6 +333,20 @@ squish.clickable.register({
 });
 
 squish.clickable.register({
+	name: "BuyBoosterAssistance",
+	start: {x: squish.components.MainMenu[16].xorg, y: squish.components.MainMenu[16].yorg},
+	end: {
+		x: squish.components.MainMenu[16].xorg + squish.components.MainMenu[16].width,
+		y: squish.components.MainMenu[16].yorg + squish.components.MainMenu[16].height,
+	},
+	on_release: function() {
+		squish.boosters.buy("assistance");
+		squish.boosters.equip("assistance");
+		squish.boosters.detect();
+	},
+});
+
+squish.clickable.register({
 	name: "GitGud",
 	start: {x: squish.components.GameOverScreen[10].xorg, y: squish.components.GameOverScreen[10].yorg},
 	end: {

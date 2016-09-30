@@ -18,6 +18,7 @@ squish.enemies = (function() {
         var mod = {};
         const MaxColoursAllowed = 255 * 255 * 255;
         var enemies = [];
+	mod.enemies = enemies;
 
         mod.enemy = function() {
                 this.posx = Math.random() * squish.canvas.width;
@@ -103,7 +104,7 @@ squish.enemies = (function() {
         	}
 	});
 
-        squish.triggers.hook("mousedown", function() {
+	mod.mousedown = function() {
                 if (squish.gamedata.menu != "") {return;}
                 squish.gamedata.overlap = 0;
                 for (var i=0; i<enemies.length; i++) {
@@ -157,7 +158,8 @@ squish.enemies = (function() {
                 } else if (squish.gamedata.overlap > 0 && squish.gamedata.combo > 1) {
                         (new squish.floaties.floaty("Combo " + squish.gamedata.combo.toString() + "!", squish.mouse.x, squish.mouse.y, 5, 30, squish.colors.comboTag, "20px Arial", function() {return squish.gamedata.menu != "main";})).spawn();
                 }
-        });
+        };
 
-        return mod;
+	squish.triggers.hook("mousedown", mod.mousedown);
+	return mod;
 }());
