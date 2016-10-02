@@ -545,7 +545,7 @@ squish.components = (function() {
                text: function() {
                    if (squish.gamedata.score == -1) { return ""; }
 		   if (squish.gameover) {return "Game Over";}
-                   return squish.gamedata.score.toString();
+                   return squish.gamedata.scoreString();
                },
                visuals: {
                    fill: squish.colors.textFill,

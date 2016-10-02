@@ -45,6 +45,21 @@ squish.gamedata = (function() {
                 return val;
         };
 
+	mod.scoreString = function() {
+		var sc = mod.score.toString();
+		//if (sc.length < 4) {return sc;}
+
+		var ox = ((sc.length)%3) || 3; // If 0, it becomes 3, boom
+		var nx = ox+3;
+		var nc = sc.slice(0,ox);
+		while (nx <= sc.length) {
+			nc += "," + sc.slice(ox,nx);
+			ox = nx;
+			nx += 3;
+		}
+		return nc;
+	};
+
 	/* Combo Reset */
 	mod.reset_combo = function() {
 		mod.combo = 0;
