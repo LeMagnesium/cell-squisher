@@ -25,7 +25,7 @@ squish.spiders = (function() {
 			for (var x = 0; x <= squish.enemies.enemies.length; x++) {
 				var ind = Math.floor(Math.random() * squish.enemies.enemies.length);
 				var en = squish.enemies.enemies[ind];
-				if (!en.squished && en.health > 100) {
+				if (!en.squished && en.health > 200) {
 					this.target = ind;
 					this.active = true;
 					break;
