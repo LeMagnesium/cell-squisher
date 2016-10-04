@@ -21,7 +21,7 @@ squish.volatile = (function() {
 	};
 
 	mod.exists = function(name) {
-		return register[name] && true;
+		return register[name] != null;
 	};
 
 	mod.delete = function(name) {

@@ -162,6 +162,21 @@ squish.menu.register("gameover", {
 	}
 });
 
+squish.menu.register("game_end", {
+	on_enter: function() {
+		squish.clickable.disable("AudioMenu");
+		squish.clickable.disable("MainMenu");
+		var arcadia = new squish.assets.sound();
+		arcadia.sound.volume = 0.1;
+		arcadia.play("audio/Arcadia.mp3");
+		squish.gamedata.score = -1;
+		squish.levels.level = 0;
+	},
+	draw: function() {
+		squish.components.draw(squish.components.Game_End);
+	}
+});
+
 // Trigger stuff
 squish.triggers.hook("load", function() {
         squish.menu.enter("prestart");

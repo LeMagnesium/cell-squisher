@@ -347,6 +347,20 @@ squish.clickable.register({
 });
 
 squish.clickable.register({
+	name: "BuyBoosterNobelPrize",
+	start: {x: squish.components.MainMenu[17].xorg, y: squish.components.MainMenu[17].yorg},
+	end: {
+		x: squish.components.MainMenu[17].xorg + squish.components.MainMenu[17].width,
+		y: squish.components.MainMenu[17].yorg + squish.components.MainMenu[17].height,
+	},
+	on_release: function() {
+		squish.boosters.buy("nobelprize");
+		squish.boosters.equip("nobelprize");
+		squish.boosters.detect();
+	},
+});
+
+squish.clickable.register({
 	name: "GitGud",
 	start: {x: squish.components.GameOverScreen[10].xorg, y: squish.components.GameOverScreen[10].yorg},
 	end: {

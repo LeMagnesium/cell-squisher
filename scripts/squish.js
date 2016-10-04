@@ -121,6 +121,23 @@ function mainloop() {
         // Step trigger
         // Lag : <1ms
         squish.triggers.call("step");
+
+	if (squish.boosters.nobelprize) {
+		if (!squish.volatile.exists("ending_transition")) {
+			squish.volatile.store("ending_transition", 0);
+		} else {
+			squish.volatile.store("ending_transition", squish.volatile.read("ending_transition") + 1);
+			if (squish.volatile.read("ending_transition") == 255) {
+				squish.game_finished = true;
+				squish.boosters.nobelprize = false;
+				squish.menu.switch("game_end");
+			}
+		}
+
+		squish.VisualSwap.setSecondFill("rgba(255, 255, 255, " + (squish.volatile.read("ending_transition")/255).toString() + ")");
+		squish.VisualSwap.useSecondFill();
+		squish.ctx.fillRect(0, 0, squish.canvas.width, squish.canvas.height);
+	}
 }
 
 

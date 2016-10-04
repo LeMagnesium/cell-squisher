@@ -759,6 +759,141 @@ squish.components = (function() {
 		}
 	];
 
+	mod.Game_End = [
+		{
+			class: "rect",
+			xorg: 5,
+			yorg: 40,
+			width: squish.canvas.width - 10,
+			height: squish.canvas.height - 80,
+			fill: true,
+			visuals: {
+				fill: squish.colors.mainMenuFill,
+			}
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 65,
+			text: "Congratulations, you received the Nobel Prize!",
+			fill: true,
+			visuals: {
+				fill: squish.colors.red,
+				stroke: squish.colors.black,
+			}
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 85,
+			fill: true,
+			text: "To honor your work in the field of cell annihilation, you have been awarded the Nobel Prize!",
+			visuals: {
+				font: "15px Arial",
+			}
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 105,
+			fill: true,
+			text: "You retired from your work in the fields and now teach genetics and biology in a British university.",
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 125,
+			fill: true,
+			text: "You left the duty of battling cells to a new, younger, less trained generation of scientists, and thus, can finally",
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 145,
+			fill: true,
+			text: "enjoy your favourite hobby : playing dumb, umpolished games on the Internet, to get work off your mind!"
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 200,
+			fill: true,
+			text: "Thank you for completing Cell Squisher (aka. Squish)!",
+			visuals: {
+				font: "18px Arial",
+			}
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 220,
+			fill: true,
+			text: "That game was coded in something like 3 months by someone who started from almost nothing.",
+			visuals: {
+				font: "15px Arial",
+			}
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 240,
+			fill: true,
+			text: "I'm not asking for indulgence, in fact, please hit me in the face with as many comments on what I did wrong as possible,",
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 260,
+			fill: true,
+			text: "as long as they're constructive, I don't mind. New games might appear in Limne, when I find time to make them. This",
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 280,
+			fill: true,
+			text: "game is entirely free, and open source, and is in fact coded more like a (bad) 2D JavaScript game engine. Feel free",
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 300,
+			fill: true,
+			text: "to reuse some code! And for the sake of my almost nonexistent ego, credit is not necessary, but appreciated.",
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 400,
+			fill: true,
+			text: "Also, check out the people who made the soundtrack (because it wasn't me,",
+			visuals: {
+				font: "20px Arial",
+			}
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 420,
+			fill: true,
+			text: "it's the only thing I didn't do..) those people are awesome!",
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 500,
+			fill: true,
+			text: "See you!",
+		},
+		{
+			class: "text",
+			xorg: squish.canvas.width / 2,
+			yorg: 520,
+			fill: true,
+			text: "- Lymkwi",
+		}
+	];
+
        // Methods
        // Draw elements
        mod.draw = function(tab) {

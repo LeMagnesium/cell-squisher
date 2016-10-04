@@ -102,13 +102,15 @@ squish.boosters = (function() {
 				slide_announce("Assistance Disabled!");
 			}
 		},
-		/*nobelprize: function() {
+		nobelprize: {
 			price: 9000000000,
+			duration: 10,
 			carea: "BuyBoosterNobelPrize",
 			equip: function() {
 				mod.nobelprize = true;
+				squish.assets.stop_bgm();
 			}
-		}*/
+		}
 	};
 	squish.volatile.store("prestart_boosterlock", true);
 
