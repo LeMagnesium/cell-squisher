@@ -304,7 +304,7 @@ squish.clickable.register({
 	},
 });
 
-squish.clickable.register({
+/*squish.clickable.register({
 	name: "BuyBoosterDeusExMachina",
 	start: {x: squish.components.MainMenu[13].xorg, y: squish.components.MainMenu[13].yorg},
 	end: {
@@ -316,7 +316,7 @@ squish.clickable.register({
 		squish.boosters.equip("deusexmachina");
 		squish.boosters.detect();
 	},
-});
+});*/
 
 squish.clickable.register({
 	name: "BuyBoosterNoNegative",

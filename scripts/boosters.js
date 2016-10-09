@@ -116,8 +116,8 @@ squish.boosters = (function() {
 
 	squish.triggers.hook("step", function() {
 		if (squish.boosters.deusexmachina && squish.gamedata.menu == "main" && squish.mouse.clicked) {
-			console.log("Move");
-			squish.canvas.onmousedown({x: squish.mouse.x, y: squish.mouse.y});
+			//console.log("Move");
+			//squish.canvas.onmousedown({x: squish.mouse.x, y: squish.mouse.y});
 		}
 	});
 
