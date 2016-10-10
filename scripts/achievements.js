@@ -207,7 +207,7 @@ squish.achievements = (function(){
 		if (squish.volatile.exists("mainmenu_ach_careas_created_control")) {
 			squish.volatile.delete("mainmenu_ach_careas_created_control");
 		}
- 
+
                 return comp;
         };
 
