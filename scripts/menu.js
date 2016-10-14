@@ -167,7 +167,7 @@ squish.menu.register("game_end", {
 		squish.clickable.disable("AudioMenu");
 		squish.clickable.disable("MainMenu");
 		var arcadia = new squish.assets.sound();
-		arcadia.sound.volume = 0.1;
+		arcadia.sound.volume = squish.assets.bgm_get_volume();
 		arcadia.play("audio/Arcadia.mp3");
 		squish.gamedata.score = -1;
 		squish.levels.level = 0;

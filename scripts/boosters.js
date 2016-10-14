@@ -115,9 +115,8 @@ squish.boosters = (function() {
 	squish.volatile.store("prestart_boosterlock", true);
 
 	squish.triggers.hook("step", function() {
-		if (squish.boosters.deusexmachina && squish.gamedata.menu == "main" && squish.mouse.clicked) {
-			//console.log("Move");
-			//squish.canvas.onmousedown({x: squish.mouse.x, y: squish.mouse.y});
+		if (squish.boosters.deusexmachina && squish.gamedata.menu != "main" && squish.mouse.pressed) {
+			squish.gamedata.increase_score(Math.ceil(Math.random() * 1000));
 		}
 	});
 
