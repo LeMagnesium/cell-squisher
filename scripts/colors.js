@@ -26,7 +26,7 @@ squish.colors = (function() {
 		cookieSaverPressed: '#3300db',
                 cookieCleaner: '#db0000',
 		cookieCleanerHovered: '#db6600',
-		cookieCleanerPressed: '#0033db', 
+		cookieCleanerPressed: '#0033db',
 
                 deadEnemy: '#000000',
 
