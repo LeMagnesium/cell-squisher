@@ -18,32 +18,6 @@ squish.VisualSwap.useMainAlign();
 
 window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
 
-/*
- *      Definitions of global data
- */
-
-
-/* Menu things (main and wait) */
-// Waiting menu
-function draw_wait_menu() {
-        // Score
-        squish.components.draw(squish.components.ScoreBar);
-
-        // Now Playing
-        squish.components.draw(squish.components.AudioBar);
-
-        // Menu button
-        squish.components.draw(squish.components.MenuButton);
-
-        // Whole menu
-        squish.components.draw(squish.components.PrestartMenu);
-
-        // Mouse
-        squish.mouse.draw();
-}
-
-// Bake us a cookie
-
 
 function draw() {
 	// Draw the combo path
@@ -70,14 +44,16 @@ function draw() {
 
 
 // Lag profile : { max: 40, min: 1, avg: 7.461604619732151, cnt: 16278 }
+var FPS=90;
 function mainloop() {
-        requestAnimationFrame(mainloop);
+	window.setTimeout(mainloop, 1000/FPS);
+	//requestAnimationFrame(mainloop);
 
         // Clear
         // Lag : <1ms;
         squish.ctx.clearRect(0, 0, squish.canvas.width, squish.canvas.height);
 
-        // Background
+	// Background
         // Lag : <1ms;
         squish.ctx.fillStyle = bg.hex();
         squish.ctx.fillRect(0, 0, squish.canvas.width, squish.canvas.height);

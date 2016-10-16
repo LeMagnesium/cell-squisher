@@ -58,8 +58,8 @@ squish.slider = (function() {
                                         dx += width * (1 - Math.pow(this.elapsed , curve));
                                 }
 
-                                if (this.elapsed == this.slide_time) {
-                                        this.elapsed = 0;
+                                if (this.elapsed >= this.slide_time) {
+                                        this.elapsed -= this.slide_time;
                                         this.state = "static";
                                 }
 
@@ -70,8 +70,8 @@ squish.slider = (function() {
                                         dx += width;
                                 }
 
-                                if (this.elapsed == this.lifetime) {
-                                        this.elapsed = 0;
+                                if (this.elapsed >= this.lifetime) {
+                                        this.elapsed -= this.lifetime;
                                         this.state = "folding";
                                 }
 
@@ -82,7 +82,7 @@ squish.slider = (function() {
                                         dx += width * Math.pow(this.elapsed , curve);
                                 }
 
-                                if (this.elapsed == this.slide_time) {
+                                if (this.elapsed >= this.slide_time) {
                                         this.elapsed = 0;
                                         this.state = "dead";
                                 }
@@ -108,7 +108,7 @@ squish.slider = (function() {
 
                 var slider = showQueue[0];
                 if (slider.state == "dead") {showQueue.shift(); return;}
-                slider.elapsed += 1;
+		slider.elapsed += 1;
                 var comp = slider.component();
                 squish.components.draw([comp]);
                 squish.VisualSwap.setMainFill(squish.colors.mainMenuFill);

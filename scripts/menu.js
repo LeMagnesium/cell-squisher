@@ -114,7 +114,7 @@ squish.menu.register("prestart", {
 	},
 	draw: function() {
 		// Lag : 1ms
-		draw_wait_menu();
+		squish.components.draw(squish.components.PrestartMenu);
 	},
 })
 

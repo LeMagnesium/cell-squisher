@@ -20,7 +20,7 @@ squish.floaties = (function() {
                 this.text = text || "";
                 this.posx = posx;
                 this.posy = posy;
-                this.speed = speed || 15;
+                this.speed = speed || 8;
                 this.lifespan = lifespan || 200;
                 this.font = font || squish.ctx.font;
                 this.color = color || squish.colors.white;
@@ -53,7 +53,7 @@ squish.floaties = (function() {
         };
 
         mod.spawn = function(int, posx, posy) {
-                var fl = new mod.floaty(int.toString(), posx, posy, 5, 30, squish.colors.white, "20px Arial", function() {return squish.gamedata.menu != "main";});
+                var fl = new mod.floaty(int.toString(), posx, posy, 3, 60, squish.colors.white, "20px Arial", function() {return squish.gamedata.menu != "main";});
                 if (int > 0) {
                         fl.color = squish.colors.positiveScoreFloaty;
                 } else {

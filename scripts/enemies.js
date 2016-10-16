@@ -57,7 +57,7 @@ squish.enemies = (function() {
                 var somesquish = enemies.some(function(x){return x.squished;});
                 if (squish.gamedata.combo > 0 && !somesquish && !squish.boosters.combobreakerimmunity) {
                         if (squish.gamedata.combo > 1) {
-                                (new squish.floaties.floaty("Combo reset..", squish.mouse.x, squish.mouse.y, 5, 30, squish.colors.comboReset, "20px Arial", function() {return squish.gamedata.menu != "main";})).spawn();
+                                (new squish.floaties.floaty("Combo reset..", squish.mouse.x, squish.mouse.y, 2, 60, squish.colors.comboReset, "20px Arial", function() {return squish.gamedata.menu != "main";})).spawn();
                         }
 			squish.gamedata.reset_combo();
 		}
