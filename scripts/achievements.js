@@ -56,6 +56,18 @@ squish.achievements = (function(){
 		return achdata;
 	};
 
+	mod.toggle_ach_submenu_careas = function() {
+		if (squish.volatile.exists("mainmenu_ach_submenu")) {
+			for (var x in achievements) {
+				squish.clickable.disable("mainmenu_ach_" + x);
+			}
+		} else {
+			for (var x in achievements) {
+				squish.clickable.enable("mainmenu_ach_" + x);
+			}
+		}
+	}
+
         // Trigger function
         mod.trigger = function(name, silent) {
                 if (!achievements[name]) {return false;}
@@ -153,6 +165,7 @@ squish.achievements = (function(){
 					on_click: function() {
 						squish.volatile.store("mainmenu_ach_submenu", achname);
 						squish.clickable.enable("AchSubMenuLeave");
+						mod.toggle_ach_submenu_careas();
 					}
 				});
 

@@ -92,6 +92,8 @@ squish.clickable.register({
         on_click: function() {
                 if (squish.gamedata.menu == "main") {
                         squish.menu.leave("main");
+			squish.volatile.delete("mainmenu_ach_submenu");
+
                 } else {
                         squish.menu.switch("main");
                 }
@@ -273,6 +275,7 @@ squish.clickable.register({
 	on_release: function() {
 		squish.volatile.delete("mainmenu_ach_submenu");
 		squish.clickable.disable("AchSubMenuLeave");
+		squish.achievements.toggle_ach_submenu_careas();
 	},
 });
 
